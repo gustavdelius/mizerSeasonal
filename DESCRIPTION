@@ -1,0 +1,29 @@
+Package: mizerSeasonal
+Title: Implementing Seasonality in Mizer
+Version: 0.0.0.9000
+Authors@R: 
+    c(person("Gustav", "Delius",
+             email = "gustav.delius@york.ac.uk",
+             role = c("cre", "aut", "cph"),
+             comment = c(ORCID = "0000-0003-4092-8228")),
+      person("Michael A.", "Spence",
+             role = c("aut", "cph"),
+             email = "michael.spence@cefas.gov.uk",
+             comment = c(ORCID = "0000-0002-3445-7979")),
+      person("Caroline", "McKeon",
+             email = "mckeonc2@tcd.ie",
+             role = c("aut", "cph"),
+             comment = c(ORCID = "0000-0002-1737-3503")))
+Description: For now, the package implements the accumulation of gonadic mass throughout
+             the year and its release during spawning periods.
+License: GPL-3
+Encoding: UTF-8
+Depends:
+    mizer (>= 2.4.0),
+    R (>= 3.1)
+Collate:
+    pulsed.R
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+URL: https://github.com/gustavdelius/mizerSeasonal
+BugReports: https://github.com/sizespectrum/mizerSeasonal/issues
