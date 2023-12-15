@@ -4,12 +4,15 @@
 \alias{pulsedRDI}
 \title{Get density-dependent rate of pulsed reproduction}
 \usage{
-pulsedRDI(params, n_other, t, dt, ...)
+pulsedRDI(params, n, n_other, t, dt = 0.1, ...)
 }
 \arguments{
 \item{params}{MizerParams object}
 
-\item{n_other}{Other model components}
+\item{n}{Species abundances at current time step}
+
+\item{n_other}{Other model components at current time step. This will include
+in particular the gonadic biomass in \code{n_other$gonads}.}
 
 \item{t}{The current time}
 

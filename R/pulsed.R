@@ -12,7 +12,7 @@
 #'
 #' @return Array (species x size) with the current gonadic mass of an individual.
 #' @export
-gonadDynamics <- function(params, n_other, rates, t, dt, ...) {
+gonadPulsedDynamics <- function(params, n_other, rates, t, dt, ...) {
     if (params@other_params$gonads >= t - trunc(t) &&
         params@other_params$gonads < t - trunc(t) + dt) {
         dims <- dim(n_other$gonads)
@@ -29,7 +29,9 @@ gonadDynamics <- function(params, n_other, rates, t, dt, ...) {
 #' all gonadic mass is released.
 #'
 #' @param params MizerParams object
-#' @param n_other Other model components
+#' @param n Species abundances at current time step
+#' @param n_other Other model components at current time step. This will include
+#'   in particular the gonadic biomass in `n_other$gonads`.
 #' @param t The current time
 #' @param dt The time step size
 #' @param ... Unused
@@ -73,7 +75,7 @@ setPulsedReproduction <- function(params, pulse_time) {
     # add gonads component and register new RDI function
     setComponent(params, component = "gonads",
                  initial_value = initial,
-                 dynamics_fun = "gonadDynamics",
+                 dynamics_fun = "gonadPulsedDynamics",
                  component_params = pulse_time) |>
         setRateFunction("RDI", "pulsedRDI")
 }

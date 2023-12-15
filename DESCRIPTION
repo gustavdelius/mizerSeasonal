@@ -22,6 +22,7 @@ Depends:
     mizer (>= 2.4.0),
     R (>= 3.1)
 Collate:
+    mizerSeasonal-package.R
     pulsed.R
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
