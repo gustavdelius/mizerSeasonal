@@ -1,4 +1,4 @@
-#' Update the gonadic mass using pulsed reproduction
+#' Update the gonadic mass using a seasonal reproduction rate
 #'
 #' If it is time for the reproductive pulse, the gonadic mass is set to zero,
 #' otherwise it is increased by the energy available for reproduction.
@@ -12,7 +12,7 @@
 #'
 #' @return Array (species x size) with the current gonadic mass of an individual.
 #' @export
-gonadPulsedDynamics <- function(params, n_other, rates, t, dt, ...) {
+gonadSeasonalDynamics <- function(params, n_other, rates, t, dt, ...) {
     if (params@other_params$gonads >= t - trunc(t) &&
         params@other_params$gonads < t - trunc(t) + dt) {
         dims <- dim(n_other$gonads)
@@ -38,7 +38,7 @@ gonadPulsedDynamics <- function(params, n_other, rates, t, dt, ...) {
 #'
 #' @return A numeric vector with the rate of egg production for each species.
 #' @export
-pulsedRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
+seasonalRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
     # Is it time for the reproductive pulse?
     if (params@other_params$gonads >= t - trunc(t) &&
         params@other_params$gonads < t - trunc(t) + dt) {
@@ -53,29 +53,4 @@ pulsedRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
     }
     # else return 0 vector
     rep(0, nrow(params@species_params))
-}
-
-#' Set pulsed reproduction
-#'
-#' This returns a new model in which the reproduction is set to take place
-#' only within a single time step each year. During the rest of the year the energy
-#' available for reproduction is accumulated as gonadic mass, all of which is
-#' realeased during the time step into which the `pulse_time` falls.
-#'
-#' @param params A MizerParams object
-#' @param pulse_time A number between 0 and 1 that specifies the time within
-#'   each year at which reproduction should take place.
-#'
-#' @return A MizerParams object with the updated model
-#' @export
-setPulsedReproduction <- function(params, pulse_time) {
-    # start with zero gonadic mass
-    initial <- initialN(params) # to get the right dimensions
-    initial[] <- 0
-    # add gonads component and register new RDI function
-    setComponent(params, component = "gonads",
-                 initial_value = initial,
-                 dynamics_fun = "gonadPulsedDynamics",
-                 component_params = pulse_time) |>
-        setRateFunction("RDI", "pulsedRDI")
 }
