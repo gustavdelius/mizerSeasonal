@@ -1,6 +1,6 @@
 Package: mizerSeasonal
 Title: Implementing Seasonality in Mizer
-Version: 0.0.0.9000
+Version: 0.0.0.9001
 Authors@R: 
     c(person("Gustav", "Delius",
              email = "gustav.delius@york.ac.uk",
@@ -21,8 +21,12 @@ Encoding: UTF-8
 Depends:
     mizer (>= 2.4.0),
     R (>= 3.1)
+Imports:
+    assertthat,
+    ggplot2
 Collate:
     mizerSeasonal-package.R
+    plots.R
     pulsed.R
     seasonal.R
     vonMises.R
