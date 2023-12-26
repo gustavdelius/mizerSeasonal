@@ -8,6 +8,7 @@ reference:
   - setSeasonalReproduction
   - contains("seasonal")
   - contains("gonad")
+  - starts_with("repro")
 - title: Plotting functions
   contents:
   - contains("plot")

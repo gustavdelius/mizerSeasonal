@@ -4,10 +4,13 @@
 \alias{setSeasonalReproduction}
 \title{Set seasonal reproduction}
 \usage{
-setSeasonalReproduction(params, pulse_time)
+setSeasonalReproduction(params, repro_func = "repro_gaussian")
 }
 \arguments{
 \item{params}{A MizerParams object}
+
+\item{repro_func}{Name of the function giving the time-dependent
+mass-specific reproduction rate.}
 }
 \value{
 A MizerParams object with seasonal reproduction

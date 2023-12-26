@@ -1,8 +1,8 @@
 p <- newTraitParams()
 p <- setBevertonHolt(p, reproduction_level = 0)
 p <- steady(p)
-p@species_params$sr_r0 <- 10
-p@species_params$sr_exp <- 1e3
+p@species_params$sr_r0 <- 5
+p@species_params$sr_sigma <- sqrt(1/2000)
 p@species_params$sr_t0 <- 0.2
 p <- setSeasonalReproduction(p)
 
@@ -11,15 +11,6 @@ p <- setInitialValues(p, sim)
 
 plotRDI(sim, log = TRUE)
 plotRDI(sim, log = FALSE)
-plotRDD(sim, log = TRUE)
 plotSpectra(sim)
 animateSpectra(sim, power = 2, time_range = c(9,10))
-animateGonadSpectra(sim)
-
-t <- seq(0, 1, by = 0.01)
-r <- sapply(t, seasonalRepro, params = p)
-plot(t, log(r[1, ]), type = "l")
-plot(t, r[1, ], type = "l")
-
-
-plot(getTimes(sim), unlist(sim@n_other[, "gonads"]), type = "l")
+animateGonadSpectra(sim, time_range = c(9,10))
