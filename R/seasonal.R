@@ -22,7 +22,9 @@ setSeasonalReproduction <- function(params, repro_func = "repro_gaussian") {
     setComponent(params, component = "gonads",
                  initial_value = initial,
                  dynamics_fun = "gonadDynamics") |>
-        setRateFunction("RDI", "seasonalRDI")
+        setRateFunction("RDI", "seasonalRDI") |>
+        # Turn of density dependence for now
+        setRateFunction("RDD", "noRDD")
 }
 
 #' Update the gonadic mass using a seasonal reproduction rate
@@ -61,7 +63,7 @@ gonadDynamics <- function(params, n_other, rates, t, dt, ...) {
                        w_min_idx = params@w_min_idx)
 }
 
-#' Get density-dependent rate of seasonal reproduction
+#' Get density-independent rate of seasonal reproduction
 #'
 #' @param params MizerParams object
 #' @param n Species abundances at current time step
