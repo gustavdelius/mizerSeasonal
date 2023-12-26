@@ -1,0 +1,79 @@
+#' Animation of the gonadic mass spectra
+#'
+#' @param sim A MizerSim object
+#' @param species Name or vector of names of the species to be plotted. By 
+#'   default all species are plotted.
+#' @param time_range The time range to animate over. Either a vector of values
+#'   or a vector of min and max time. Default is the entire time range of the
+#'   simulation.
+#' @param wlim A numeric vector of length two providing lower and upper limits
+#'   for the w axis. Use NA to refer to the existing minimum or maximum.
+#' @param ylim A numeric vector of length two providing lower and upper limits
+#'   for the y axis. Use NA to refer to the existing minimum or maximum. Any
+#'   values below 1e-20 are always cut off.
+#' @param power The gonadic mass density is plotted as the number density times
+#'   the per-capita gonadic mass times the weight raised to \code{power}. The
+#'   default \code{power = o} gives the gonadic mass density, whereas \code{power =
+#'   1} gives the gonadic mass density with respect to logarithmic size bins.
+#' @param total A boolean value that determines whether the total over all
+#'   species in the system is plotted as well. Default is FALSE.
+#' 
+#' @return A plotly object
+#' @export
+#' @family plotting functions
+#' @examples
+#' \donttest{
+#' animateGonadicSpectra(NS_sim, power = 1, 
+#'                       wlim = c(0.1, NA), time_range = 1997:2007)
+#' }
+animateGonadSpectra <- function(sim,
+                                species = NULL,
+                                time_range,
+                                wlim = c(NA, NA),
+                                ylim = c(NA, NA),
+                                power = 0) {
+    assert_that(is.number(power), 
+                length(wlim) == 2,
+                length(ylim) == 2)
+    
+    species <- valid_species_arg(sim, species)
+    if (missing(time_range)) {
+        time_range  <- as.numeric(dimnames(sim@n)$time)
+    }
+    time_elements <- get_time_elements(sim, time_range)
+    
+    qf <- sim@n_other
+    nf <- melt(sim@n[time_elements,
+                     as.character(dimnames(sim@n)$sp) %in% species,
+                     , drop = FALSE])
+    
+    # Deal with power argument ----
+    if (power %in% c(0, 1)) {
+        y_label <- c("Gonad density [1/g]", "Gonad density",)[power + 1]
+    } else {
+        y_label <- paste0("Gonad density * w^", power)
+    }
+    nf <- mutate(nf, value = value * w^power)
+    
+    # Impose limits ----
+    if (is.na(wlim[1])) wlim[1] <- min(sim@params@w) / 100
+    if (is.na(wlim[2])) wlim[2] <- max(sim@params@w_full)
+    if (is.na(ylim[1])) ylim[1] <- 10^-20
+    if (is.na(ylim[2])) ylim[2] <- 10^20
+    nf <- nf %>%
+        filter(value >= ylim[1],
+               value <= ylim[2],
+               w >= wlim[1],
+               w <= wlim[2])
+    
+    nf %>%
+        plotly::plot_ly() %>%
+        plotly::add_lines(x = ~w, y = ~value,
+                          color = ~sp, colors = sim@params@linecolour,
+                          frame = ~time,
+                          line = list(simplify = FALSE)) %>%
+        plotly::layout(xaxis = list(type = "log", exponentformat = "power",
+                                    title = "Size [g]"),
+                       yaxis = list(type = "log", exponentformat = "power",
+                                    title = y_label))
+}
