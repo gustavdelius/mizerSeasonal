@@ -33,9 +33,8 @@ gonadDynamics <- function(params, n_other, rates, t, dt, ...) {
     # Handy things ----
     no_sp <- nrow(params@species_params) # number of species
     no_w <- length(params@w) # number of fish size bins
-    r <- seasonalRepro(params, t)
+    r <- seasonalRepro(t, params)
     # Matrices for solver
-    S <- matrix(0, nrow = no_sp, ncol = no_w)
     # a_{ij} = - g_i(w_j) / dw_j dt
     a <- sweep(-rates$e_growth * dt, 2, params@dw, "/")
     # b_{ij} = 1 + g_i(w_j) / dw_j dt + r_i(w_j) dt
@@ -67,7 +66,7 @@ gonadDynamics <- function(params, n_other, rates, t, dt, ...) {
 #' @return A numeric vector with the rate of egg production for each species.
 #' @export
 seasonalRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
-    r <- seasonalRepro(params, t)
+    r <- seasonalRepro(t, params)
     total <- drop((sweep(n_other$gonads, 1, r, "+") * n) %*% params@dw)
     # Assume sex_ratio = 0.5.
     0.5 * (total * params@species_params$erepro) /
@@ -78,12 +77,12 @@ seasonalRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
 #' 
 #' Calculate the mass-specific reproduction rate as a function of time
 #' 
-#' @param params A MizerParams object
 #' @param t The time at which to calculate the reproduction rate
+#' @param params A MizerParams object
 #' 
 #' @return A vector of species-specific reproduction rates
 #' @export
-seasonalRepro <- function(params, t) {
+seasonalRepro <- function(t, params) {
     sp <- params@species_params
-    sp$sr_r0 * exp(sp$sr_exp * (t - trunc(t) - sp$sr_t0))
+    sp$sr_r0 * exp(-sp$sr_exp * (t - trunc(t) - sp$sr_t0)^2)
 }

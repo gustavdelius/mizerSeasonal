@@ -42,33 +42,36 @@ animateGonadSpectra <- function(sim,
     }
     time_elements <- get_time_elements(sim, time_range)
     
-    qf <- sim@n_other
+    qf <- list_of_matrices_to_df(sim@n_other[time_elements, "gonads"])
     nf <- melt(sim@n[time_elements,
                      as.character(dimnames(sim@n)$sp) %in% species,
                      , drop = FALSE])
+    nf <- merge(qf, nf, by = c("time", "sp", "w"))
+    nf$w <- as.numeric(nf$w)
+    nf$Q <- nf$value * nf$q
     
     # Deal with power argument ----
     if (power %in% c(0, 1)) {
-        y_label <- c("Gonad density [1/g]", "Gonad density",)[power + 1]
+        y_label <- c("Gonad density [1/g]", "Gonad density")[power + 1]
     } else {
         y_label <- paste0("Gonad density * w^", power)
     }
-    nf <- mutate(nf, value = value * w^power)
+    nf$Q <- nf$Q * nf$w^power
     
     # Impose limits ----
     if (is.na(wlim[1])) wlim[1] <- min(sim@params@w) / 100
     if (is.na(wlim[2])) wlim[2] <- max(sim@params@w_full)
-    if (is.na(ylim[1])) ylim[1] <- 10^-20
-    if (is.na(ylim[2])) ylim[2] <- 10^20
+    if (is.na(ylim[1])) ylim[1] <- 10^-100
+    if (is.na(ylim[2])) ylim[2] <- Inf
     nf <- nf %>%
-        filter(value >= ylim[1],
-               value <= ylim[2],
+        filter(Q >= ylim[1],
+               Q <= ylim[2],
                w >= wlim[1],
                w <= wlim[2])
     
     nf %>%
         plotly::plot_ly() %>%
-        plotly::add_lines(x = ~w, y = ~value,
+        plotly::add_lines(x = ~w, y = ~Q,
                           color = ~sp, colors = sim@params@linecolour,
                           frame = ~time,
                           line = list(simplify = FALSE)) %>%
@@ -76,4 +79,23 @@ animateGonadSpectra <- function(sim,
                                     title = "Size [g]"),
                        yaxis = list(type = "log", exponentformat = "power",
                                     title = y_label))
+}
+
+# Function to transform matrix to dataframe
+matrix_to_df <- function(mat, time) {
+    sp <- rownames(mat)
+    w <- colnames(mat)
+    
+    data.frame(
+        time = rep(time, each = length(sp) * length(w)),
+        sp = rep(sp, times = length(w)),
+        w = rep(w, each = length(sp)),
+        q = as.vector(mat)
+    )
+}
+
+# Function to transform list of matrices to dataframe
+# by applying the function to each matrix and combining the results
+list_of_matrices_to_df <- function(mat_list) {
+    do.call(rbind, lapply(names(mat_list), function(time) matrix_to_df(mat_list[[time]], time)))
 }

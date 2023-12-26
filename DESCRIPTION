@@ -23,8 +23,10 @@ Depends:
     R (>= 3.1)
 Imports:
     assertthat,
+    dplyr,
     ggplot2
 Collate:
+    animate.R
     mizerSeasonal-package.R
     plots.R
     pulsed.R

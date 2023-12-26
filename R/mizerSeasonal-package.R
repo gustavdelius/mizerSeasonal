@@ -5,7 +5,7 @@
 #' [mizer package](https://sizespectrum.org/mizer/)
 #'
 #' @import mizer
-#' @import ggplot2 assertthat
+#' @import ggplot2 assertthat dplyr
 #' @md
 #' @keywords internal
 "_PACKAGE"
