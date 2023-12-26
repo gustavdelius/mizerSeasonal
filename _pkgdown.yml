@@ -1,0 +1,14 @@
+url: ~
+template:
+  bootstrap: 5
+
+reference:
+- title: Seasonal reproduction
+  contents:
+  - setSeasonalReproduction
+  - contains("seasonal")
+  - contains("gonad")
+- title: Plotting functions
+  contents:
+  - contains("plot")
+  - contains("animate")

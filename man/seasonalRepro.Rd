@@ -4,12 +4,12 @@
 \alias{seasonalRepro}
 \title{Seasonal reproduction rate}
 \usage{
-seasonalRepro(params, t)
+seasonalRepro(t, params)
 }
 \arguments{
-\item{params}{A MizerParams object}
-
 \item{t}{The time at which to calculate the reproduction rate}
+
+\item{params}{A MizerParams object}
 }
 \value{
 A vector of species-specific reproduction rates
