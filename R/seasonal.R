@@ -86,7 +86,13 @@ seasonalRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
 
 #' Gaussian mass-specific reproduction rate
 #' 
-#' \deqn{r(w, t) = r_0 \exp{\left(-\frac{(\floor{t}-t_0)^2}{2\sigma^2}\right)}}{r_0 \exp(-(\floor{t}-t_0)^2/(2\sigma^2))}
+#' Uses the formula
+#' \deqn{r(w, t) = r(t) = r_0 \exp{\left(-\dfrac{(t-\lfloor{t}\rfloor-t_0)^2}{2\sigma^2}\right)}}{r(w,t) = r(t)= r_0 \exp(-(t-|_t_|-t_0)^2/(2\sigma^2))}
+#' where parameters \eqn{r_0, \sigma} and \eqn{t_0} are given by new columns 
+#' `sr_r0`, `sr_sigma` and `sr_t0` in the species parameter data frame.
+#' Because mizer measures time in years, \eqn{t-\lfloor t \rfloor}{t-|_t_|} gives the time 
+#' within the year and so \eqn{r(t)} is a periodic function with
+#' the period of one year.
 #' 
 #' @param t The time at which to calculate the reproduction rate
 #' @param params A MizerParams object

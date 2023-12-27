@@ -15,5 +15,11 @@ repro_gaussian(t, params)
 A vector of species-specific reproduction rates
 }
 \description{
-\deqn{r(w, t) = r_0 \exp{\left(-\frac{(\floor{t}-t_0)^2}{2\sigma^2}\right)}}{r_0 \exp(-(\floor{t}-t_0)^2/(2\sigma^2))}
+Uses the formula
+\deqn{r(w, t) = r(t) = r_0 \exp{\left(-\dfrac{(t-\lfloor{t}\rfloor-t_0)^2}{2\sigma^2}\right)}}{r(w,t) = r(t)= r_0 \exp(-(t-|_t_|-t_0)^2/(2\sigma^2))}
+where parameters \eqn{r_0, \sigma} and \eqn{t_0} are given by new columns
+\code{sr_r0}, \code{sr_sigma} and \code{sr_t0} in the species parameter data frame.
+Because mizer measures time in years, \eqn{t-\lfloor t \rfloor}{t-|_t_|} gives the time
+within the year and so \eqn{r(t)} is a periodic function with
+the period of one year.
 }

@@ -29,9 +29,9 @@ p <- steady(p)
 
 We will set up seasonal reproduction with the default gaussian mass-specific reproduction rate
 $$
-r(w, t) = r_0 \exp{\left(-\frac{(\lfloor{t}\rfloor-t_0)^2}{2\sigma^2}\right)}
+r(w, t) = r_0 \exp{\left(-\frac{(t-\lfloor{t}\rfloor-t_0)^2}{2\sigma^2}\right)}
 $$
-Because mizer measures time in years, $\lfloor t\rfloor$ gives the time within the year.
+Because mizer measures time in years, $t-\lfloor t\rfloor$ gives the time within the year.
 
 We need to specify the new species parameters $r_0, \sigma$ and $t_0$ (which are denoted by `sr_r0`, `sr_sigma` and `sr_t0` respectively) and then call `setSeasonalReproduction()`.
 ```{r}
@@ -58,6 +58,7 @@ animateSpectra(sim, power = 2)
 
 On the logarithmic scale the change in the gonadic mass is not so easy to see
 ```{r}
-animateGonadSpectra(sim)
+animateGonadSpectra(sim, time_range = c(2, 3), 
+                    power = 1, ylim = c(1e-4, 1e-2))
 ```
 
