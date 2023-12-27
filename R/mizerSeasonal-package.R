@@ -6,6 +6,9 @@
 #'
 #' @import mizer
 #' @import ggplot2 assertthat dplyr
+#' @importFrom methods is
 #' @md
 #' @keywords internal
 "_PACKAGE"
+
+globalVariables(c("Q"))

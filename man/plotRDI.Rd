@@ -49,3 +49,9 @@ frame with the three variables 'Year', 'RDI', 'Species' is returned.
 \description{
 Plot density-independent reproduction rate over time
 }
+\seealso{
+Other plotting functions: 
+\code{\link{animateGonadSpectra}()},
+\code{\link{plotRDD}()}
+}
+\concept{plotting functions}

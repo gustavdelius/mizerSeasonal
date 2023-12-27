@@ -13,7 +13,7 @@ This is an extension package for the
 Useful links:
 \itemize{
   \item \url{https://github.com/gustavdelius/mizerSeasonal}
-  \item Report bugs at \url{https://github.com/sizespectrum/mizerSeasonal/issues}
+  \item Report bugs at \url{https://github.com/gustavdelius/mizerSeasonal/issues}
 }
 
 }

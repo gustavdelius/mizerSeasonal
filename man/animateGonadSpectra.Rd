@@ -34,9 +34,6 @@ values below 1e-20 are always cut off.}
 the per-capita gonadic mass times the weight raised to \code{power}. The
 default \code{power = o} gives the gonadic mass density, whereas \code{power =
   1} gives the gonadic mass density with respect to logarithmic size bins.}
-
-\item{total}{A boolean value that determines whether the total over all
-species in the system is plotted as well. Default is FALSE.}
 }
 \value{
 A plotly object
@@ -44,10 +41,9 @@ A plotly object
 \description{
 Animation of the gonadic mass spectra
 }
-\examples{
-\donttest{
-animateGonadicSpectra(NS_sim, power = 1, 
-                      wlim = c(0.1, NA), time_range = 1997:2007)
-}
+\seealso{
+Other plotting functions: 
+\code{\link{plotRDD}()},
+\code{\link{plotRDI}()}
 }
 \concept{plotting functions}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/seasonal.R
 \name{seasonalRDI}
 \alias{seasonalRDI}
-\title{Get density-dependent rate of seasonal reproduction}
+\title{Get density-independent rate of seasonal reproduction}
 \usage{
 seasonalRDI(params, n, n_other, t, dt = 0.1, ...)
 }
@@ -24,5 +24,5 @@ in particular the gonadic biomass in \code{n_other$gonads}.}
 A numeric vector with the rate of egg production for each species.
 }
 \description{
-Get density-dependent rate of seasonal reproduction
+Get density-independent rate of seasonal reproduction
 }

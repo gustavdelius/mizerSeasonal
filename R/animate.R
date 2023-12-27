@@ -15,17 +15,10 @@
 #'   the per-capita gonadic mass times the weight raised to \code{power}. The
 #'   default \code{power = o} gives the gonadic mass density, whereas \code{power =
 #'   1} gives the gonadic mass density with respect to logarithmic size bins.
-#' @param total A boolean value that determines whether the total over all
-#'   species in the system is plotted as well. Default is FALSE.
 #' 
 #' @return A plotly object
 #' @export
 #' @family plotting functions
-#' @examples
-#' \donttest{
-#' animateGonadicSpectra(NS_sim, power = 1, 
-#'                       wlim = c(0.1, NA), time_range = 1997:2007)
-#' }
 animateGonadSpectra <- function(sim,
                                 species = NULL,
                                 time_range,

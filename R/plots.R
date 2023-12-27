@@ -23,6 +23,7 @@
 #' @return A ggplot2 object, unless return_data = TRUE, in which case a data
 #'   frame with the three variables 'Year', 'RDI', 'Species' is returned.
 #' @export
+#' @family plotting functions
 plotRDI <- function(sim, sim2,
                     species = NULL,
                     total = FALSE, log = FALSE,
@@ -108,6 +109,7 @@ plotRDI <- function(sim, sim2,
 #' @return A ggplot2 object, unless return_data = TRUE, in which case a data
 #'   frame with the three variables 'Year', 'RDD', 'Species' is returned.
 #' @export
+#' @family plotting functions
 plotRDD <- function(sim, sim2,
                     species = NULL,
                     total = FALSE, log = FALSE,
@@ -168,6 +170,7 @@ plotRDD <- function(sim, sim2,
     }
 }
 
+# Helper function for plotRDI and plotRDD
 getSimFunc <- function(sim, func = getRDI, ...) {
     params <- sim@params
     no_sp <- nrow(params@species_params)
