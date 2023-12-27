@@ -1,0 +1,63 @@
+---
+title: "mizerSeasonal"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{mizerSeasonal}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(mizerSeasonal)
+```
+
+To demonstrate the use of the package we first set up a standard trait-based model, turn off density dependence in reproduction and run to steady state.
+```{r}
+p <- newTraitParams()
+# Turn of density dependence for now
+p <- setRateFunction(p, "RDD", "noRDD")
+# Find steady state
+p <- steady(p)
+```
+
+We will set up seasonal reproduction with the default gaussian mass-specific reproduction rate
+$$
+r(w, t) = r_0 \exp{\left(-\frac{(\lfloor{t}\rfloor-t_0)^2}{2\sigma^2}\right)}
+$$
+Because mizer measures time in years, $\lfloor t\rfloor$ gives the time within the year.
+
+We need to specify the new species parameters $r_0, \sigma$ and $t_0$ (which are denoted by `sr_r0`, `sr_sigma` and `sr_t0` respectively) and then call `setSeasonalReproduction()`.
+```{r}
+p@species_params$sr_r0 <- 5
+p@species_params$sr_sigma <- sqrt(1/2000)
+p@species_params$sr_t0 <- 0.2
+p <- setSeasonalReproduction(p)
+```
+
+The resulting MizerParams object can be projected into the future as usual with `project()` to produce a MizerSim object.
+```{r}
+sim <- project(p, t_max = 3, t_save = 0.05, dt = 0.01)
+```
+
+Let us take a look at the seasonal reproduction rate $R_p(t)$
+```{r}
+plotRDI(sim, log = FALSE)
+```
+
+When we animate the simulation result we see the effect travelling up the size spectrum
+```{r}
+animateSpectra(sim, power = 2)
+```
+
+On the logarithmic scale the change in the gonadic mass is not so easy to see
+```{r}
+animateGonadSpectra(sim)
+```
+
