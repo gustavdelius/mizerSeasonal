@@ -131,9 +131,9 @@ seasonalBevertonHoltRDD <- function(rdi, params = NULL, t = NULL, ...) {
 seasonalVonMisesRDD <- function(params = NULL, t = NULL, ...) {
     sp <- params@species_params
     new_t <- t - floor(t)
-    kappa <- sp$vonMises_k
-    mu <- sp$vonMises_mu
-    H <- sp$vonMises_r * exp(kappa * cos(2*pi*(new_t - mu))) / 
+    kappa <- sp$rdd_vonMises_k
+    mu <- sp$rdd_vonMises_mu
+    H <- sp$rdd_vonMises_r * exp(kappa * cos(2*pi*(new_t - mu))) / 
         (2 * pi * besselI(kappa, nu = 0))
     return(H)
 }
