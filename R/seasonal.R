@@ -78,7 +78,7 @@ gonadDynamics <- function(params, n_other, rates, t, dt, ...) {
 seasonalRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
     repro_func <- get0(other_params(params)$repro_func)
     r <- repro_func(t, params)
-    total <- drop((sweep(n_other$gonads, 1, r, "+") * n) %*% params@dw)
+    total <- drop((sweep(n_other$gonads, 1, r, "*") * n) %*% params@dw)
     # Assume sex_ratio = 0.5.
     0.5 * (total * params@species_params$erepro) /
         params@w[params@w_min_idx]
