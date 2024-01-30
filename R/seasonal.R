@@ -23,9 +23,7 @@ setSeasonalReproduction <- function(params, repro_func = "repro_gaussian") {
                  initial_value = initial,
                  dynamics_fun = "gonadDynamics") |>
         setRateFunction("RDI", "seasonalRDI") |>
-        setRateFunction("RDD", "seasonalBevertonHoltRDD") |>
-        # Make sure that RDD gets called with time and params object
-        setRateFunction("Rates", "seasonalRates")
+        setRateFunction("RDD", "seasonalBevertonHoltRDD")
 }
 
 
@@ -114,11 +112,9 @@ seasonalRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
 #' @export
 #' @family functions calculating density-dependent reproduction rate
 seasonalBevertonHoltRDD <- function(rdi, params = NULL, t = NULL, ...) {
+    # For now just return rdi until we have figured out how to calculate R_max
     return(rdi)
-    # If this is called without params object we don't care what we return
-    if (is.null(params)) {
-        return(rdi)
-    }
+    
     if (!("r_max" %in% names(params@other_params))) {
         stop("The r_max paramter is missing.")
     }
@@ -133,10 +129,6 @@ seasonalBevertonHoltRDD <- function(rdi, params = NULL, t = NULL, ...) {
 #' @return A vector of species-specific reproduction rates
 #' @export
 seasonalVonMisesRDD <- function(params = NULL, t = NULL, ...) {
-    # If this is called without params object we don't care what we return
-    if (is.null(params)) {
-        return(NULL)
-    }
     sp <- params@species_params
     new_t <- t - floor(t)
     kappa <- sp$vonMises_k
@@ -144,33 +136,6 @@ seasonalVonMisesRDD <- function(params = NULL, t = NULL, ...) {
     H <- sp$vonMises_r * exp(kappa * cos(new_t - mu)) / 
         (2 * pi * besselI(kappa, nu = 0))
     return(H)
-}
-
-#' Seasonal version of mizerRates()
-#'
-#' This is needed because we need to pass the time argument to the RDD function
-#'
-#' @param params A \linkS4class{MizerParams} object
-#' @param n A matrix of species abundances (species x size).
-#' @param n_pp A vector of the resource abundance by size
-#' @param n_other A list of abundances for other dynamical components of the
-#'   ecosystem
-#' @param t The time for which to do the calculation (Not used by standard
-#'   mizer rate functions but useful for extensions with time-dependent
-#'   parameters.)
-#' @param effort The effort for each fishing gear
-#' @param rates_fns Named list of the functions to call to calculate the rates.
-#'   Note that this list holds the functions themselves, not their names.
-#' @param ... Unused
-#' @return List of rates.
-#' @export
-seasonalRates <- function(params, n, n_pp, n_other,
-                          t = 0, effort, rates_fns, ...) {
-    r <- mizerRates(params = params, n = n, n_pp = n_pp, n_other = n_other,
-                    t = t, effort = effort, rates_fns = rates_fns)
-    # Overwrite rdd with call to seasonal RDD with extra arguments
-    r$rdd <- rates_fns$RDD(rdi = r$rdi, params = params, t = t, ...)
-    return(r)
 }
 
 #' Gaussian mass-specific reproduction rate

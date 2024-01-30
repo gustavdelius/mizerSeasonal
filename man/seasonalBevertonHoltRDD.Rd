@@ -10,11 +10,11 @@ seasonalBevertonHoltRDD(rdi, params = NULL, t = NULL, ...)
 \item{rdi}{Vector of density-independent reproduction rates
 \eqn{R_{di}}{R_di} for all species.}
 
-\item{...}{Unused}
+\item{params}{A params object that must contain \code{params@other_params$R_max}}
 
-\item{species_params}{A species parameter dataframe. Must contain a column
-\code{R_max} holding the maximum reproduction rate \eqn{R_{max}}{R_max} for each
-species.}
+\item{t}{The time at which to calculate RDD}
+
+\item{...}{Unused}
 }
 \value{
 Vector of density-dependent reproduction rates.

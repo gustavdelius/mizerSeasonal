@@ -1,4 +1,6 @@
 # Set up Samik's model
+install_github("sizespectrum/mizer", ref = "t-dependent_RDD")
+
 library(mizerSeasonal)
 p <- NS_params
 
@@ -24,20 +26,20 @@ p <- setRateFunction(p, "RDD", "seasonalVonMisesRDD")
 old_resource_dynamics <- p@resource_dynamics
 p@resource_dynamics <- "resource_constant"
 
-ps <- projectToSteady(p,
-                      distance_func = distanceMaxRelRDI,
-                      t_per = 1,
-                      t_max = 50,
-                      dt = 0.01)
+ps <- projectToSteady(p, distance_func = distanceMaxRelRDI,
+                      t_per = 1, t_max = 50, dt = 0.01, tol = 0.001)
 plotSpectra(ps)
 
 sim <- project(ps, t_max = 20, dt = 0.01, t_save = 0.1)
 plotBiomass(sim)
 plotRDI(sim)
 
+# Plot it for just 2 years at higher time resolution
 ps <- setInitialValues(ps, sim)
 sim2 <- project(ps, t_max = 2, dt = 0.01, t_save = 0.01)
 plotRDI(sim2, species = 5)
+plotRDD(sim2, species = 5)
 
+# For animation store it with lower time resolution
 sim3 <- project(ps, t_max = 2, dt = 0.01, t_save = 0.1)
 animateGonadSpectra(sim3)
