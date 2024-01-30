@@ -23,8 +23,9 @@ setSeasonalReproduction <- function(params, repro_func = "repro_gaussian") {
                  initial_value = initial,
                  dynamics_fun = "gonadDynamics") |>
         setRateFunction("RDI", "seasonalRDI") |>
-        # Turn of density dependence for now
-        setRateFunction("seasonalRDD", "seasonalBevertonHoltRDD")
+        setRateFunction("RDD", "seasonalBevertonHoltRDD") |>
+        # Make sure that RDD gets called with time and params object
+        setRateFunction("Rates", "seasonalRates")
 }
 
 
@@ -113,11 +114,15 @@ seasonalRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
 #' @return Vector of density-dependent reproduction rates.
 #' @export
 #' @family functions calculating density-dependent reproduction rate
-seasonalBevertonHoltRDD <- function(rdi, params, t, ...) {
-    if (!("r_max" %in% names(other_params))) {
+seasonalBevertonHoltRDD <- function(rdi, params = NULL, t = NULL, ...) {
+    # If this is called without params object we don't care what we return
+    if (is.null(params)) {
+        return(rdi)
+    }
+    if (!("r_max" %in% names(params@other_params))) {
         stop("The r_max paramter is missing.")
     }
-    return(rdi / (1 + rdi / other_params$r_max))
+    return(rdi / (1 + rdi / params@other_params$r_max))
 }
 
 #' Seasonal version of mizerRates()
@@ -142,8 +147,8 @@ seasonalRates <- function(params, n, n_pp, n_other,
                           t = 0, effort, rates_fns, ...) {
     r <- mizerRates(params = params, n = n, n_pp = n_pp, n_other = n_other,
                     t = t, effort = effort, rates_fns = rates_fns)
-    # Overwrite rdd with call to seasonal RDD
-    r$rdd <- rates_fns$seasonalRDD(rdi = r$rdi, params = params, t = t, ...)
+    # Overwrite rdd with call to seasonal RDD with extra arguments
+    r$rdd <- rates_fns$RDD(rdi = r$rdi, params = params, t = t, ...)
     return(r)
 }
 
