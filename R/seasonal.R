@@ -106,15 +106,15 @@ seasonalRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
 #'
 #' @param rdi Vector of density-independent reproduction rates
 #'   \eqn{R_{di}}{R_di} for all species.
-#' @param species_params A species parameter dataframe. Must contain a column
-#'   `R_max` holding the maximum reproduction rate \eqn{R_{max}}{R_max} for each
-#'   species.
+#' @param params A params object that must contain `params@other_params$R_max`
+#' @param t The time at which to calculate RDD
 #' @param ... Unused
 #'
 #' @return Vector of density-dependent reproduction rates.
 #' @export
 #' @family functions calculating density-dependent reproduction rate
 seasonalBevertonHoltRDD <- function(rdi, params = NULL, t = NULL, ...) {
+    return(rdi)
     # If this is called without params object we don't care what we return
     if (is.null(params)) {
         return(rdi)
@@ -123,6 +123,27 @@ seasonalBevertonHoltRDD <- function(rdi, params = NULL, t = NULL, ...) {
         stop("The r_max paramter is missing.")
     }
     return(rdi / (1 + rdi / params@other_params$r_max))
+}
+
+#' von-Mises distributed reproduction rate independent of abundance
+#' 
+#' @param params A MizerParams object
+#' @param t The time at which to calculate RDD
+#' 
+#' @return A vector of species-specific reproduction rates
+#' @export
+seasonalVonMisesRDD <- function(params = NULL, t = NULL, ...) {
+    # If this is called without params object we don't care what we return
+    if (is.null(params)) {
+        return(NULL)
+    }
+    sp <- params@species_params
+    new_t <- t - floor(t)
+    kappa <- sp$vonMises_k
+    mu <- sp$vonMises_mu
+    H <- sp$vonMises_r * exp(kappa * cos(new_t - mu)) / 
+        (2 * pi * besselI(kappa, nu = 0))
+    return(H)
 }
 
 #' Seasonal version of mizerRates()
