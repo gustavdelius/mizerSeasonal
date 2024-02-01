@@ -1,10 +1,10 @@
 #' Beta hazard mass-specific reproduction rate
-#' 
+#'
 #' Uses the formula
-#' 
+#'
 #' @param t The time at which to calculate the reproduction rate
 #' @param params A MizerParams object
-#' 
+#'
 #' @return A vector of species-specific reproduction rates
 #' @export
 repro_beta_hazard <- function(t,params){
@@ -14,12 +14,12 @@ repro_beta_hazard <- function(t,params){
 }
 
 #' Beta distributed reproduction rate
-#' 
+#'
 #' Uses the formula
-#' 
+#'
 #' @param t The time at which to calculate the reproduction rate
 #' @param params A MizerParams object
-#' 
+#'
 #' @return A vector of species-specific reproduction rates
 #' @export
 repro_beta <- function(t,params){
@@ -29,12 +29,12 @@ repro_beta <- function(t,params){
 }
 
 #' von-Mises distributed reproduction rate
-#' 
+#'
 #' Uses the formula
-#' 
+#'
 #' @param t The time at which to calculate the reproduction rate
 #' @param params A MizerParams object
-#' 
+#'
 #' @return A vector of species-specific reproduction rates
 #' @export
 repro_vonMises <- function(t,params,...){
@@ -42,7 +42,7 @@ repro_vonMises <- function(t,params,...){
   new_t <- t - floor(t)
   kappa <- sp$vonMises_k
   mu <- sp$vonMises_mu
-  H <- sp$vonMises_r * exp(kappa * cos(2 * pi * (new_t - mu))) / 
+  H <- sp$vonMises_r * exp(kappa * cos(2 * pi * (new_t - mu))) /
       (2 * pi * besselI(kappa, nu = 0))
   return(H)
 }
@@ -53,24 +53,24 @@ repro_vonMises <- function(t,params,...){
 plotGonads <- function(sim,
                        time_range,
                        prop_size=1,
+                       sizes=sim@params@species_params$w_max,
                        ...){
   def.par <- graphics::par(no.readonly=TRUE) #old pars
-  
   if (missing(time_range)) {
     time_range  <- as.numeric(dimnames(sim@n)$time)
   }
-  max_size <- sapply(sim@params@species_params$w_max * prop_size,function(x,w){which.max(x <= w)},w=sim@params@w)
+  max_size <- sapply(sizes * prop_size * (1 - 1e-6),function(x,w){which.max(x <= w)},w=sim@params@w)
   time_elements <- get_time_elements(sim, time_range)
-  
+
   ###
-  
+
   q_max <- matrix(0,length(time_elements),dim(sim@n)[2])
   qf <- sim@n_other[time_elements, "gonads"]
-  
+
   qs_mat<-matrix(unlist(lapply(qf,function(x){return(diag(x[,max_size]))})),length(time_elements),dim(sim@n)[2],byrow=T)
-  
+
   rownames(qs_mat) <- (as.numeric(dimnames(sim@n)$time))
-  
+
   graphics::par(mfrow=c(4,3))
   graphics::par(oma=c(1,1,1,3))
   graphics::par(mar=c(2,4,2,0))
