@@ -110,8 +110,49 @@ plotGonads(sim2r)
 plotRDD(sim2r)
 plot.ts(sim2r@n_pp[, 10*(1:10)])
 
-
 sim2rr <- project(pr, t_max = 3, dt = 0.01, t_save = 0.1)
 animateGonadSpectra(sim2rr)
 animateSpectra(sim2rr, power = 2)
+
+# Pulsed resource ----
+calc_rp <- function(params,spe,init,kappa,maxR){
+    ret <- list()
+    Nws <- length(params@w_full) - length(params@w)
+    LW <- log(params@w_full)
+    speed <- spe / diff(range(LW))
+    const <- init - speed * LW[1]
+    tmp <-  speed * LW + const
+    ret$mu <- tmp - floor(tmp)
+    ret$kappa <- kappa
+    ret$ maxR<- maxR
+    params@resource_params$rp <- ret
+    return(params)
+}
+
+################
+resource_vonMises <- function(t,params,...){
+    new_t <- t - floor(t)
+    kappa <- params@resource_params$rp$kappa
+    mu <- params@resource_params$rp$mu
+    params@resource_params$rp$maxR * exp(kappa * cos(2 * pi * (new_t - mu))) / (besselI(kappa,nu=0))
+}
+
+pp <- calc_rp(ps, spe=2,init=0.1,kappa=5,maxR=0)
+pp@resource_dynamics <- "seasonal_resource_semichemostat"
+pp@cc_pp <- 2 * pp@initial_n_pp
+
+simpp <- project(pp, t_max = 20, dt = 0.01, t_save = 0.1)
+plotBiomass(simpp)
+plotSpectra(simpp)
+
+# For animation store it with lower time resolution
+sim3 <- project(pp, t_max = 2, dt = 0.01, t_save = 0.1)
+animateGonadSpectra(sim3)
+animateSpectra(sim3, power = 2)
+
 # Turn on reproduction
+prr <- pr
+repro_level <- 0.5
+rdd <- getRDD(prr)
+rdi <- getRDI(prr)
+prr@other_params$r_max <- rdd * rdi / (rdi - rdd)

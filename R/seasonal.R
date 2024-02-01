@@ -157,3 +157,59 @@ repro_gaussian <- function(t, params) {
     sp <- params@species_params
     sp$sr_r0 * exp(-(t - trunc(t) - sp$sr_t0)^2/(2*sp$sr_sigma^2))
 }
+
+#' @param params A [MizerParams] object
+#' @param n A matrix of species abundances (species x size)
+#' @param n_pp A vector of the resource abundance by size
+#' @param n_other A list with the abundances of other components
+#' @param rates A list of rates as returned by [mizerRates()]
+#' @param t The current time
+#' @param dt Time step
+#' @param resource_rate Resource replenishment rate
+#' @param resource_capacity Resource carrying capacity
+#' @param ... Unused
+#'
+#' @return Vector containing resource spectrum at next timestep
+#' @export
+#' @family resource dynamics
+seasonal_resource_semichemostat <- function(params, n, n_pp, rates, t, dt,
+                                   resource_rate, resource_capacity, ...) {
+    # The resource capacity is now time-dependent
+    resource_capacity <- (1 + resource_vonMises(params = params, t = t)) *
+        resource_capacity
+    # We use the exact solution under the assumption of constant mortality
+    # during timestep
+    mur <- resource_rate + rates$resource_mort
+    n_steady <- resource_rate * resource_capacity / mur
+    n_pp_new <- n_steady + (n_pp - n_steady) * exp(-mur * dt)
+
+    # Here is an alternative expression that looks as if it might be more
+    # precise when the sum of the rates is small due to the use of expm1.
+    # However the above has the advantage of preserving the steady state
+    # n_steady exactly.
+    # n_pp_new <- n_pp * exp(-mur * dt) + n_steady * expm1(-mur * dt)
+
+    # if growth rate and death rate are zero then the above would give NaN
+    # whereas the value should simply not change
+    sel <- !is.finite(n_pp_new)
+    n_pp_new[sel] <- n_pp[sel]
+
+    n_pp_new
+}
+
+pulsed_rate <- function(params, t) {
+    # Constant velocity v in log size
+    v <- params@resource_params$pulse_speed
+    kappa <- params@resource_params$pulse_kappa
+    mu <- params@resource_params$pulse_mu
+    r0 <- params@resource_params$pulse_r0
+    w_full <- params@w_full
+    n <- params@resource_params$n
+    r <- r0 * w_full ^ (n - 1) *
+        vonMises(log(w_full) - v * t, mu = mu, kappa = kappa)
+}
+
+vonMises <- function(x, mu, kappa) {
+    exp(kappa * cos(2*pi*(new_t - mu))) /
+        (2 * pi * besselI(kappa, nu = 0))
+}
