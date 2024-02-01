@@ -114,7 +114,7 @@ seasonalRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
 seasonalBevertonHoltRDD <- function(rdi, params = NULL, t = NULL, ...) {
     # For now just return rdi until we have figured out how to calculate R_max
     return(rdi)
-    
+
     if (!("r_max" %in% names(params@other_params))) {
         stop("The r_max paramter is missing.")
     }
@@ -122,18 +122,18 @@ seasonalBevertonHoltRDD <- function(rdi, params = NULL, t = NULL, ...) {
 }
 
 #' von-Mises distributed reproduction rate independent of abundance
-#' 
+#'
 #' @param params A MizerParams object
 #' @param t The time at which to calculate RDD
-#' 
+#'
 #' @return A vector of species-specific reproduction rates
 #' @export
-seasonalVonMisesRDD <- function(params = NULL, t = NULL, ...) {
+seasonalVonMisesRDD <- function(params, t, ...) {
     sp <- params@species_params
     new_t <- t - floor(t)
     kappa <- sp$rdd_vonMises_k
     mu <- sp$rdd_vonMises_mu
-    H <- sp$rdd_vonMises_r * exp(kappa * cos(2*pi*(new_t - mu))) / 
+    H <- sp$rdd_vonMises_r * exp(kappa * cos(2*pi*(new_t - mu))) /
         (2 * pi * besselI(kappa, nu = 0))
     return(H)
 }
