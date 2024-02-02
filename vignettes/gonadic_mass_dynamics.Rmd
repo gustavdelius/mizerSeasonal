@@ -1,0 +1,178 @@
+---
+title: "Gonadic mass dynamics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Gonadic mass dynamics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\newcommand{\gbd}{Q}
+\newcommand{\ggr}{G}
+\newcommand{\gw}{q}
+
+## Deriving the PDE for gonadic mass
+
+Standard mizer describes the number density $N(w,t)$ by the PDE
+\begin{equation}
+\frac{\partial N}{\partial t} = -\frac{\partial}{\partial w}(g\,N)-\mu\,N,
+\label{PDEN}
+\end{equation}
+where $g(w,t)$ is the growth rate of an individual of size $w$ and $\mu(w,t)$ is 
+its death rate. This equation simply states that the rate of change of the number
+of individuals in an infinitesimal size range around $w$ is given by the difference between the rate at 
+which individuals grow into the size range and the rate at which they grow out (the transport term), 
+minus the rate at which they die (the loss term).
+
+
+Instead of the number density $N$ we could have used the biomass density $B = w\,N$ to describe
+the population. Its evolution equation can easily be derived from \eqref{PDEN}:
+\begin{equation}\begin{split}
+\frac{\partial B}{\partial t} &= w\frac{\partial N}{\partial t}
+= -w\frac{\partial}{\partial w}\left(g\,\frac{B}{w}\right)-\mu\,B,\\
+&=-\frac{\partial}{\partial w}\left(g\,B\right)+g\,\frac{B}{w}-\mu\,B.
+\end{split}\end{equation}
+This is again intuitive: in addition to the transport term and the loss term we now also
+have a source term $g B/w = gN$ representing coming from the growth taking place within the infinitesimal
+size class. 
+
+If we now denote by $\gbd(w,t)$ the total gonadic biomass density and by $\ggr(w,t)$ the gonadic
+growth rate of an individual of size $w$ (when it is not reproducing), then they satisfy the analogous equation
+\begin{equation}
+\frac{\partial \gbd}{\partial t} 
+=-\frac{\partial}{\partial w}\left(g\,\gbd\right)+\ggr\,N-\mu\,\gbd-r\,\gbd,
+\end{equation}
+where we have an additional loss term representing the loss of gonadic mass during reproduction.
+The rate $r(w,t)$ will encode the seasonality of this reproduction.
+
+In mizer, the total energy $E_r$ available for growth an reproduction is split as $g=E_r(1-\psi)$ and
+$\ggr=E_r\psi$. Thus $\ggr=g\,\psi/(1-\psi)$.
+
+Instead of considering the total gonadic biomass density $\gbd(w,t)$, we could consider the gonadic
+mass $\gw(w,t)$ of an individual fish of size $w$, given by 
+\begin{equation}
+\gw = \frac{\gbd}{N}.
+\end{equation}
+Let's derive its evolution PDE:
+\begin{equation}\label{PDEwG}\begin{split}
+\frac{\partial \gw}{\partial t} &= \frac{1}{N}\frac{\partial \gbd}{\partial t}-
+\frac{\gbd}{N^2}\frac{\partial N}{\partial t}\\
+&=\frac{1}{N}\left(-\frac{\partial}{\partial w}\left(g\,\gbd\right)+\ggr\,N-\mu\,\gbd-r\,\gbd\right)
+-\frac{\gbd}{N^2}\left(-\frac{\partial}{\partial w}(g\,N)-\mu\,N\right).
+\end{split}\end{equation}
+To simplify this we observe that the two mortality terms cancel and that
+\begin{equation}\begin{split}
+\frac{\gbd}{N^2}\frac{\partial}{\partial w}(g\,N)
+&=\frac{\gw}{N}\frac{\partial}{\partial w}\left(g\,\frac{\gbd}{\gw}\right)\\
+&=\frac{1}{N}\frac{\partial}{\partial w}\left(g\,\gbd\right)
+-g\,\frac{\partial \gw}{\partial w}.
+\end{split}\end{equation}
+Substituting this into \eqref{PDEwG} and cancelling terms gives
+\begin{equation}
+\frac{\partial \gw}{\partial t}=\ggr-g\,\frac{\partial \gw}{\partial w}-r\, \gw.
+\label{wg}
+\end{equation}
+At this point we feel a bit stupid when we realise that
+\begin{equation}
+\frac{d\gw(w,t)}{dt}=\frac{\partial \gw(w,t)}{\partial t}+
+\frac{\partial \gw(w,t)}{\partial w}\frac{dw}{dt}
+\end{equation}
+and that $dw/dt = g$, so that \eqref{wg} reduces to
+\begin{equation}\label{dqdt}
+\frac{d\gw}{dt}=\ggr-r\,\gw,
+\end{equation}
+which is what we could have written down immediately, given our definition of $\ggr$.
+So this equation would have been a good starting point for deriving the PDE \eqref{wg}.
+
+All the above equations are species specific. So in particular there is one gonadic mass function
+$q_i(w,t)$ for each species $i$ and we will need to specify one rate function $r_i(w,t)$ for each
+species $i$.
+
+\section{Reproduction rate}
+
+We need to specify the mass-specific reproduction rate $r(w,t)$. This then determines the total reproduction rate
+\begin{equation}
+R_p(t)=\frac{\epsilon}{2w_0}\int N(w,t)\gw(w,t)r(w,t)dw.
+\end{equation}
+It will be difficult to know how to choose the mass-specific rate $r(w,t)$ to produce the observed egg production rate $R_p(t)$. We'll probably have to do this by trial and error initially.
+The rate of egg production will now be 
+The rate $r(w,t)$ should become very large at least once a year so that the gonadic
+mass goes back to close to zero. 
+
+One possibility would be to make $r(w,t)$ independent of $w$ and choose a Gaussian for its time dependence:
+\begin{equation}
+    r(w, t) = r_0 \exp{\left(-\frac{(t-\lfloor{t}\rfloor-t_0)^2}{2\sigma^2}\right)}
+\end{equation}
+Here we assume that $t$ is given in years so that $t-\lfloor t\rfloor$ gives the time within the year.
+
+## Numerical implementation
+
+To solve the PDE \eqref{wg} we use the same upwind-difference scheme used by mizer to solve the PDE \eqref{PDEN}. Let us therefore recall the details of that scheme.
+
+We discretise \eqref{PDEN} as follows:
+\begin{equation}\label{nd}
+    \frac{N_w^{t+1}-N_w^t}{\Delta t}=-\frac{g_w^tN_w^{t+1}-g_{w-1}^tN_{w-1}^{t+1}}{\Delta w}-\mu_w^t\,N_w^{t+1}.
+\end{equation}
+Here we use $w$ and $t$ to denote the integer indices of the discretised weight and discretised time respectively.
+Multiplying by $\Delta t$ and collecting terms gives
+\begin{equation}\label{ndc}
+    N_w^{t+1}\left(1+g_w^t\frac{\Delta t}{\Delta w}+\mu_t^w\,\Delta t\right)=
+    N_{w-1}^{t+1}\left(g_{w-1}^t\frac{\Delta t}{\Delta w}\right)
+    +N_w^t.
+\end{equation}
+Solving for $N_w^{t+1}$ gives
+\begin{equation}\label{nds}
+    N_w^{t+1}=\frac{S_w^t-A_w^tN_{w-1}^{t+1}}{B_w^t},
+\end{equation}
+where
+\begin{equation}\label{ABS}
+\begin{split}
+   A_w^t&=-g_{w-1}^t\frac{\Delta t}{\Delta w},\\
+   B_w^t&=1+g_w^t\frac{\Delta t}{\Delta w}+\mu_t^w\,\Delta t,\\
+   S_w^t&=N_w^t.
+\end{split}
+\end{equation}
+Given an initial value and a boundary condition encoding the influx of new-born individuals to the smallest size class, The recurrence relation \eqref{nds} allows mizer to calculate $N_w^{t+1}$ for all size classes at all later times.
+
+Now we use the same scheme for the gonadic dynamics. So we discretise \eqref{wg} as follows:
+\begin{equation}
+    \frac{\gw_w^{t+1}-\gw_w^t}{\Delta t}=-g_w^t\frac{\gw_w^{t+1}-\gw_{w-1}^{t+1}}{\Delta w}-r_w^t\,\gw_w^{t+1}+\ggr_w^t.
+\end{equation}
+Note how close this equation for $\gw$ is to equation \eqref{nd} for $N$.
+Multiplying by $\Delta t$ and collecting terms gives
+\begin{equation}
+    \gw_w^{t+1}\left(1+g_w^t\frac{\Delta t}{\Delta w}+r_t^w\,\Delta t\right)=
+    \gw_{w-1}^{t+1}\left(g_w^t\frac{\Delta t}{\Delta w}\right)
+    +\gw_w^t+\ggr_w^t\,\Delta t.
+\end{equation}
+Solving for $\gw_w^{t+1}$ gives
+\begin{equation}\label{qds}
+    \gw_w^{t+1}=\frac{s_w^t-a_w^t\gw_{w-1}^{t+1}}{b_w^t},
+\end{equation}
+where
+\begin{equation}\label{abs}
+\begin{split}
+   a_w^t&=-g_w^t\frac{\Delta t}{\Delta w},\\
+   b_w^t&=1+g_w^t\frac{\Delta t}{\Delta w}+r_t^w\,\Delta t,\\
+   s_w^t&=\gw_w^t+\ggr_w^t\,\Delta t.
+\end{split}
+\end{equation}
+Together with an initial value and the boundary condition that $\gw_1^t=0$ at all times because the smallest individuals do not yet have any gonadic mass, this recurrence relation allows us to calculate $\gw_w^{t+1}$ for all size classes at all later times.
+
+Note how small the difference is between the discretised equation \eqref{qds} for $\gw$ and the equation \eqref{nds} for $N$. The only difference lies in replacing $A_w^t, B_w^t$ and $S_w^t$ given in \eqref{ABS} by $a_w^t, b_w^t$  and $s_w^t$ given in \eqref{abs}.
+
+## Open problems
+
+1. We can no longer use the old $R_{max}$ to limit the average reproduction rate. We need to come up with a recipe for introducing density dependence into the time-varying reproduction. Perhaps best to rely on resource competition instead?
+
+2. The large number of larvae during the spawning season will not have enough plankton to feed on unless we also make the plankton seasonal. But I guess this is less a problem and more the topic of our paper.
+
+3. Once we are modelling cohorts in mizer, the diffusion terms in the size-spectrum dynamics will become important, because they will lead to the broadening of the cohorts. 
+
+4. It is not clear what the best choice is for the mass-specific reproduction rate $r(w,t$.
+
+5. We do not yet know what the required step sizes are in size and in time to faithfully reproduce the dynamics. Too large size steps will lead to too much numerical diffusion. Too large time steps may lead to numerical instability.
