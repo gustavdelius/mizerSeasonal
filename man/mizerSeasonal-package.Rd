@@ -23,7 +23,6 @@ Useful links:
 Authors:
 \itemize{
   \item Michael A. Spence \email{michael.spence@cefas.gov.uk} (\href{https://orcid.org/0000-0002-3445-7979}{ORCID}) [copyright holder]
-  \item Caroline McKeon \email{mckeonc2@tcd.ie} (\href{https://orcid.org/0000-0002-1737-3503}{ORCID}) [copyright holder]
 }
 
 }

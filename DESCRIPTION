@@ -9,11 +9,7 @@ Authors@R:
       person("Michael A.", "Spence",
              role = c("aut", "cph"),
              email = "michael.spence@cefas.gov.uk",
-             comment = c(ORCID = "0000-0002-3445-7979")),
-      person("Caroline", "McKeon",
-             email = "mckeonc2@tcd.ie",
-             role = c("aut", "cph"),
-             comment = c(ORCID = "0000-0002-1737-3503")))
+             comment = c(ORCID = "0000-0002-3445-7979")))
 Description: For now, the package implements the accumulation of gonadic mass throughout
              the year and its release during spawning periods.
 License: GPL-3

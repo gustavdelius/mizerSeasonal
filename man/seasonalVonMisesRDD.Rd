@@ -4,7 +4,7 @@
 \alias{seasonalVonMisesRDD}
 \title{von-Mises distributed reproduction rate independent of abundance}
 \usage{
-seasonalVonMisesRDD(params = NULL, t = NULL, ...)
+seasonalVonMisesRDD(params, t, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}

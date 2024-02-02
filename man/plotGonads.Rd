@@ -4,7 +4,13 @@
 \alias{plotGonads}
 \title{not a real function. Used to follow gonadic mass through time}
 \usage{
-plotGonads(sim, time_range, prop_size = 1, ...)
+plotGonads(
+  sim,
+  time_range,
+  prop_size = 1,
+  sizes = sim@params@species_params$w_max,
+  ...
+)
 }
 \description{
 not a real function. Used to follow gonadic mass through time
