@@ -4,12 +4,16 @@
 \alias{setSeasonalReproduction}
 \title{Set seasonal reproduction}
 \usage{
-setSeasonalReproduction(params, repro_func = "repro_gaussian")
+setSeasonalReproduction(
+  params,
+  release_func = "repro_vonMises",
+  RDD = "seasonalBevertonHoltRDD"
+)
 }
 \arguments{
 \item{params}{A MizerParams object}
 
-\item{repro_func}{Name of the function giving the time-dependent
+\item{release_func}{Name of the function giving the time-dependent
 mass-specific reproduction rate.}
 }
 \value{

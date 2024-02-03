@@ -4,26 +4,27 @@
 #' the year
 #'
 #' @param params A MizerParams object
-#' @param repro_func Name of the function giving the time-dependent
+#' @param release_func Name of the function giving the time-dependent
 #'     mass-specific reproduction rate.
 #'
 #' @return A MizerParams object with seasonal reproduction
 #' @export
-setSeasonalReproduction <- function(params, repro_func = "repro_gaussian") {
+setSeasonalReproduction <- function(params, release_func = "repro_vonMises",
+                                    RDD = "seasonalBevertonHoltRDD") {
     # start with zero gonadic mass
     initial <- initialN(params) # to get the right dimensions
     initial[] <- 0
 
-    # TODO: check that `repro_func` is valid and that all necessary parameters
+    # TODO: check that `release_func` is valid and that all necessary parameters
     #  are contained in the species parameters
-    other_params(params)$repro_func <- repro_func
+    other_params(params)$release_func <- release_func
 
     # add gonads component and register new RDI function
     setComponent(params, component = "gonads",
                  initial_value = initial,
                  dynamics_fun = "gonadDynamics") |>
         setRateFunction("RDI", "seasonalRDI") |>
-        setRateFunction("RDD", "seasonalBevertonHoltRDD")
+        setRateFunction("RDD", RDD)
 }
 
 
@@ -42,8 +43,8 @@ gonadDynamics <- function(params, n_other, rates, t, dt, ...) {
     # Handy things
     no_sp <- nrow(params@species_params) # number of species
     no_w <- length(params@w) # number of fish size bins
-    repro_func <- get0(other_params(params)$repro_func)
-    r <- repro_func(t, params)
+    release_func <- get0(other_params(params)$release_func)
+    r <- release_func(t, params)
     # Matrices for solver
     # a_{ij} = - g_i(w_j) / dw_j dt
     a <- sweep(-rates$e_growth * dt, 2, params@dw, "/")
@@ -76,8 +77,8 @@ gonadDynamics <- function(params, n_other, rates, t, dt, ...) {
 #' @return A numeric vector with the rate of egg production for each species.
 #' @export
 seasonalRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
-    repro_func <- get0(other_params(params)$repro_func)
-    r <- repro_func(t, params)
+    release_func <- get0(other_params(params)$release_func)
+    r <- release_func(t, params)
     total <- drop((sweep(n_other$gonads, 1, r, "*") * n) %*% params@dw)
     # Assume sex_ratio = 0.5.
     0.5 * (total * params@species_params$erepro) /
@@ -111,14 +112,16 @@ seasonalRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
 #' @return Vector of density-dependent reproduction rates.
 #' @export
 #' @family functions calculating density-dependent reproduction rate
-seasonalBevertonHoltRDD <- function(rdi, params = NULL, t = NULL, ...) {
-    # For now just return rdi until we have figured out how to calculate R_max
-    return(rdi)
-
-    if (!("r_max" %in% names(params@other_params))) {
-        stop("The r_max paramter is missing.")
+seasonalBevertonHoltRDD <- function(rdi, params, t, ...) {
+    t_name = as.character(round(t - floor(t), 5))
+    if (!(t_name %in% dimnames(params@other_params$r_max)$time)) {
+        stop("r_max not defined at time ", t_name)
     }
-    return(rdi / (1 + rdi / params@other_params$r_max))
+    r_max <- params@other_params$r_max[t_name, ]
+    if (is.null(r_max)) {
+        stop("r_max is NULL at time ", t_name)
+    }
+    return(rdi / (1 + rdi / r_max))
 }
 
 #' von-Mises distributed reproduction rate independent of abundance
@@ -130,10 +133,9 @@ seasonalBevertonHoltRDD <- function(rdi, params = NULL, t = NULL, ...) {
 #' @export
 seasonalVonMisesRDD <- function(params, t, ...) {
     sp <- params@species_params
-    new_t <- t - floor(t)
-    kappa <- sp$rdd_vonMises_k
+    kappa <- sp$rdd_vonMises_kappa
     mu <- sp$rdd_vonMises_mu
-    H <- sp$rdd_vonMises_r * exp(kappa * cos(2*pi*(new_t - mu))) /
+    H <- sp$rdd_vonMises_r0 * exp(kappa * cos(2*pi*(t - mu))) /
         (2 * pi * besselI(kappa, nu = 0))
     return(H)
 }
@@ -210,6 +212,5 @@ pulsed_rate <- function(params, t) {
 }
 
 vonMises <- function(x, mu, kappa) {
-    exp(kappa * cos(2*pi*(new_t - mu))) /
-        (2 * pi * besselI(kappa, nu = 0))
+    exp(kappa * cos(2*pi*(x - mu))) / (2 * pi * besselI(kappa, nu = 0))
 }

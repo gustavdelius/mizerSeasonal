@@ -4,7 +4,7 @@
 \alias{seasonalBevertonHoltRDD}
 \title{Beverton Holt function to calculate density-dependent reproduction rate}
 \usage{
-seasonalBevertonHoltRDD(rdi, params = NULL, t = NULL, ...)
+seasonalBevertonHoltRDD(rdi, params, t, ...)
 }
 \arguments{
 \item{rdi}{Vector of density-independent reproduction rates

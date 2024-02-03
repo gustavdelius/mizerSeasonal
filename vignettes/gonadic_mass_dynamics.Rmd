@@ -46,8 +46,8 @@ growth rate of an individual of size $w$ (when it is not reproducing), then they
 \frac{\partial \gbd}{\partial t} 
 =-\frac{\partial}{\partial w}\left(g\,\gbd\right)+\ggr\,N-\mu\,\gbd-r\,\gbd,
 \end{equation}
-where we have an additional loss term representing the loss of gonadic mass during reproduction.
-The rate $r(w,t)$ will encode the seasonality of this reproduction.
+where we have an additional loss term representing the release of gonadic mass during reproduction.
+The release rate $r(w,t)$ will encode the seasonality of this reproduction.
 
 In mizer, the total energy $E_r$ available for growth an reproduction is split as $g=E_r(1-\psi)$ and
 $\ggr=E_r\psi$. Thus $\ggr=g\,\psi/(1-\psi)$.
@@ -94,20 +94,14 @@ species $i$.
 
 \section{Reproduction rate}
 
-We need to specify the mass-specific reproduction rate $r(w,t)$. This then determines the total reproduction rate
+We need to specify the mass-specific release rate $r(w,t)$. This then determines the total reproduction rate
 \begin{equation}
 R_p(t)=\frac{\epsilon}{2w_0}\int N(w,t)\gw(w,t)r(w,t)dw.
 \end{equation}
 It will be difficult to know how to choose the mass-specific rate $r(w,t)$ to produce the observed egg production rate $R_p(t)$. We'll probably have to do this by trial and error initially.
-The rate of egg production will now be 
-The rate $r(w,t)$ should become very large at least once a year so that the gonadic
+The rate $r(w,t)$ should become large at least once a year so that the gonadic
 mass goes back to close to zero. 
-
-One possibility would be to make $r(w,t)$ independent of $w$ and choose a Gaussian for its time dependence:
-\begin{equation}
-    r(w, t) = r_0 \exp{\left(-\frac{(t-\lfloor{t}\rfloor-t_0)^2}{2\sigma^2}\right)}
-\end{equation}
-Here we assume that $t$ is given in years so that $t-\lfloor t\rfloor$ gives the time within the year.
+One possibility would be to make $r(w,t)$ independent of $w$.
 
 ## Numerical implementation
 
@@ -167,12 +161,6 @@ Note how small the difference is between the discretised equation \eqref{qds} fo
 
 ## Open problems
 
-1. We can no longer use the old $R_{max}$ to limit the average reproduction rate. We need to come up with a recipe for introducing density dependence into the time-varying reproduction. Perhaps best to rely on resource competition instead?
+1. Once we are modelling cohorts in mizer, the diffusion terms in the size-spectrum dynamics will become important, because they will lead to the broadening of the cohorts. 
 
-2. The large number of larvae during the spawning season will not have enough plankton to feed on unless we also make the plankton seasonal. But I guess this is less a problem and more the topic of our paper.
-
-3. Once we are modelling cohorts in mizer, the diffusion terms in the size-spectrum dynamics will become important, because they will lead to the broadening of the cohorts. 
-
-4. It is not clear what the best choice is for the mass-specific reproduction rate $r(w,t$.
-
-5. We do not yet know what the required step sizes are in size and in time to faithfully reproduce the dynamics. Too large size steps will lead to too much numerical diffusion. Too large time steps may lead to numerical instability.
+2. We do not yet know what the required step sizes are in size and in time to faithfully reproduce the dynamics. Too large size steps will lead to too much numerical diffusion. Too large time steps may lead to numerical instability.
