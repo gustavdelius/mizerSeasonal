@@ -82,6 +82,11 @@
         <dd>Beverton Holt function to calculate density-dependent reproduction rate</dd>
       </dl><dl><dt>
           
+          <code><a href="seasonalEncounter.html">seasonalEncounter()</a></code> 
+        </dt>
+        <dd>Get encounter rate that includes gonadic mass of prey</dd>
+      </dl><dl><dt>
+          
           <code><a href="seasonalRDI.html">seasonalRDI()</a></code> 
         </dt>
         <dd>Get density-independent rate of seasonal reproduction</dd>
@@ -92,29 +97,14 @@
         <dd>von-Mises distributed reproduction rate independent of abundance</dd>
       </dl><dl><dt>
           
+          <code><a href="seasonal_resource_semichemostat.html">seasonal_resource_semichemostat()</a></code> 
+        </dt>
+        <dd>Seasonal semichemostat resource dynamics</dd>
+      </dl><dl><dt>
+          
           <code><a href="gonadDynamics.html">gonadDynamics()</a></code> 
         </dt>
         <dd>Update the gonadic mass using a seasonal reproduction rate</dd>
-      </dl><dl><dt>
-          
-          <code><a href="repro_beta.html">repro_beta()</a></code> 
-        </dt>
-        <dd>Beta distributed reproduction rate</dd>
-      </dl><dl><dt>
-          
-          <code><a href="repro_beta_hazard.html">repro_beta_hazard()</a></code> 
-        </dt>
-        <dd>Beta hazard mass-specific reproduction rate</dd>
-      </dl><dl><dt>
-          
-          <code><a href="repro_gaussian.html">repro_gaussian()</a></code> 
-        </dt>
-        <dd>Gaussian mass-specific reproduction rate</dd>
-      </dl><dl><dt>
-          
-          <code><a href="repro_vonMises.html">repro_vonMises()</a></code> 
-        </dt>
-        <dd>von-Mises distributed reproduction rate</dd>
       </dl></div><div class="section level2">
       <h2 id="plotting-functions">Plotting functions<a class="anchor" aria-label="anchor" href="#plotting-functions"></a></h2>
       
@@ -128,9 +118,9 @@
 
       <dl><dt>
           
-          <code><a href="plotGonads.html">plotGonads()</a></code> 
+          <code><a href="plotGonadsVsTime.html">plotGonadsVsTime()</a></code> 
         </dt>
-        <dd>not a real function. Used to follow gonadic mass through time</dd>
+        <dd>Plot per-capita gonadic mass through time at a given size</dd>
       </dl><dl><dt>
           
           <code><a href="plotRDD.html">plotRDD()</a></code> 
@@ -146,6 +136,53 @@
           <code><a href="animateGonadSpectra.html">animateGonadSpectra()</a></code> 
         </dt>
         <dd>Animation of the gonadic mass spectra</dd>
+      </dl></div><div class="section level2">
+      <h2 id="release-functions">Release functions<a class="anchor" aria-label="anchor" href="#release-functions"></a></h2>
+      
+      <p class="section-desc"></p><p>Functions for specifying the time-dependence of the gonad release rates</p>
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="seasonalVonMisesRelease.html">seasonalVonMisesRelease()</a></code> 
+        </dt>
+        <dd>von-Mises distributed gonad release rate</dd>
+      </dl><dl><dt>
+          
+          <code><a href="seasonalBetaHazardRelease.html">seasonalBetaHazardRelease()</a></code> 
+        </dt>
+        <dd>Beta hazard mass-specific gonad release rate</dd>
+      </dl><dl><dt>
+          
+          <code><a href="seasonalBetaRelease.html">seasonalBetaRelease()</a></code> 
+        </dt>
+        <dd>Beta distributed gonad release rate</dd>
+      </dl><dl><dt>
+          
+          <code><a href="seasonalGaussianRelease.html">seasonalGaussianRelease()</a></code> 
+        </dt>
+        <dd>Gaussian mass-specific gonad release rate</dd>
+      </dl></div><div class="section level2">
+      <h2 id="helper-functions">Helper functions<a class="anchor" aria-label="anchor" href="#helper-functions"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="getTimeseries.html">getTimeseries()</a></code> 
+        </dt>
+        <dd>Get time series of summary functions from simulation</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>

@@ -10,7 +10,7 @@ seasonalBevertonHoltRDD(rdi, params, t, ...)
 \item{rdi}{Vector of density-independent reproduction rates
 \eqn{R_{di}}{R_di} for all species.}
 
-\item{params}{A params object that must contain \code{params@other_params$R_max}}
+\item{params}{A params object that must contain \code{other_params$R_max}}
 
 \item{t}{The time at which to calculate RDD}
 

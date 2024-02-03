@@ -123,9 +123,9 @@ not reproducing), then they satisfy the analogous equation <span class="math dis
 \frac{\partial Q}{\partial t}
 =-\frac{\partial}{\partial w}\left(g\,Q\right)+G\,N-\mu\,Q-r\,Q,
 \end{equation}\]</span> where we have an additional loss term
-representing the loss of gonadic mass during reproduction. The rate
-<span class="math inline">\(r(w,t)\)</span> will encode the seasonality
-of this reproduction.</p>
+representing the release of gonadic mass during reproduction. The
+release rate <span class="math inline">\(r(w,t)\)</span> will encode the
+seasonality of this reproduction.</p>
 <p>In mizer, the total energy <span class="math inline">\(E_r\)</span>
 available for growth an reproduction is split as <span class="math inline">\(g=E_r(1-\psi)\)</span> and <span class="math inline">\(G=E_r\psi\)</span>. Thus <span class="math inline">\(G=g\,\psi/(1-\psi)\)</span>.</p>
 <p>Instead of considering the total gonadic biomass density <span class="math inline">\(Q(w,t)\)</span>, we could consider the gonadic
@@ -165,22 +165,16 @@ good starting point for deriving the PDE <span class="math inline">\(\eqref{wg}\
 is one gonadic mass function <span class="math inline">\(q_i(w,t)\)</span> for each species <span class="math inline">\(i\)</span> and we will need to specify one rate
 function <span class="math inline">\(r_i(w,t)\)</span> for each species
 <span class="math inline">\(i\)</span>.</p>
-<p>We need to specify the mass-specific reproduction rate <span class="math inline">\(r(w,t)\)</span>. This then determines the total
+<p>We need to specify the mass-specific release rate <span class="math inline">\(r(w,t)\)</span>. This then determines the total
 reproduction rate <span class="math display">\[\begin{equation}
 R_p(t)=\frac{\epsilon}{2w_0}\int N(w,t)q(w,t)r(w,t)dw.
 \end{equation}\]</span> It will be difficult to know how to choose the
 mass-specific rate <span class="math inline">\(r(w,t)\)</span> to
 produce the observed egg production rate <span class="math inline">\(R_p(t)\)</span>. We’ll probably have to do this by
-trial and error initially. The rate of egg production will now be The
-rate <span class="math inline">\(r(w,t)\)</span> should become very
-large at least once a year so that the gonadic mass goes back to close
-to zero.</p>
-<p>One possibility would be to make <span class="math inline">\(r(w,t)\)</span> independent of <span class="math inline">\(w\)</span> and choose a Gaussian for its time
-dependence: <span class="math display">\[\begin{equation}
-    r(w, t) = r_0
-\exp{\left(-\frac{(t-\lfloor{t}\rfloor-t_0)^2}{2\sigma^2}\right)}
-\end{equation}\]</span> Here we assume that <span class="math inline">\(t\)</span> is given in years so that <span class="math inline">\(t-\lfloor t\rfloor\)</span> gives the time within
-the year.</p>
+trial and error initially. The rate <span class="math inline">\(r(w,t)\)</span> should become large at least once
+a year so that the gonadic mass goes back to close to zero. One
+possibility would be to make <span class="math inline">\(r(w,t)\)</span>
+independent of <span class="math inline">\(w\)</span>.</p>
 </div>
 <div class="section level2">
 <h2 id="numerical-implementation">Numerical implementation<a class="anchor" aria-label="anchor" href="#numerical-implementation"></a>
@@ -246,19 +240,9 @@ later times.</p>
 <h2 id="open-problems">Open problems<a class="anchor" aria-label="anchor" href="#open-problems"></a>
 </h2>
 <ol style="list-style-type: decimal">
-<li><p>We can no longer use the old <span class="math inline">\(R_{max}\)</span> to limit the average reproduction
-rate. We need to come up with a recipe for introducing density
-dependence into the time-varying reproduction. Perhaps best to rely on
-resource competition instead?</p></li>
-<li><p>The large number of larvae during the spawning season will not
-have enough plankton to feed on unless we also make the plankton
-seasonal. But I guess this is less a problem and more the topic of our
-paper.</p></li>
 <li><p>Once we are modelling cohorts in mizer, the diffusion terms in
 the size-spectrum dynamics will become important, because they will lead
 to the broadening of the cohorts.</p></li>
-<li><p>It is not clear what the best choice is for the mass-specific
-reproduction rate <span class="math inline">\(r(w,t\)</span>.</p></li>
 <li><p>We do not yet know what the required step sizes are in size and
 in time to faithfully reproduce the dynamics. Too large size steps will
 lead to too much numerical diffusion. Too large time steps may lead to

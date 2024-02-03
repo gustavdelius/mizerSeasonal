@@ -2,7 +2,7 @@
 
 Implementing seasonality in mizer
 
-The first step is to implement the accumulation of gonadic mass throughout the year and its release during spawning periods. See the "[Articles](articles/index.html)" section of the website for details.
+The first step is to implement the accumulation of gonadic mass throughout the year and its release during spawning periods. See the "[Get started](articles/mizerSeasonal.html)" page for details.
 
 
 For related work see

@@ -10,7 +10,16 @@ reference:
   - contains("seasonal")
   - contains("gonad")
   - starts_with("repro")
+  - -contains("Release")
 - title: Plotting functions
   contents:
   - contains("plot")
   - contains("animate")
+- title: Release functions
+  desc: Functions for specifying the time-dependence of the gonad release rates
+  contents:
+  - seasonalVonMisesRelease
+  - contains("Release")
+- title: Helper functions
+  contents:
+  - getTimeseries

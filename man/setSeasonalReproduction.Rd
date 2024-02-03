@@ -7,7 +7,8 @@
 setSeasonalReproduction(
   params,
   release_func = "repro_vonMises",
-  RDD = "seasonalBevertonHoltRDD"
+  RDD = "seasonalBevertonHoltRDD",
+  include_gonads = TRUE
 )
 }
 \arguments{
@@ -15,6 +16,12 @@ setSeasonalReproduction(
 
 \item{release_func}{Name of the function giving the time-dependent
 mass-specific reproduction rate.}
+
+\item{RDD}{Name of the function for calculating the density-dependent
+reproduction rate RDD.}
+
+\item{include_gonads}{Boolean. If TRUE (default) then the gonadic mass is
+included in the prey encounter rate.}
 }
 \value{
 A MizerParams object with seasonal reproduction
