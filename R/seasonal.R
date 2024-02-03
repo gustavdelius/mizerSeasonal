@@ -210,7 +210,7 @@ seasonalRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
 #'
 #' @param rdi Vector of density-independent reproduction rates
 #'   \eqn{R_{di}}{R_di} for all species.
-#' @param params A params object that must contain `params@other_params$R_max`
+#' @param params A params object that must contain `other_params$R_max`
 #' @param t The time at which to calculate RDD
 #' @param ... Unused
 #'
@@ -219,10 +219,10 @@ seasonalRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
 #' @family functions calculating density-dependent reproduction rate
 seasonalBevertonHoltRDD <- function(rdi, params, t, ...) {
     t_name = as.character(round(t - floor(t), 5))
-    if (!(t_name %in% dimnames(params@other_params$r_max)$time)) {
+    if (!(t_name %in% dimnames(other_params(params)$r_max)$time)) {
         stop("r_max not defined at time ", t_name)
     }
-    r_max <- params@other_params$r_max[t_name, ]
+    r_max <- other_params(params)$r_max[t_name, ]
     if (is.null(r_max)) {
         stop("r_max is NULL at time ", t_name)
     }

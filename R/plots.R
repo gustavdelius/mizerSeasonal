@@ -177,7 +177,10 @@ plotRDD <- function(sim, sim2,
 #' with the values at all the time steps saved in a simulation.
 #' 
 #' @param sim A MizerSim object
-#' @func The function calculating the quantities at a single time step
+#' @param func The function calculating the quantities at a single time step
+#' 
+#' @return A matrix (time x species)
+#' @export
 getTimeseries <- function(sim, func = getRDI, ...) {
     params <- sim@params
     no_sp <- nrow(params@species_params)
