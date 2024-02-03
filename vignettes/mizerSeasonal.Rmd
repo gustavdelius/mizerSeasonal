@@ -14,51 +14,87 @@ knitr::opts_chunk$set(
 )
 ```
 
+Currently the mizerSeasonal package depends on a special version of the mizer package that allows for time-dependent reproduction rate. So you first need to install that version from GitHub with
+```{r eval=FALSE}
+remotes::install_github("sizespectrum/mizer", ref = "t-dependent_RDD")
+```
+
+Once you have also installed the mizerSeasonal package with
+```{r eval=FALSE}
+remotes::install_github("gustavdelius/mizerSeasonal")
+```
+
+you can load it with
+
 ```{r setup}
 library(mizerSeasonal)
 ```
 
-To demonstrate the use of the package we first set up a standard trait-based model, turn off density dependence in reproduction and run to steady state.
+We demonstrate the use of the package by introducing seasonal reproduction into the North Sea model that comes with mizer. So we load the model, match its growth rates to observations and run it to steady state:
+
 ```{r}
-p <- newTraitParams()
-# Turn of density dependence for now
-p <- setRateFunction(p, "RDD", "noRDD")
-# Find steady state
-p <- steady(p)
+p <- NS_params |> matchGrowth() |> steady(preserve = "erepro")
+plotlySpectra(p, power = 2)
 ```
 
-We will set up seasonal reproduction with the default gaussian mass-specific reproduction rate
-$$
-r(w, t) = r_0 \exp{\left(-\frac{(t-\lfloor{t}\rfloor-t_0)^2}{2\sigma^2}\right)}
-$$
-Because mizer measures time in years, $t-\lfloor t\rfloor$ gives the time within the year.
+This is not a particularly good model of the North Sea, but it will suffice for demonstration purposes.
 
-We need to specify the new species parameters $r_0, \sigma$ and $t_0$ (which are denoted by `sr_r0`, `sr_sigma` and `sr_t0` respectively) and then call `setSeasonalReproduction()`.
+In standard mizer the way to find a good steady state for a model is to first keep the reproduction independent of the rate of investment into reproduction and run the dynamics until it settles down. Then one adapts the reproduction parameters in the model so that the steady-state investment into reproduction leads to the desired steady state reproduction (this is what the `steady()` function did above). We will follow the same method for the model with seasonal reproduction.
+
+Following the paper by Datta, S. & Blanchard, J. L. "The effects of seasonal processes on size spectrum dynamics". Canadian Journal of Fisheries and Aquatic Sciences (2016). <https://cdnsciencepub.com/doi/full/10.1139/cjfas-2015-0468>, we describe the seasonal reproduction rate by the von Mises distribution
+$$
+R_{dd}(t) = r_0 \frac{\exp(\kappa \cos(2\pi(t - \mu)))}{2\pi I_0(\kappa)},
+$$
+which looks like a Gaussian near $t = \mu$ but is periodic in $t$ with a period of one year. The spawning season is centred at $\mu$ with a length proportional to $1/\sqrt{\kappa}$ and a magnitude determined by $r_0$. The denominator involving the Bessel function $I_0$ is just a normalisation factor that makes sure that the integral over $R_{dd}(t)$ is equal to $r_0$.
+
+We need to specify the new species parameters $r_0, \kappa$ and $\mu$ (which are denoted by `rdd_vonMises_r0`, `rdd_vonMises_kappa` and `rdd_vonMises_mu` respectively). We choose $r_0$ to be equal to the reproduction rate $R_{dd}$ of the non-seasonal model and we take $\mu$ and $\kappa$ from the paper by Datta et.al.
 ```{r}
-p@species_params$sr_r0 <- 5
-p@species_params$sr_sigma <- sqrt(1/2000)
-p@species_params$sr_t0 <- 0.2
-p <- setSeasonalReproduction(p)
+species_params(p)$rdd_vonMises_r0 <- getRDD(p)
+species_params(p)$rdd_vonMises_kappa <- 
+    c(3.6047, 2.9994, 1.944, 0.40493, 1.141, 1.4257,
+      4.973, 0.795, 4.0495, 3.6567, 5.4732, 1.951)
+species_params(p)$rdd_vonMises_mu <- 
+    c(0.5477, 0.0643, 0.3574, 0.8576, 0.3825, 0.3716,
+      0.4856, 0.5021,0.2245, 0.4181, 0.3123, 0.3333)
+```
+
+We also need to set the mass-specific gonad release rate $r(t)$ so that mizer can calculate the gonadic mass. We choose to describe this too by a vonMises distribution with the same $\kappa$ and $\mu$ parameters as above and with $r_0$ chosen large enough so that most of the gonadic mass is released every year.
+```{r}
+species_params(p)$vonMises_r0 <- 100
+species_params(p)$vonMises_kappa <- species_params(p)$rdd_vonMises_kappa
+species_params(p)$vonMises_mu <- species_params(p)$rdd_vonMises_mu
+```
+Seasonal reproduction is then turned on with
+```{r}
+p <- setSeasonalReproduction(p, release_func = "seasonalVonMisesRelease",
+                             RDD = "seasonalVonMisesRDD")
 ```
 
 The resulting MizerParams object can be projected into the future as usual with `project()` to produce a MizerSim object.
 ```{r}
-sim <- project(p, t_max = 3, t_save = 0.05, dt = 0.01)
+sim <- project(p, t_max = 50, dt = 0.01)
+plotlyBiomass(sim)
 ```
 
-Let us take a look at the seasonal reproduction rate $R_p(t)$
+We see that the system has settled down to a steady state quite quickly. To see the variation within the year we project for a further year but with higher time resolution
 ```{r}
-plotRDI(sim, log = FALSE)
+ps <- setInitialValues(p, sim)
+sim1 <- project(ps, t_max = 1, dt = 0.01, t_save = 0.01)
+plotlyBiomass(sim1)
 ```
 
-When we animate the simulation result we see the effect travelling up the size spectrum
+Let us look at an animation of the size spectrum for one year. We first re-run the simulation while storing fewer intermediate times to make the animation render more quickly.
 ```{r}
-animateSpectra(sim, power = 2)
+sim1l <- project(ps, t_max = 1, dt = 0.01, t_save = 0.1)
+animateSpectra(sim1l, power = 2)
 ```
 
-On the logarithmic scale the change in the gonadic mass is not so easy to see
+Because we are in the steady state, the next year will again look the same, so you can simply play the above simulation repeatedly.
+
+We notice that, while the seasonal reproduction has a big effect on the seasonal variation of the abundance of larvae, the abundance of mature fish remains unaffected. The cohort peaks are damped while they move up the size spectrum and disappear almost completely by the time they reach the maturity size.
+
+As a result, when we animate the gonadic spectrum, i.e., the size distribution of the total gonadic mass of each species, the shape of the distribution does not change much but simply moves up and down during the year due to the seasonal release rate and the constant creation of gonadic mass.
 ```{r}
-animateGonadSpectra(sim, time_range = c(2, 3), 
-                    power = 1, ylim = c(1e-4, 1e-2))
+animateGonadSpectra(sim1l)
 ```
 
