@@ -3,6 +3,7 @@
 export(animateGonadSpectra)
 export(getTimeseries)
 export(gonadDynamics)
+export(plotGonadsVsTime)
 export(plotRDD)
 export(plotRDI)
 export(seasonalBetaHazardRelease)

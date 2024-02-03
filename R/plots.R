@@ -208,6 +208,7 @@ getTimeseries <- function(sim, func = getRDI, ...) {
 #' @param time_range The time range over which to plot
 #' @param sizes A vector of sizes for each species at which to plot the 
 #'     gonadic mass of an individual of that size.
+#' @export
 plotGonadsVsTime <- function(sim,
                        time_range,
                        sizes=sim@params@species_params$w_max){
