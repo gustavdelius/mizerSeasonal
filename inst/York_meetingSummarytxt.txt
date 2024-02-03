@@ -1,0 +1,29 @@
+MS notes on the seasonal meeting -- 
+
+The seasonal mizer was coded up and seasonal reproduction was written in by looking at the function r(t). This means that the number of eggs produced at time t_0 by a fish of size w is
+
+CN(t_0,w)q(t_0,w)r(t_0,w),
+
+where 
+dq(t,w)/dt = G(t,w) - r(t,w)q(t,w)
+
+The constant model has:
+
+CN(t_0,w)G(t_0,w),
+
+which implies that the constant model can be created if
+G(t_0,w) = q(t_0,w)r(t_0,w), (1)
+which implies
+r(t_0,w) = G(t_0)/q(t_0,w).
+Adding a seasonal part to (1) s(t), then the usual model can be created with s(t)=1 for all t and Datta et al. can be created for 
+s(t)~vonMises(...).
+
+We did not try to implement this approach but I feel it would be interesting. We looked at different formulations of r(t), including hazard functions and distributions. The function r(t) should be circular, i.e. r(0) = r(1) and all of it's derivatives be the same too. Therefore, it doesn't really make sense to include hazard functions as there isn't a start or end of the destribution used to devise the hazard function.
+
+With fixed values of background resource the seasonal dynamics only appeared in the smallest sizes, and only up to age 3. This was seen in observations of Haddock in one season in one year and we were able to recreate it with von Bertalanffy models. The problems seems to be related to a build up of indviduals at a specific size.
+
+No density dependence (Rmax) was used in the experiments, with RDD being fixed in all cases.
+
+We examined with seasonal growth in the background resourse. This was hardwired and didn't seem realistic. We decided to change the carrying capacity of the background resource to be seasonal but we didn't implement this.
+
+Further work should look at the robustness of fishing in both the seasonal and constant recruitment case. 
