@@ -4,36 +4,30 @@ install_github("sizespectrum/mizer", ref = "t-dependent_RDD")
 library(mizerSeasonal)
 p <- newTraitParams()
 
-sp <- p@species_params
-sp$rdd_vonMises_k <- 5
+sp <- species_params(p)
+sp$rdd_vonMises_kappa <- 5
 sp$rdd_vonMises_mu <- 0.3
-sp$rdd_vonMises_r <- getRDD(p)
+sp$rdd_vonMises_r0 <- getRDD(p)
 
 # Make some guesses for r(t)
 # Parameters for Von Mises r(t)
-sp$vonMises_k <- sp$rdd_vonMises_k
+sp$vonMises_kappa <- sp$rdd_vonMises_kappa
 sp$vonMises_mu <- sp$rdd_vonMises_mu
-sp$vonMises_r <- 100
+sp$vonMises_r0 <- 100
 
 species_params(p) <- sp
 
 # Set seasonal investment into reproduction
-# # Using gaussian
-# p <- setSeasonalReproduction(p)
 # Using Von Mises
-p <- setSeasonalReproduction(p, repro_func = "repro_vonMises")
-
-# Set RDD to observations
-p <- setRateFunction(p, "RDD", "seasonalVonMisesRDD")
+p <- setSeasonalReproduction(p, release_func = "seasonalVonMisesRelease",
+                             RDD = "seasonalVonMisesRDD")
 
 # Force resource to stay at current level
-old_resource_dynamics <- p@resource_dynamics
 p@resource_dynamics <- "resource_constant"
 
 sim <- projectToSteady(p, distance_func = distanceMaxRelRDI,
                       t_per = 1, t_max = 50, dt = 0.01, tol = 0.01,
                       return_sim = TRUE)
-plotSpectra(sim)
 plotBiomass(sim)
 
 ps <- setInitialValues(p, sim)
@@ -44,7 +38,7 @@ plotBiomass(sim)
 # Plot it for just 2 years at higher time resolution
 ps <- setInitialValues(ps, sim)
 sim2 <- project(ps, t_max = 2, dt = 0.01, t_save = 0.01)
-species = 12
+species = 11
 plotRDI(sim2, species = species)
 plotRDD(sim2, species = species)
 plotGonads(sim2,sizes=sim2@params@species_params$w_max, prop_size = 0.8)
@@ -106,7 +100,7 @@ plotBiomass(simr)
 pr <- setInitialValues(pr, simr)
 sim2r <- project(pr, t_max = 2, dt = 0.01, t_save = 0.01)
 plotBiomass(sim2r)
-plotGonads(sim2r)
+plotGonadsVsTime(sim2r)
 plotRDD(sim2r)
 plot.ts(sim2r@n_pp[, 10*(1:10)])
 
