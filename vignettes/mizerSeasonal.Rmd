@@ -76,7 +76,9 @@ sim <- project(p, t_max = 50, dt = 0.01)
 plotlyBiomass(sim)
 ```
 
-We see that the system has settled down to a steady state quite quickly. To see the variation within the year we project for a further year but with higher time resolution
+We see that the system has settled down to a steady state quite quickly. 
+
+To see the variation within the year we project for a further year but with higher time resolution
 ```{r}
 ps <- setInitialValues(p, sim)
 sim1 <- project(ps, t_max = 1, dt = 0.01, t_save = 0.01)
@@ -89,7 +91,7 @@ sim1l <- project(ps, t_max = 1, dt = 0.01, t_save = 0.1)
 animateSpectra(sim1l, power = 2)
 ```
 
-Because we are in the steady state, the next year will again look the same, so you can simply play the above simulation repeatedly.
+Hit the "Play" button to see the size spectra evolve over the course of a year. Because we are in the steady state, the next year will again look the same, so you can simply play the above simulation repeatedly.
 
 We notice that, while the seasonal reproduction has a big effect on the seasonal variation of the abundance of larvae, the abundance of mature fish remains unaffected. The cohort peaks are damped while they move up the size spectrum and disappear almost completely by the time they reach the maturity size.
 
@@ -98,3 +100,30 @@ As a result, when we animate the gonadic spectrum, i.e., the size distribution o
 animateGonadSpectra(sim1l)
 ```
 
+We can take a look at the rate $R_di$ of reproduction before density dependence and the desired rate $R_dd$ that should remain after imposing an $R_max$. Both vary throughout the year:
+```{r}
+rdi <- getTimeseries(sim1, func = getRDI)
+rdd <- getTimeseries(sim1, func = getRDD)
+# build data frame for ggplot
+rdi_df <- melt(rdi)
+rdi_df$type <- "RDI"
+rdd_df <- melt(rdd)
+rdd_df$type <- "observed"
+df <- rbind(rdi_df, rdd_df)
+# Make plot with one panel per species
+library(ggplot2)
+ggplot(df) + 
+    geom_line(aes(x = time, y = value, colour = type)) +
+    facet_wrap(vars(sp)) +
+    scale_y_log10()
+```
+
+We now set the maximum reproduction rate $R_max(t)$ so that the density-dependent reproduction $R_dd$ produced by the Beverton Holt function
+$$
+R_{dd} = R_{di}\frac{R_{max}}{R_{di}+R_{max}}
+$$
+agrees with the observed reproduction rate.
+```{r}
+other_params(ps)$r_max <- rdi * rdd / (rdi - rdd)
+ps <- setRateFunction(ps, "RDD", "seasonalBevertonHoltRDD")
+```
