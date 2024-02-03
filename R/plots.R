@@ -36,7 +36,7 @@ plotRDI <- function(sim, sim2,
     params <- sim@params
     species <- valid_species_arg(sim, species, error_on_empty = TRUE)
     if (missing(sim2)) {
-        y <- getSimFunc(sim, ...)
+        y <- getTimeseries(sim, ...)
         y_total <- rowSums(y)
         y <- y[, (as.character(dimnames(y)[[2]]) %in% species),
                drop = FALSE]
@@ -122,7 +122,7 @@ plotRDD <- function(sim, sim2,
     params <- sim@params
     species <- valid_species_arg(sim, species, error_on_empty = TRUE)
     if (missing(sim2)) {
-        y <- getSimFunc(sim, getRDD, ...)
+        y <- getTimeseries(sim, getRDD, ...)
         y_total <- rowSums(y)
         y <- y[, (as.character(dimnames(y)[[2]]) %in% species),
                drop = FALSE]
@@ -170,8 +170,15 @@ plotRDD <- function(sim, sim2,
     }
 }
 
-# Helper function for plotRDI and plotRDD
-getSimFunc <- function(sim, func = getRDI, ...) {
+#' Get time series of summary functions from simulation
+#' 
+#' Given a function that can calculate a vector of quantities of interest at a 
+#' single time for all species, this function returns an array (time x species)
+#' with the values at all the time steps saved in a simulation.
+#' 
+#' @param sim A MizerSim object
+#' @func The function calculating the quantities at a single time step
+getTimeseries <- function(sim, func = getRDI, ...) {
     params <- sim@params
     no_sp <- nrow(params@species_params)
     times <- getTimes(sim)
