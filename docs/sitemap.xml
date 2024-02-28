@@ -31,6 +31,9 @@
     <loc>/reference/gonadDynamics.html</loc>
   </url>
   <url>
+    <loc>/reference/gonadPulsedDynamics.html</loc>
+  </url>
+  <url>
     <loc>/reference/index.html</loc>
   </url>
   <url>
@@ -47,6 +50,9 @@
   </url>
   <url>
     <loc>/reference/plotRDI.html</loc>
+  </url>
+  <url>
+    <loc>/reference/pulsedRDI.html</loc>
   </url>
   <url>
     <loc>/reference/repro_beta.html</loc>
@@ -73,6 +79,9 @@
     <loc>/reference/seasonalEncounter.html</loc>
   </url>
   <url>
+    <loc>/reference/seasonalGaussianRelease.html</loc>
+  </url>
+  <url>
     <loc>/reference/seasonalRDI.html</loc>
   </url>
   <url>
@@ -86,6 +95,9 @@
   </url>
   <url>
     <loc>/reference/seasonal_resource_semichemostat.html</loc>
+  </url>
+  <url>
+    <loc>/reference/setPulsedReproduction.html</loc>
   </url>
   <url>
     <loc>/reference/setSeasonalReproduction.html</loc>
