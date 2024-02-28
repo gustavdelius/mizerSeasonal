@@ -100,7 +100,7 @@ As a result, when we animate the gonadic spectrum, i.e., the size distribution o
 animateGonadSpectra(sim1l)
 ```
 
-We can take a look at the rate $R_di$ of reproduction before density dependence and the desired rate $R_dd$ that should remain after imposing an $R_max$. Both vary throughout the year:
+We can take a look at the rate $R_{di}$ of reproduction before density dependence and the desired rate $R_{dd}$ that should remain after imposing an $R_{max}$. Both vary throughout the year:
 ```{r}
 rdi <- getTimeseries(sim1, func = getRDI)
 rdd <- getTimeseries(sim1, func = getRDD)
@@ -118,7 +118,7 @@ ggplot(df) +
     scale_y_log10()
 ```
 
-We now set the maximum reproduction rate $R_max(t)$ so that the density-dependent reproduction $R_dd$ produced by the Beverton Holt function
+We now set the maximum reproduction rate $R_{max}(t)$ so that the density-dependent reproduction $R_{dd}$ produced by the Beverton Holt function
 $$
 R_{dd} = R_{di}\frac{R_{max}}{R_{di}+R_{max}}
 $$
