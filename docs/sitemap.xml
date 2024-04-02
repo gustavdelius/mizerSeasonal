@@ -31,16 +31,10 @@
     <loc>/reference/gonadDynamics.html</loc>
   </url>
   <url>
-    <loc>/reference/gonadPulsedDynamics.html</loc>
-  </url>
-  <url>
     <loc>/reference/index.html</loc>
   </url>
   <url>
     <loc>/reference/mizerSeasonal-package.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotGonads.html</loc>
   </url>
   <url>
     <loc>/reference/plotGonadsVsTime.html</loc>
@@ -50,21 +44,6 @@
   </url>
   <url>
     <loc>/reference/plotRDI.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pulsedRDI.html</loc>
-  </url>
-  <url>
-    <loc>/reference/repro_beta.html</loc>
-  </url>
-  <url>
-    <loc>/reference/repro_beta_hazard.html</loc>
-  </url>
-  <url>
-    <loc>/reference/repro_gaussian.html</loc>
-  </url>
-  <url>
-    <loc>/reference/repro_vonMises.html</loc>
   </url>
   <url>
     <loc>/reference/seasonalBetaHazardRelease.html</loc>
@@ -85,9 +64,6 @@
     <loc>/reference/seasonalRDI.html</loc>
   </url>
   <url>
-    <loc>/reference/seasonalRates.html</loc>
-  </url>
-  <url>
     <loc>/reference/seasonalVonMisesRDD.html</loc>
   </url>
   <url>
@@ -95,9 +71,6 @@
   </url>
   <url>
     <loc>/reference/seasonal_resource_semichemostat.html</loc>
-  </url>
-  <url>
-    <loc>/reference/setPulsedReproduction.html</loc>
   </url>
   <url>
     <loc>/reference/setSeasonalReproduction.html</loc>
