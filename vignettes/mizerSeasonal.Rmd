@@ -14,12 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-Currently the mizerSeasonal package depends on a special version of the mizer package that allows for time-dependent reproduction rate. So you first need to install that version from GitHub with
-```{r eval=FALSE}
-remotes::install_github("sizespectrum/mizer", ref = "t-dependent_RDD")
-```
-
-Once you have also installed the mizerSeasonal package with
+After you have installed the mizerSeasonal package with
 ```{r eval=FALSE}
 remotes::install_github("gustavdelius/mizerSeasonal")
 ```
