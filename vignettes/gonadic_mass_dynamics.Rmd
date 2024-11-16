@@ -114,7 +114,7 @@ We discretise \eqref{PDEN} as follows:
 Here we use $w$ and $t$ to denote the integer indices of the discretised weight and discretised time respectively.
 Multiplying by $\Delta t$ and collecting terms gives
 \begin{equation}\label{ndc}
-    N_w^{t+1}\left(1+g_w^t\frac{\Delta t}{\Delta w}+\mu_t^w\,\Delta t\right)=
+    N_w^{t+1}\left(1+g_w^t\frac{\Delta t}{\Delta w}+\mu_w^t\,\Delta t\right)=
     N_{w-1}^{t+1}\left(g_{w-1}^t\frac{\Delta t}{\Delta w}\right)
     +N_w^t.
 \end{equation}
@@ -126,7 +126,7 @@ where
 \begin{equation}\label{ABS}
 \begin{split}
    A_w^t&=-g_{w-1}^t\frac{\Delta t}{\Delta w},\\
-   B_w^t&=1+g_w^t\frac{\Delta t}{\Delta w}+\mu_t^w\,\Delta t,\\
+   B_w^t&=1+g_w^t\frac{\Delta t}{\Delta w}+\mu^t_w\,\Delta t,\\
    S_w^t&=N_w^t.
 \end{split}
 \end{equation}
@@ -139,7 +139,7 @@ Now we use the same scheme for the gonadic dynamics. So we discretise \eqref{wg}
 Note how close this equation for $\gw$ is to equation \eqref{nd} for $N$.
 Multiplying by $\Delta t$ and collecting terms gives
 \begin{equation}
-    \gw_w^{t+1}\left(1+g_w^t\frac{\Delta t}{\Delta w}+r_t^w\,\Delta t\right)=
+    \gw_w^{t+1}\left(1+g_w^t\frac{\Delta t}{\Delta w}+r_w^t\,\Delta t\right)=
     \gw_{w-1}^{t+1}\left(g_w^t\frac{\Delta t}{\Delta w}\right)
     +\gw_w^t+\ggr_w^t\,\Delta t.
 \end{equation}
@@ -151,7 +151,7 @@ where
 \begin{equation}\label{abs}
 \begin{split}
    a_w^t&=-g_w^t\frac{\Delta t}{\Delta w},\\
-   b_w^t&=1+g_w^t\frac{\Delta t}{\Delta w}+r_t^w\,\Delta t,\\
+   b_w^t&=1+g_w^t\frac{\Delta t}{\Delta w}+r_w^t\,\Delta t,\\
    s_w^t&=\gw_w^t+\ggr_w^t\,\Delta t.
 \end{split}
 \end{equation}
