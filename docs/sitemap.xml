@@ -1,78 +1,28 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>/articles/gonadic_mass_dynamics.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/articles/mizerSeasonal.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/animateGonadSpectra.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getTimeseries.html</loc>
-  </url>
-  <url>
-    <loc>/reference/gonadDynamics.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/mizerSeasonal-package.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotGonadsVsTime.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotRDD.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotRDI.html</loc>
-  </url>
-  <url>
-    <loc>/reference/seasonalBetaHazardRelease.html</loc>
-  </url>
-  <url>
-    <loc>/reference/seasonalBetaRelease.html</loc>
-  </url>
-  <url>
-    <loc>/reference/seasonalBevertonHoltRDD.html</loc>
-  </url>
-  <url>
-    <loc>/reference/seasonalEncounter.html</loc>
-  </url>
-  <url>
-    <loc>/reference/seasonalGaussianRelease.html</loc>
-  </url>
-  <url>
-    <loc>/reference/seasonalRDI.html</loc>
-  </url>
-  <url>
-    <loc>/reference/seasonalVonMisesRDD.html</loc>
-  </url>
-  <url>
-    <loc>/reference/seasonalVonMisesRelease.html</loc>
-  </url>
-  <url>
-    <loc>/reference/seasonal_resource_semichemostat.html</loc>
-  </url>
-  <url>
-    <loc>/reference/setSeasonalReproduction.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/LICENSE-text.html</loc></url>
+<url><loc>/articles/gonadic_mass_dynamics.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/articles/mizerSeasonal.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/reference/animateGonadSpectra.html</loc></url>
+<url><loc>/reference/getTimeseries.html</loc></url>
+<url><loc>/reference/gonadDynamics.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/mizerSeasonal-package.html</loc></url>
+<url><loc>/reference/plotGonadsVsTime.html</loc></url>
+<url><loc>/reference/plotRDD.html</loc></url>
+<url><loc>/reference/plotRDI.html</loc></url>
+<url><loc>/reference/seasonalBetaHazardRelease.html</loc></url>
+<url><loc>/reference/seasonalBetaRelease.html</loc></url>
+<url><loc>/reference/seasonalBevertonHoltRDD.html</loc></url>
+<url><loc>/reference/seasonalEncounter.html</loc></url>
+<url><loc>/reference/seasonalGaussianRelease.html</loc></url>
+<url><loc>/reference/seasonalRDI.html</loc></url>
+<url><loc>/reference/seasonalVonMisesRDD.html</loc></url>
+<url><loc>/reference/seasonalVonMisesRelease.html</loc></url>
+<url><loc>/reference/seasonal_resource_semichemostat.html</loc></url>
+<url><loc>/reference/setSeasonalReproduction.html</loc></url>
 </urlset>
+

@@ -1,8 +1,7 @@
-pandoc: 3.1.1
-pkgdown: 2.0.7
+pandoc: '3.2'
+pkgdown: 2.1.1.9000
 pkgdown_sha: ~
 articles:
   gonadic_mass_dynamics: gonadic_mass_dynamics.html
   mizerSeasonal: mizerSeasonal.html
-last_built: 2024-04-02T14:12Z
-
+last_built: 2024-11-16T10:09Z
