@@ -53,7 +53,7 @@ species_params(p)$rdd_vonMises_mu <-
       0.4856, 0.5021,0.2245, 0.4181, 0.3123, 0.3333)
 ```
 
-We also need to set the mass-specific gonad release rate $r(t)$ so that mizer can calculate the gonadic mass. We choose to describe this too by a vonMises distribution with the same $\kappa$ and $\mu$ parameters as above and with $r_0$ chosen large enough so that most of the gonadic mass is released every year.
+We also need to set the mass-specific gonad release rate $r(t)$ so that mizer can calculate the gonadic mass. Unfortunately we do not know which release rate $r(t)$ produces the steady-state reproduction rate that we have chosen above. We will try a vonMises distribution with the same $\kappa$ and $\mu$ parameters as above and with $r_0$ chosen large enough so that most of the gonadic mass is released every year. We will then later set the parameters of the Beverton-Holt function to produce the desired reproduction rate.
 ```{r}
 species_params(p)$vonMises_r0 <- 100
 species_params(p)$vonMises_kappa <- species_params(p)$rdd_vonMises_kappa
