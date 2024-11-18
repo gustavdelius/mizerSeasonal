@@ -28,6 +28,7 @@ Imports:
     graphics
 Collate:
     animate.R
+    data.R
     mizerSeasonal-package.R
     plots.R
     release_functions.R

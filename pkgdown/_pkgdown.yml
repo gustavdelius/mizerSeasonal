@@ -1,4 +1,4 @@
-url: ~
+url: https://gustavdelius.github.io/mizerSeasonal/
 template:
   bootstrap: 5
   mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
@@ -23,3 +23,6 @@ reference:
 - title: Helper functions
   contents:
   - getTimeseries
+- title: Example parameters
+  contents:
+  - datta_params
