@@ -1,5 +1,4 @@
 # Set up Samik's model
-install_github("sizespectrum/mizer", ref = "t-dependent_RDD")
 
 library(mizerSeasonal)
 p <- NS_params

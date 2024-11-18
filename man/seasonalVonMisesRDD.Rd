@@ -10,6 +10,8 @@ seasonalVonMisesRDD(params, t, ...)
 \item{params}{A MizerParams object}
 
 \item{t}{The time at which to calculate RDD}
+
+\item{...}{Unused}
 }
 \value{
 A vector of species-specific reproduction rates

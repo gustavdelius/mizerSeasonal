@@ -1,6 +1,3 @@
-# Set up Samik's model
-install_github("sizespectrum/mizer", ref = "t-dependent_RDD")
-
 library(mizerSeasonal)
 p <- newTraitParams()
 
@@ -124,12 +121,6 @@ calc_rp <- function(params,spe,init,kappa,maxR){
 }
 
 ################
-resource_vonMises <- function(t,params,...){
-    new_t <- t - floor(t)
-    kappa <- params@resource_params$rp$kappa
-    mu <- params@resource_params$rp$mu
-    params@resource_params$rp$maxR * exp(kappa * cos(2 * pi * (new_t - mu))) / (besselI(kappa,nu=0))
-}
 
 pp <- calc_rp(ps, spe=2,init=0.1,kappa=5,maxR=0)
 pp@resource_dynamics <- "seasonal_resource_semichemostat"

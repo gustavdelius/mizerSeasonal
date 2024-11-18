@@ -10,6 +10,8 @@ getTimeseries(sim, func = getRDI, ...)
 \item{sim}{A MizerSim object}
 
 \item{func}{The function calculating the quantities at a single time step}
+
+\item{...}{Unused}
 }
 \value{
 A matrix (time x species)

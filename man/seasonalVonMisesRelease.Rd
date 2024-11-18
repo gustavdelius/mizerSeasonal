@@ -10,6 +10,8 @@ seasonalVonMisesRelease(t, params, ...)
 \item{t}{The time at which to calculate the release rate}
 
 \item{params}{A MizerParams object}
+
+\item{...}{Unused}
 }
 \value{
 A vector of species-specific release rates at time t

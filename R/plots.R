@@ -178,6 +178,7 @@ plotRDD <- function(sim, sim2,
 #' 
 #' @param sim A MizerSim object
 #' @param func The function calculating the quantities at a single time step
+#' @param ... Unused
 #' 
 #' @return A matrix (time x species)
 #' @export

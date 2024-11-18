@@ -5,3 +5,4 @@ LICENSE
 ^docs$
 ^pkgdown$
 ^data-raw$
+^.lintr$

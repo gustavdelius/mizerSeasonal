@@ -7,6 +7,8 @@
 #' @import mizer
 #' @import ggplot2 assertthat dplyr
 #' @importFrom methods is
+#' @importFrom stats mvfft
+#' 
 #' @md
 #' @keywords internal
 "_PACKAGE"

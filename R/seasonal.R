@@ -233,6 +233,7 @@ seasonalBevertonHoltRDD <- function(rdi, params, t, ...) {
 #'
 #' @param params A MizerParams object
 #' @param t The time at which to calculate RDD
+#' @param ... Unused
 #'
 #' @return A vector of species-specific reproduction rates
 #' @export
@@ -261,8 +262,10 @@ seasonalVonMisesRDD <- function(params, t, ...) {
 #' @return Vector containing resource spectrum at next timestep
 #' @export
 #' @family resource dynamics
-seasonal_resource_semichemostat <- function(params, n, n_pp, rates, t, dt,
-                                   resource_rate, resource_capacity, ...) {
+seasonal_resource_semichemostat <- function(params, n, n_pp, n_other,
+                                            rates, t, dt,
+                                            resource_rate, resource_capacity, 
+                                            ...) {
     # The resource capacity is now time-dependent
     resource_capacity <- (1 + resource_vonMises(params = params, t = t)) *
         resource_capacity
@@ -300,4 +303,12 @@ pulsed_rate <- function(params, t) {
 
 vonMises <- function(x, mu, kappa) {
     exp(kappa * cos(2*pi*(x - mu))) / (2 * pi * besselI(kappa, nu = 0))
+}
+
+resource_vonMises <- function(t, params, ...){
+    new_t <- t - floor(t)
+    kappa <- params@resource_params$rp$kappa
+    mu <- params@resource_params$rp$mu
+    params@resource_params$rp$maxR * exp(kappa * cos(2 * pi * (new_t - mu))) / 
+        (besselI(kappa,nu=0))
 }

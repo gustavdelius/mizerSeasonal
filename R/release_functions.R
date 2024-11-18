@@ -7,6 +7,7 @@
 #'
 #' @param t The time at which to calculate the release rate
 #' @param params A MizerParams object
+#' @param ... Unused
 #'
 #' @return A vector of species-specific release rates at time t
 #' @export

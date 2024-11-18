@@ -8,6 +8,7 @@ seasonal_resource_semichemostat(
   params,
   n,
   n_pp,
+  n_other,
   rates,
   t,
   dt,
@@ -23,6 +24,8 @@ seasonal_resource_semichemostat(
 
 \item{n_pp}{A vector of the resource abundance by size}
 
+\item{n_other}{A list with the abundances of other components}
+
 \item{rates}{A list of rates as returned by \code{\link[=mizerRates]{mizerRates()}}}
 
 \item{t}{The current time}
@@ -34,8 +37,6 @@ seasonal_resource_semichemostat(
 \item{resource_capacity}{Resource carrying capacity}
 
 \item{...}{Unused}
-
-\item{n_other}{A list with the abundances of other components}
 }
 \value{
 Vector containing resource spectrum at next timestep
