@@ -20,21 +20,20 @@ seasonalBevertonHoltRDD(rdi, params, t, ...)
 Vector of density-dependent reproduction rates.
 }
 \description{
-Takes the density-independent rates \eqn{R_{di}}{R_di} of egg production (as
-calculated by \code{\link[=getRDI]{getRDI()}}) and returns
-reduced, density-dependent reproduction rates \eqn{R_{dd}}{R_dd} given as
-\deqn{R_{dd} = R_{di}
-\frac{R_{max}}{R_{di} + R_{max}}}{R_dd = R_di R_max/(R_di + R_max)} where
-\eqn{R_{max}}{R_max} are the maximum possible reproduction rates that must be
-specified in a column in the species parameter dataframe.
-(All quantities in the above equation are species-specific but we dropped
-the species index for simplicity.)
+Takes the density-independent rates \eqn{R_{di}(t)}{R_di(t)} of egg
+production and returns reduced, density-dependent reproduction rates
+\eqn{R_{dd}(t)}{R_dd(t)} given as
+\deqn{R_{dd}(t) = R_{di}(t)
+\frac{R_{max}(t)}{R_{di}(t) + R_{max}(t)}}{R_dd(t) = R_di(t) R_max(t)/(R_di(t) + R_max(t))}
+where \eqn{R_{max}(t)}{R_max(t)} are the maximum possible reproduction rates
+that must be specified in an array (time x species) saved in the
+\code{other_params$R_max} slot of the \code{MizerParams} object. This is simply a
+time-dependent version of \code{mizer::BevertonHoltRDD()}. (All quantities in the
+above equation are species-specific but we dropped the species index for
+simplicity.)
 }
-\details{
-This is only one example of a density-dependence. You can write your own
-function based on this example, returning different density-dependent
-reproduction rates. Three other examples provided are \code{\link[=RickerRDD]{RickerRDD()}},
-\code{\link[=SheperdRDD]{SheperdRDD()}}, \code{\link[=noRDD]{noRDD()}} and \code{\link[=constantRDD]{constantRDD()}}. For more explanation see
-\code{\link[=setReproduction]{setReproduction()}}.
+\seealso{
+Other functions calculating density-dependent reproduction rates: 
+\code{\link{seasonalVonMisesRDD}()}
 }
-\concept{functions calculating density-dependent reproduction rate}
+\concept{functions calculating density-dependent reproduction rates}

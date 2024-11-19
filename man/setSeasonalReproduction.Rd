@@ -6,7 +6,7 @@
 \usage{
 setSeasonalReproduction(
   params,
-  release_func = "repro_vonMises",
+  release_func = "seasonalVonMisesRelease",
   RDD = "seasonalBevertonHoltRDD",
   include_gonads = TRUE
 )
@@ -15,7 +15,9 @@ setSeasonalReproduction(
 \item{params}{A MizerParams object}
 
 \item{release_func}{Name of the function giving the time-dependent
-mass-specific reproduction rate.}
+mass-specific release rate. This function should take a time and a
+MizerParams object as arguments and return a vector with the reproduction rates
+for all species.}
 
 \item{RDD}{Name of the function for calculating the density-dependent
 reproduction rate RDD.}
@@ -28,5 +30,23 @@ A MizerParams object with seasonal reproduction
 }
 \description{
 This returns a new model in which the reproduction rate varies throughout
-the year
+the year. See details below.
+}
+\details{
+This function does not change the rate at which fish invest energy into
+reproduction. It however changes what happens with this investment. Rather
+than being released immediately to produce offspring, it is used to
+accumulate gonadic mass. You specify a function that gives the time-dependent
+mass-specific rate \eqn{r(t)} at which this gonadic mass is then released for
+reproduction.
+
+The package provides several candidate functions for calculating release
+rates:
+\code{seasonalVonMisesRelease()}, \code{seasonalBetaHazardRelease()},
+\code{seasonalBetaRelease()} and \code{seasonalGaussianRelease()}, and you can use
+these as templates for writing your own release functions.
+
+You also specify a non-linear function that
+calculates the density-dependent reproduction rate \eqn{R_{dd}}{R_dd} from the
+density-independent rate \eqn{R_{di}}{R_di} of egg production.
 }

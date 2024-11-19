@@ -15,5 +15,19 @@ seasonalBetaHazardRelease(t, params)
 A vector of species-specific release rates at time t
 }
 \description{
-Beta hazard mass-specific gonad release rate
+Uses the formula
+\deqn{r(w, t) = r(t) = \frac{f(t-\lfloor t \rfloor)}{1 - F(t-\lfloor t \rfloor)}}{r(w,t) = r(t) = f(t-|_t_|) / (1 - F(t-|_t_|))}
+where \eqn{f(t)} and \eqn{F(t)} are the probability density function and the
+cumulative distribution function of the beta distribution (see see \code{?dbeta})
+with parameters \code{shape1 = beta_a} and \code{shape2 = beta_b}. Because mizer
+measures time in years, \eqn{t-\lfloor t \rfloor}{t-|_t_|} gives the time
+within the year and so \eqn{r(t)} is a periodic function with the period of
+one year.
 }
+\seealso{
+Other release functions: 
+\code{\link{seasonalBetaRelease}()},
+\code{\link{seasonalGaussianRelease}()},
+\code{\link{seasonalVonMisesRelease}()}
+}
+\concept{release functions}

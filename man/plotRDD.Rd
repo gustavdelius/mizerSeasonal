@@ -52,6 +52,7 @@ Plot density-dependent reproduction rate over time
 \seealso{
 Other plotting functions: 
 \code{\link{animateGonadSpectra}()},
+\code{\link{plotGonadsVsTime}()},
 \code{\link{plotRDI}()}
 }
 \concept{plotting functions}

@@ -26,7 +26,9 @@ the encounter rates.
 }
 \description{
 This is doing the same as the \code{mizerEncounter()} function in core mizer
-except that the prey mass is the sum of its somatic mass \eqn{w_p} and
-its gonadic mass \eqn{q(w_p)}.
+except that the prey mass is the sum of its somatic mass \eqn{w_p} and its
+gonadic mass \eqn{q(w_p)}. This function is automatically registered as the
+model's encounter rate function when \code{setSeasonalReproduction()} is called
+with \code{include_gonads = TRUE}.
 }
 \concept{mizer rate functions}

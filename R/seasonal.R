@@ -1,19 +1,39 @@
 #' Set seasonal reproduction
 #'
 #' This returns a new model in which the reproduction rate varies throughout
-#' the year
+#' the year. See details below.
+#'
+#' This function does not change the rate at which fish invest energy into
+#' reproduction. It however changes what happens with this investment. Rather
+#' than being released immediately to produce offspring, it is used to
+#' accumulate gonadic mass. You specify a function that gives the time-dependent
+#' mass-specific rate \eqn{r(t)} at which this gonadic mass is then released for
+#' reproduction.
+#'
+#' The package provides several candidate functions for calculating release
+#' rates:
+#' `seasonalVonMisesRelease()`, `seasonalBetaHazardRelease()`,
+#' `seasonalBetaRelease()` and `seasonalGaussianRelease()`, and you can use
+#' these as templates for writing your own release functions.
+#'
+#' You also specify a non-linear function that
+#' calculates the density-dependent reproduction rate \eqn{R_{dd}}{R_dd} from the
+#' density-independent rate \eqn{R_{di}}{R_di} of egg production.
 #'
 #' @param params A MizerParams object
 #' @param release_func Name of the function giving the time-dependent
-#'     mass-specific reproduction rate.
-#' @param RDD Name of the function for calculating the density-dependent 
+#'     mass-specific release rate. This function should take a time and a
+#'     MizerParams object as arguments and return a vector with the reproduction rates
+#'     for all species.
+#' @param RDD Name of the function for calculating the density-dependent
 #'     reproduction rate RDD.
 #' @param include_gonads Boolean. If TRUE (default) then the gonadic mass is
 #'     included in the prey encounter rate.
 #'
 #' @return A MizerParams object with seasonal reproduction
 #' @export
-setSeasonalReproduction <- function(params, release_func = "repro_vonMises",
+setSeasonalReproduction <- function(params,
+                                    release_func = "seasonalVonMisesRelease",
                                     RDD = "seasonalBevertonHoltRDD",
                                     include_gonads = TRUE) {
     # start with zero gonadic mass
@@ -34,7 +54,7 @@ setSeasonalReproduction <- function(params, release_func = "repro_vonMises",
     if (include_gonads) {
         p <- setRateFunction(p, "Encounter", "seasonalEncounter")
     }
-    
+
     return(p)
 }
 
@@ -76,11 +96,13 @@ gonadDynamics <- function(params, n_other, rates, t, dt, ...) {
 }
 
 #' Get encounter rate that includes gonadic mass of prey
-#' 
+#'
 #' This is doing the same as the `mizerEncounter()` function in core mizer
-#' except that the prey mass is the sum of its somatic mass \eqn{w_p} and
-#' its gonadic mass \eqn{q(w_p)}.
-#' 
+#' except that the prey mass is the sum of its somatic mass \eqn{w_p} and its
+#' gonadic mass \eqn{q(w_p)}. This function is automatically registered as the
+#' model's encounter rate function when `setSeasonalReproduction()` is called
+#' with `include_gonads = TRUE`.
+#'
 #' @param params A \linkS4class{MizerParams} object
 #' @param n A matrix of species abundances (species x size).
 #' @param n_pp A vector of the resource abundance by size
@@ -88,17 +110,17 @@ gonadDynamics <- function(params, n_other, rates, t, dt, ...) {
 #'   ecosystem
 #' @param t The time for which to do the calculation
 #' @param ... Unused
-#'   
+#'
 #' @return A named two dimensional array (predator species x predator size) with
 #'   the encounter rates.
 #' @export
 #' @family mizer rate functions
 seasonalEncounter <- function(params, n, n_pp, n_other, t, ...) {
-    
+
     # idx_sp are the index values of params@w_full such that
     # params@w_full[idx_sp] = params@w
     idx_sp <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
-    
+
     # If the the user has set a custom pred_kernel we can not use fft.
     # In this case we use the code from mizer version 0.3
     if (!is.null(comment(params@pred_kernel))) {
@@ -109,11 +131,11 @@ seasonalEncounter <- function(params, n, n_pp, n_other, t, ...) {
         # \sum_j \theta_{ij} N_j(w_p) wt_p dw_p where
         # wt_p = w_p + q_j(w_p) is the total mass, including gonads, of the prey
         wt <- sweep(n_other$gonads, 2, params@w, "+")
-        n_eff_prey <- sweep(params@interaction %*% (n * wt), 2, 
-                            params@dw, "*", check.margin = FALSE) 
+        n_eff_prey <- sweep(params@interaction %*% (n * wt), 2,
+                            params@dw, "*", check.margin = FALSE)
         # pred_kernel is predator species x predator size x prey size
         # So multiply 3rd dimension of pred_kernel by the prey biomass density
-        # Then sum over 3rd dimension to get consumption rate of each predator by 
+        # Then sum over 3rd dimension to get consumption rate of each predator by
         # predator size
         # This line is a bottle neck
         phi_prey_species <- rowSums(sweep(
@@ -144,7 +166,7 @@ seasonalEncounter <- function(params, n, n_pp, n_other, t, ...) {
         # mvfft() does a Fourier transform of each column of its argument, but
         # we need the Fourier transforms of each row, so we need to apply mvfft()
         # to the transposed matrices and then transpose again at the end.
-        avail_energy <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e) * 
+        avail_energy <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e) *
                                              mvfft(base::t(prey)),
                                          inverse = TRUE))) / length(params@w_full)
         # Only keep the bit for fish sizes
@@ -152,24 +174,33 @@ seasonalEncounter <- function(params, n, n_pp, n_other, t, ...) {
         # Due to numerical errors we might get negative or very small entries that
         # should be 0
         avail_energy[avail_energy < 1e-18] <- 0
-        
+
         encounter <- params@search_vol * avail_energy
     }
-    
+
     # Add contributions from other components
     for (i in seq_along(params@other_encounter)) {
-        encounter <- encounter + 
-            do.call(params@other_encounter[[i]], 
+        encounter <- encounter +
+            do.call(params@other_encounter[[i]],
                     list(params = params,
                          n = n, n_pp = n_pp, n_other = n_other,
                          component = names(params@other_encounter)[[i]], ...))
     }
-    
+
     # Add external encounter
     return(encounter + params@ext_encounter)
 }
 
 #' Get density-independent rate of seasonal reproduction
+#'
+#' This function calculates the density-independent rate of offspring production
+#' for each species. The rate of offspring production is given by
+#' \deqn{R_{di}(t) =\frac{\epsilon}{2w_0}\int N(w,t)q(w,t)r(w,t)dw}{R_di(t) =
+#' \epsilon/(2w_0) int N(w,t)gw(w,t)r(w,t)dw}
+#' where \eqn{q(w,t)} is the gonadic mass of an individual, \eqn{r(w,t)}{r(w,t)}
+#' is the mass-specific gonad release rate, \eqn{N(w,t)}{N(w,t)} is the
+#' abundance density, \eqn{\epsilon}{epsilon} is the reproductive efficiency and
+#' \eqn{w_0}{w_0} is the weight of an offspring.
 #'
 #' @param params MizerParams object
 #' @param n Species abundances at current time step
@@ -192,21 +223,17 @@ seasonalRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
 
 #' Beverton Holt function to calculate density-dependent reproduction rate
 #'
-#' Takes the density-independent rates \eqn{R_{di}}{R_di} of egg production (as
-#' calculated by [getRDI()]) and returns
-#' reduced, density-dependent reproduction rates \eqn{R_{dd}}{R_dd} given as
-#' \deqn{R_{dd} = R_{di}
-#' \frac{R_{max}}{R_{di} + R_{max}}}{R_dd = R_di R_max/(R_di + R_max)} where
-#' \eqn{R_{max}}{R_max} are the maximum possible reproduction rates that must be
-#' specified in a column in the species parameter dataframe.
-#' (All quantities in the above equation are species-specific but we dropped
-#' the species index for simplicity.)
-#'
-#' This is only one example of a density-dependence. You can write your own
-#' function based on this example, returning different density-dependent
-#' reproduction rates. Three other examples provided are [RickerRDD()],
-#' [SheperdRDD()], [noRDD()] and [constantRDD()]. For more explanation see
-#' [setReproduction()].
+#' Takes the density-independent rates \eqn{R_{di}(t)}{R_di(t)} of egg
+#' production and returns reduced, density-dependent reproduction rates
+#' \eqn{R_{dd}(t)}{R_dd(t)} given as
+#' \deqn{R_{dd}(t) = R_{di}(t)
+#' \frac{R_{max}(t)}{R_{di}(t) + R_{max}(t)}}{R_dd(t) = R_di(t) R_max(t)/(R_di(t) + R_max(t))}
+#' where \eqn{R_{max}(t)}{R_max(t)} are the maximum possible reproduction rates
+#' that must be specified in an array (time x species) saved in the
+#' `other_params$R_max` slot of the `MizerParams` object. This is simply a
+#' time-dependent version of `mizer::BevertonHoltRDD()`. (All quantities in the
+#' above equation are species-specific but we dropped the species index for
+#' simplicity.)
 #'
 #' @param rdi Vector of density-independent reproduction rates
 #'   \eqn{R_{di}}{R_di} for all species.
@@ -216,7 +243,7 @@ seasonalRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
 #'
 #' @return Vector of density-dependent reproduction rates.
 #' @export
-#' @family functions calculating density-dependent reproduction rate
+#' @family functions calculating density-dependent reproduction rates
 seasonalBevertonHoltRDD <- function(rdi, params, t, ...) {
     t_name = as.character(round(t - floor(t), 5))
     if (!(t_name %in% dimnames(other_params(params)$r_max)$time)) {
@@ -231,11 +258,27 @@ seasonalBevertonHoltRDD <- function(rdi, params, t, ...) {
 
 #' von-Mises distributed reproduction rate independent of abundance
 #'
+#' This function calculates the mass-specific reproduction rate of a species
+#' at a given time. The reproduction rate is given by
+#' \deqn{r(t) = r_0 \frac{\exp(\kappa \cos(2\pi(t - \mu)))}{2\pi I_0(\kappa)}}{r(t) = r_0 exp(\kappa cos(2\pi(t - \mu))) / (2\pi I_0(\kappa))}
+#' where \eqn{r_0}{r_0} is the amplitude of the reproduction rate, \eqn{\kappa}{kappa}
+#' is the concentration parameter of the von-Mises distribution, and \eqn{\mu}{mu}
+#' is the mean of the von-Mises distribution. These parameters must be supplied
+#' in the slots `rdd_vonMises_r0`, `rdd_vonMises_kappa` and `rdd_vonMises_mu` of
+#' the `species_params` data frame of the `params` object.
+#'
+#' Note that this reproduction rate is independent of the rate at which the
+#' species release gonadic mass for reproduction and is thus only to be used
+#' as an aid during the process of setting up the model. It should be
+#' replaced by another reproduction rate function before simulating the dynamics
+#' of the model.
+#'
 #' @param params A MizerParams object
 #' @param t The time at which to calculate RDD
 #' @param ... Unused
 #'
 #' @return A vector of species-specific reproduction rates
+#' @family functions calculating density-dependent reproduction rates
 #' @export
 seasonalVonMisesRDD <- function(params, t, ...) {
     sp <- params@species_params
@@ -247,7 +290,17 @@ seasonalVonMisesRDD <- function(params, t, ...) {
 }
 
 #' Seasonal semichemostat resource dynamics
-#' 
+#'
+#' This implements the standard semichemostat dynamics for the resource (see
+#' `mizer::resource_semichemostat()`) but with a time-dependent carrying
+#' capacity. The carrying capacity is given by \deqn{c_R(w,t) = (1 + \text{maxR}
+#' \cdot \text{vonMises}(t, \mu, \kappa)) c_R(w)}{c_R(w,t) = (1 + maxR * vonMises(t,
+#' mu, kappa)) c_R(w)} where \eqn{c_R(w)} is the standard carrying capacity,
+#' \eqn{\mu}{mu} is the mean of the von-Mises distribution, and
+#' \eqn{\kappa}{kappa} is the concentration parameter of the von-Mises
+#' distribution. These parameters must be supplied in the `rp$maxR`, `rp$mu` and
+#' `rp$kappa` slots of the `resource_params` slot of the `params` object.
+#'
 #' @param params A [MizerParams] object
 #' @param n A matrix of species abundances (species x size)
 #' @param n_pp A vector of the resource abundance by size
@@ -264,13 +317,17 @@ seasonalVonMisesRDD <- function(params, t, ...) {
 #' @family resource dynamics
 seasonal_resource_semichemostat <- function(params, n, n_pp, n_other,
                                             rates, t, dt,
-                                            resource_rate, resource_capacity, 
+                                            resource_rate, resource_capacity,
                                             ...) {
     # The resource capacity is now time-dependent
-    resource_capacity <- (1 + resource_vonMises(params = params, t = t)) *
+    new_t <- t - floor(t)
+    kappa <- params@resource_params$rp$kappa
+    mu <- params@resource_params$rp$mu
+    maxR <- params@resource_params$rp$maxR
+    resource_capacity <- (1 + vonMises(new_t, mu = mu, kappa = kappa)) *
         resource_capacity
     # We use the exact solution under the assumption of constant mortality
-    # during timestep
+    # and carrying capacity during timestep
     mur <- resource_rate + rates$resource_mort
     n_steady <- resource_rate * resource_capacity / mur
     n_pp_new <- n_steady + (n_pp - n_steady) * exp(-mur * dt)
@@ -286,10 +343,16 @@ seasonal_resource_semichemostat <- function(params, n, n_pp, n_other,
     sel <- !is.finite(n_pp_new)
     n_pp_new[sel] <- n_pp[sel]
 
-    n_pp_new
+    return(n_pp_new)
 }
 
-pulsed_rate <- function(params, t) {
+vonMises <- function(x, mu, kappa) {
+    exp(kappa * cos(2*pi*(x - mu))) / (2 * pi * besselI(kappa, nu = 0))
+}
+
+# This is not currently used but was an attempt towards implementing
+# travelling waves of resource abundance.
+pulsed_rate <- function(params, t, ...) {
     # Constant velocity v in log size
     v <- params@resource_params$pulse_speed
     kappa <- params@resource_params$pulse_kappa
@@ -297,18 +360,6 @@ pulsed_rate <- function(params, t) {
     r0 <- params@resource_params$pulse_r0
     w_full <- params@w_full
     n <- params@resource_params$n
-    r <- r0 * w_full ^ (n - 1) *
+    r0 * w_full ^ (n - 1) *
         vonMises(log(w_full) - v * t, mu = mu, kappa = kappa)
-}
-
-vonMises <- function(x, mu, kappa) {
-    exp(kappa * cos(2*pi*(x - mu))) / (2 * pi * besselI(kappa, nu = 0))
-}
-
-resource_vonMises <- function(t, params, ...){
-    new_t <- t - floor(t)
-    kappa <- params@resource_params$rp$kappa
-    mu <- params@resource_params$rp$mu
-    params@resource_params$rp$maxR * exp(kappa * cos(2 * pi * (new_t - mu))) / 
-        (besselI(kappa,nu=0))
 }

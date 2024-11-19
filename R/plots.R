@@ -49,12 +49,12 @@ plotRDI <- function(sim, sim2,
         plot_dat <- subset(plot_dat, plot_dat$RDI > 0)
         # plotDataFrame() needs the columns in a particular order
         plot_dat <- plot_dat[, c(1, 3, 2)]
-        
+
         if (nrow(plot_dat) == 0) {
             warning("There is no RDI to include.")
         }
         if (return_data) return(plot_dat)
-        
+
         plotDataFrame(plot_dat, params,
                       ylab = "RDI [1/year]",
                       ytrans = ifelse(log, "log10", "identity"),
@@ -74,9 +74,9 @@ plotRDI <- function(sim, sim2,
         # fails when there are zero rows.
         ym2$Simulation <- rep(2, nrow(ym2))
         ym <- rbind(ym, ym2)
-        
+
         if (return_data) return(ym)
-        
+
         plotDataFrame(ym, params,
                       ylab = "RDI [g/year]",
                       ytrans = ifelse(log, "log10", "identity"),
@@ -135,12 +135,12 @@ plotRDD <- function(sim, sim2,
         plot_dat <- subset(plot_dat, plot_dat$RDD > 0)
         # plotDataFrame() needs the columns in a particular order
         plot_dat <- plot_dat[, c(1, 3, 2)]
-        
+
         if (nrow(plot_dat) == 0) {
             warning("There is no RDD to include.")
         }
         if (return_data) return(plot_dat)
-        
+
         plotDataFrame(plot_dat, params,
                       ylab = "RDD [1/year]",
                       ytrans = ifelse(log, "log10", "identity"),
@@ -160,9 +160,9 @@ plotRDD <- function(sim, sim2,
         # fails when there are zero rows.
         ym2$Simulation <- rep(2, nrow(ym2))
         ym <- rbind(ym, ym2)
-        
+
         if (return_data) return(ym)
-        
+
         plotDataFrame(ym, params,
                       ylab = "RDD [g/year]",
                       ytrans = ifelse(log, "log10", "identity"),
@@ -171,15 +171,15 @@ plotRDD <- function(sim, sim2,
 }
 
 #' Get time series of summary functions from simulation
-#' 
-#' Given a function that can calculate a vector of quantities of interest at a 
+#'
+#' Given a function that can calculate a vector of quantities of interest at a
 #' single time for all species, this function returns an array (time x species)
 #' with the values at all the time steps saved in a simulation.
-#' 
+#'
 #' @param sim A MizerSim object
 #' @param func The function calculating the quantities at a single time step
 #' @param ... Unused
-#' 
+#'
 #' @return A matrix (time x species)
 #' @export
 getTimeseries <- function(sim, func = getRDI, ...) {
@@ -194,7 +194,7 @@ getTimeseries <- function(sim, func = getRDI, ...) {
         dim(n) <- dim(params@initial_n)
         n_other <- sim@n_other[i, ]
         names(n_other) <- dimnames(sim@n_other)[[2]]
-        value[i, ] <- func(params, 
+        value[i, ] <- func(params,
                            n = n,
                            n_pp = sim@n_pp[i, ],
                            n_other = n_other,
@@ -204,12 +204,16 @@ getTimeseries <- function(sim, func = getRDI, ...) {
 }
 
 #' Plot per-capita gonadic mass through time at a given size
-#' 
+#'
+#' This function plots the gonadic mass of an individual of a given size through
+#' time for all species.
+#'
 #' @param sim A MizerSim object
 #' @param time_range The time range over which to plot
-#' @param sizes A vector of sizes for each species at which to plot the 
+#' @param sizes A vector of sizes for each species at which to plot the
 #'     gonadic mass of an individual of that size.
 #' @export
+#' @family plotting functions
 plotGonadsVsTime <- function(sim,
                        time_range,
                        sizes=sim@params@species_params$w_max){
@@ -220,21 +224,21 @@ plotGonadsVsTime <- function(sim,
     max_size <- sapply(sizes * (1 - 1e-6),
                        function(x,w){which.max(x <= w)}, w = sim@params@w)
     time_elements <- get_time_elements(sim, time_range)
-    
+
     ###
-    
+
     q_max <- matrix(0,length(time_elements), dim(sim@n)[2])
     qf <- sim@n_other[time_elements, "gonads"]
-    
+
     qs_mat <- matrix(unlist(lapply(qf, function(x){return(diag(x[,max_size]))})),length(time_elements),dim(sim@n)[2],byrow=T)
-    
+
     rownames(qs_mat) <- (as.numeric(dimnames(sim@n)$time))
-    
+
     graphics::par(mfrow = c(4,3))
     graphics::par(oma = c(1,1,1,3))
     graphics::par(mar = c(2,4,2,0))
     for (i in 1:dim(sim@n)[2]) {
-        plot((as.numeric(dimnames(sim@n)$time)), qs_mat[,i], 
+        plot((as.numeric(dimnames(sim@n)$time)), qs_mat[,i],
              main = i, type = "l")
     }
     graphics::par(def.par)

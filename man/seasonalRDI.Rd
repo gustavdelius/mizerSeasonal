@@ -24,5 +24,12 @@ in particular the gonadic biomass in \code{n_other$gonads}.}
 A numeric vector with the rate of egg production for each species.
 }
 \description{
-Get density-independent rate of seasonal reproduction
+This function calculates the density-independent rate of offspring production
+for each species. The rate of offspring production is given by
+\deqn{R_{di}(t) =\frac{\epsilon}{2w_0}\int N(w,t)q(w,t)r(w,t)dw}{R_di(t) =
+\epsilon/(2w_0) int N(w,t)gw(w,t)r(w,t)dw}
+where \eqn{q(w,t)} is the gonadic mass of an individual, \eqn{r(w,t)}{r(w,t)}
+is the mass-specific gonad release rate, \eqn{N(w,t)}{N(w,t)} is the
+abundance density, \eqn{\epsilon}{epsilon} is the reproductive efficiency and
+\eqn{w_0}{w_0} is the weight of an offspring.
 }

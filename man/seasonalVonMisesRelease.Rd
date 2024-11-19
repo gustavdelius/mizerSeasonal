@@ -18,7 +18,14 @@ A vector of species-specific release rates at time t
 }
 \description{
 Uses the formula
-\deqn{r(t) = r_0 \frac{\exp(\kappa \cos(2\pi(t - \mu)))}{2\pi I_0(\kappa)}}{r(t) = r_0 exp(\kappa cos(2\pi(t - \mu))) / (2\pi I_0(\kappa))}
+\deqn{r(w, t) = r(t) = r_0 \frac{\exp(\kappa \cos(2\pi(t - \mu)))}{2\pi I_0(\kappa)}}{r(w, t) = r(t) = r_0 exp(\kappa cos(2\pi(t - \mu))) / (2\pi I_0(\kappa))}
 where the parameters are taken from the \code{vonMises_r0}, \code{vonMises_kappa} and
 \code{vonMises_mu} columns in the \code{species_params} data frame in \code{params}.
 }
+\seealso{
+Other release functions: 
+\code{\link{seasonalBetaHazardRelease}()},
+\code{\link{seasonalBetaRelease}()},
+\code{\link{seasonalGaussianRelease}()}
+}
+\concept{release functions}

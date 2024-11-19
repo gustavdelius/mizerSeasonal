@@ -17,5 +17,24 @@ seasonalVonMisesRDD(params, t, ...)
 A vector of species-specific reproduction rates
 }
 \description{
-von-Mises distributed reproduction rate independent of abundance
+This function calculates the mass-specific reproduction rate of a species
+at a given time. The reproduction rate is given by
+\deqn{r(t) = r_0 \frac{\exp(\kappa \cos(2\pi(t - \mu)))}{2\pi I_0(\kappa)}}{r(t) = r_0 exp(\kappa cos(2\pi(t - \mu))) / (2\pi I_0(\kappa))}
+where \eqn{r_0}{r_0} is the amplitude of the reproduction rate, \eqn{\kappa}{kappa}
+is the concentration parameter of the von-Mises distribution, and \eqn{\mu}{mu}
+is the mean of the von-Mises distribution. These parameters must be supplied
+in the slots \code{rdd_vonMises_r0}, \code{rdd_vonMises_kappa} and \code{rdd_vonMises_mu} of
+the \code{species_params} data frame of the \code{params} object.
 }
+\details{
+Note that this reproduction rate is independent of the rate at which the
+species release gonadic mass for reproduction and is thus only to be used
+as an aid during the process of setting up the model. It should be
+replaced by another reproduction rate function before simulating the dynamics
+of the model.
+}
+\seealso{
+Other functions calculating density-dependent reproduction rates: 
+\code{\link{seasonalBevertonHoltRDD}()}
+}
+\concept{functions calculating density-dependent reproduction rates}

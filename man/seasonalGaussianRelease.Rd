@@ -23,3 +23,10 @@ Because mizer measures time in years, \eqn{t-\lfloor t \rfloor}{t-|_t_|} gives t
 within the year and so \eqn{r(t)} is a periodic function with
 the period of one year.
 }
+\seealso{
+Other release functions: 
+\code{\link{seasonalBetaHazardRelease}()},
+\code{\link{seasonalBetaRelease}()},
+\code{\link{seasonalVonMisesRelease}()}
+}
+\concept{release functions}

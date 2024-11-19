@@ -42,6 +42,14 @@ seasonal_resource_semichemostat(
 Vector containing resource spectrum at next timestep
 }
 \description{
-Seasonal semichemostat resource dynamics
+This implements the standard semichemostat dynamics for the resource (see
+\code{mizer::resource_semichemostat()}) but with a time-dependent carrying
+capacity. The carrying capacity is given by \deqn{c_R(w,t) = (1 + \text{maxR}
+\cdot \text{vonMises}(t, \mu, \kappa)) c_R(w)}{c_R(w,t) = (1 + maxR * vonMises(t,
+mu, kappa)) c_R(w)} where \eqn{c_R(w)} is the standard carrying capacity,
+\eqn{\mu}{mu} is the mean of the von-Mises distribution, and
+\eqn{\kappa}{kappa} is the concentration parameter of the von-Mises
+distribution. These parameters must be supplied in the \code{rp$maxR}, \code{rp$mu} and
+\code{rp$kappa} slots of the \code{resource_params} slot of the \code{params} object.
 }
 \concept{resource dynamics}

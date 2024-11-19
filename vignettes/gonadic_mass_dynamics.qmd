@@ -1,10 +1,5 @@
 ---
 title: "Gonadic mass dynamics"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Gonadic mass dynamics}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
@@ -18,10 +13,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Deriving the PDE for gonadic mass
 
 Standard mizer describes the number density $N(w,t)$ by the PDE
-\begin{equation}
+$$
 \frac{\partial N}{\partial t} = -\frac{\partial}{\partial w}(g\,N)-\mu\,N,
-\label{PDEN}
-\end{equation}
+$$ {#eq-PDEN}
 where $g(w,t)$ is the growth rate of an individual of size $w$ and $\mu(w,t)$ is 
 its death rate. This equation simply states that the rate of change of the number
 of individuals in an infinitesimal size range around $w$ is given by the difference between the rate at 
@@ -30,22 +24,22 @@ minus the rate at which they die (the loss term).
 
 
 Instead of the number density $N$ we could have used the biomass density $B = w\,N$ to describe
-the population. Its evolution equation can easily be derived from \eqref{PDEN}:
-\begin{equation}\begin{split}
+the population. Its evolution equation can easily be derived from @eq-PDEN
+$$\begin{split}
 \frac{\partial B}{\partial t} &= w\frac{\partial N}{\partial t}
 = -w\frac{\partial}{\partial w}\left(g\,\frac{B}{w}\right)-\mu\,B,\\
 &=-\frac{\partial}{\partial w}\left(g\,B\right)+g\,\frac{B}{w}-\mu\,B.
-\end{split}\end{equation}
+\end{split}$$
 This is again intuitive: in addition to the transport term and the loss term we now also
 have a source term $g B/w = gN$ representing coming from the growth taking place within the infinitesimal
 size class. 
 
 If we now denote by $\gbd(w,t)$ the total gonadic biomass density and by $\ggr(w,t)$ the gonadic
 growth rate of an individual of size $w$ (when it is not reproducing), then they satisfy the analogous equation
-\begin{equation}
+$$
 \frac{\partial \gbd}{\partial t} 
 =-\frac{\partial}{\partial w}\left(g\,\gbd\right)+\ggr\,N-\mu\,\gbd-r\,\gbd,
-\end{equation}
+$$
 where we have an additional loss term representing the release of gonadic mass during reproduction.
 The release rate $r(w,t)$ will encode the seasonality of this reproduction.
 
@@ -54,39 +48,38 @@ $\ggr=E_r\psi$. Thus $\ggr=g\,\psi/(1-\psi)$.
 
 Instead of considering the total gonadic biomass density $\gbd(w,t)$, we could consider the gonadic
 mass $\gw(w,t)$ of an individual fish of size $w$, given by 
-\begin{equation}
+$$
 \gw = \frac{\gbd}{N}.
-\end{equation}
+$$
 Let's derive its evolution PDE:
-\begin{equation}\label{PDEwG}\begin{split}
+$$\begin{split}
 \frac{\partial \gw}{\partial t} &= \frac{1}{N}\frac{\partial \gbd}{\partial t}-
 \frac{\gbd}{N^2}\frac{\partial N}{\partial t}\\
 &=\frac{1}{N}\left(-\frac{\partial}{\partial w}\left(g\,\gbd\right)+\ggr\,N-\mu\,\gbd-r\,\gbd\right)
 -\frac{\gbd}{N^2}\left(-\frac{\partial}{\partial w}(g\,N)-\mu\,N\right).
-\end{split}\end{equation}
+\end{split}$$ {#eq-PDEwG}
 To simplify this we observe that the two mortality terms cancel and that
-\begin{equation}\begin{split}
+$$\begin{split}
 \frac{\gbd}{N^2}\frac{\partial}{\partial w}(g\,N)
 &=\frac{\gw}{N}\frac{\partial}{\partial w}\left(g\,\frac{\gbd}{\gw}\right)\\
 &=\frac{1}{N}\frac{\partial}{\partial w}\left(g\,\gbd\right)
 -g\,\frac{\partial \gw}{\partial w}.
-\end{split}\end{equation}
-Substituting this into \eqref{PDEwG} and cancelling terms gives
-\begin{equation}
+\end{split}$$ 
+Substituting this into @eq-PDEwG and cancelling terms gives
+$$
 \frac{\partial \gw}{\partial t}=\ggr-g\,\frac{\partial \gw}{\partial w}-r\, \gw.
-\label{wg}
-\end{equation}
+$$ {#eq-wg}
 At this point we feel a bit stupid when we realise that
-\begin{equation}
+$$
 \frac{d\gw(w,t)}{dt}=\frac{\partial \gw(w,t)}{\partial t}+
 \frac{\partial \gw(w,t)}{\partial w}\frac{dw}{dt}
-\end{equation}
-and that $dw/dt = g$, so that \eqref{wg} reduces to
-\begin{equation}\label{dqdt}
+$$
+and that $dw/dt = g$, so that @eq-wg reduces to
+$$
 \frac{d\gw}{dt}=\ggr-r\,\gw,
-\end{equation}
+$$ {#eq-dqdt}
 which is what we could have written down immediately, given our definition of $\ggr$.
-So this equation would have been a good starting point for deriving the PDE \eqref{wg}.
+So this equation would have been a good starting point for deriving the PDE @eq-wg.
 
 All the above equations are species specific. So in particular there is one gonadic mass function
 $q_i(w,t)$ for each species $i$ and we will need to specify one rate function $r_i(w,t)$ for each
@@ -105,59 +98,59 @@ One possibility would be to make $r(w,t)$ independent of $w$.
 
 ## Numerical implementation
 
-To solve the PDE \eqref{wg} we use the same upwind-difference scheme used by mizer to solve the PDE \eqref{PDEN}. Let us therefore recall the details of that scheme.
+To solve the PDE @eq-wg we use the same upwind-difference scheme used by mizer to solve the PDE @eq-PDEN. Let us therefore recall the details of that scheme.
 
-We discretise \eqref{PDEN} as follows:
-\begin{equation}\label{nd}
+We discretise @eq-PDEN as follows:
+$$
     \frac{N_w^{t+1}-N_w^t}{\Delta t}=-\frac{g_w^tN_w^{t+1}-g_{w-1}^tN_{w-1}^{t+1}}{\Delta w}-\mu_w^t\,N_w^{t+1}.
-\end{equation}
+$$ {#eq-nd}
 Here we use $w$ and $t$ to denote the integer indices of the discretised weight and discretised time respectively.
 Multiplying by $\Delta t$ and collecting terms gives
-\begin{equation}\label{ndc}
+$$
     N_w^{t+1}\left(1+g_w^t\frac{\Delta t}{\Delta w}+\mu_w^t\,\Delta t\right)=
     N_{w-1}^{t+1}\left(g_{w-1}^t\frac{\Delta t}{\Delta w}\right)
     +N_w^t.
-\end{equation}
+$$ {#eq-ndc}
 Solving for $N_w^{t+1}$ gives
-\begin{equation}\label{nds}
+$$
     N_w^{t+1}=\frac{S_w^t-A_w^tN_{w-1}^{t+1}}{B_w^t},
-\end{equation}
+$$ {#eq-nds}
 where
-\begin{equation}\label{ABS}
+$$
 \begin{split}
    A_w^t&=-g_{w-1}^t\frac{\Delta t}{\Delta w},\\
    B_w^t&=1+g_w^t\frac{\Delta t}{\Delta w}+\mu^t_w\,\Delta t,\\
    S_w^t&=N_w^t.
 \end{split}
-\end{equation}
-Given an initial value and a boundary condition encoding the influx of new-born individuals to the smallest size class, The recurrence relation \eqref{nds} allows mizer to calculate $N_w^{t+1}$ for all size classes at all later times.
+$$ {#eq-ABS}
+Given an initial value and a boundary condition encoding the influx of new-born individuals to the smallest size class, The recurrence relation @eq-nds allows mizer to calculate $N_w^{t+1}$ for all size classes at all later times.
 
-Now we use the same scheme for the gonadic dynamics. So we discretise \eqref{wg} as follows:
-\begin{equation}
+Now we use the same scheme for the gonadic dynamics. So we discretise @eq-wg as follows:
+$$
     \frac{\gw_w^{t+1}-\gw_w^t}{\Delta t}=-g_w^t\frac{\gw_w^{t+1}-\gw_{w-1}^{t+1}}{\Delta w}-r_w^t\,\gw_w^{t+1}+\ggr_w^t.
-\end{equation}
-Note how close this equation for $\gw$ is to equation \eqref{nd} for $N$.
+$$
+Note how close this equation for $\gw$ is to equation @eq-nd for $N$.
 Multiplying by $\Delta t$ and collecting terms gives
-\begin{equation}
+$$
     \gw_w^{t+1}\left(1+g_w^t\frac{\Delta t}{\Delta w}+r_w^t\,\Delta t\right)=
     \gw_{w-1}^{t+1}\left(g_w^t\frac{\Delta t}{\Delta w}\right)
     +\gw_w^t+\ggr_w^t\,\Delta t.
-\end{equation}
+$$
 Solving for $\gw_w^{t+1}$ gives
-\begin{equation}\label{qds}
+$$
     \gw_w^{t+1}=\frac{s_w^t-a_w^t\gw_{w-1}^{t+1}}{b_w^t},
-\end{equation}
+$$ {#eq-qds}
 where
-\begin{equation}\label{abs}
+$$
 \begin{split}
    a_w^t&=-g_w^t\frac{\Delta t}{\Delta w},\\
    b_w^t&=1+g_w^t\frac{\Delta t}{\Delta w}+r_w^t\,\Delta t,\\
    s_w^t&=\gw_w^t+\ggr_w^t\,\Delta t.
 \end{split}
-\end{equation}
+$$ {#eq-abs}
 Together with an initial value and the boundary condition that $\gw_1^t=0$ at all times because the smallest individuals do not yet have any gonadic mass, this recurrence relation allows us to calculate $\gw_w^{t+1}$ for all size classes at all later times.
 
-Note how small the difference is between the discretised equation \eqref{qds} for $\gw$ and the equation \eqref{nds} for $N$. The only difference lies in replacing $A_w^t, B_w^t$ and $S_w^t$ given in \eqref{ABS} by $a_w^t, b_w^t$  and $s_w^t$ given in \eqref{abs}.
+Note how small the difference is between the discretised equation @eq-qds for $\gw$ and the equation @eq-nds for $N$. The only difference lies in replacing $A_w^t, B_w^t$ and $S_w^t$ given in @eq-ABS by $a_w^t, b_w^t$  and $s_w^t$ given in @eq-abs.
 
 ## Open problems
 

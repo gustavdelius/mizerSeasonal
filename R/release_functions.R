@@ -1,8 +1,8 @@
 #' von-Mises distributed gonad release rate
 #'
 #' Uses the formula
-#' \deqn{r(t) = r_0 \frac{\exp(\kappa \cos(2\pi(t - \mu)))}{2\pi I_0(\kappa)}}{r(t) = r_0 exp(\kappa cos(2\pi(t - \mu))) / (2\pi I_0(\kappa))}
-#' where the parameters are taken from the `vonMises_r0`, `vonMises_kappa` and 
+#' \deqn{r(w, t) = r(t) = r_0 \frac{\exp(\kappa \cos(2\pi(t - \mu)))}{2\pi I_0(\kappa)}}{r(w, t) = r(t) = r_0 exp(\kappa cos(2\pi(t - \mu))) / (2\pi I_0(\kappa))}
+#' where the parameters are taken from the `vonMises_r0`, `vonMises_kappa` and
 #' `vonMises_mu` columns in the `species_params` data frame in `params`.
 #'
 #' @param t The time at which to calculate the release rate
@@ -10,6 +10,7 @@
 #' @param ... Unused
 #'
 #' @return A vector of species-specific release rates at time t
+#' @family release functions
 #' @export
 seasonalVonMisesRelease <- function(t, params, ...) {
     sp <- params@species_params
@@ -22,15 +23,25 @@ seasonalVonMisesRelease <- function(t, params, ...) {
 
 #' Beta hazard mass-specific gonad release rate
 #'
+#' Uses the formula
+#' \deqn{r(w, t) = r(t) = \frac{f(t-\lfloor t \rfloor)}{1 - F(t-\lfloor t \rfloor)}}{r(w,t) = r(t) = f(t-|_t_|) / (1 - F(t-|_t_|))}
+#' where \eqn{f(t)} and \eqn{F(t)} are the probability density function and the
+#' cumulative distribution function of the beta distribution (see see `?dbeta`)
+#' with parameters `shape1 = beta_a` and `shape2 = beta_b`. Because mizer
+#' measures time in years, \eqn{t-\lfloor t \rfloor}{t-|_t_|} gives the time
+#' within the year and so \eqn{r(t)} is a periodic function with the period of
+#' one year.
+#'
 #' @param t The time at which to calculate the reproduction rate
 #' @param params A MizerParams object
 #'
 #' @return A vector of species-specific release rates at time t
+#' @family release functions
 #' @export
-seasonalBetaHazardRelease <- function(t,params){
+seasonalBetaHazardRelease <- function(t, params){
   new_t <- t - floor(t)
   H <- stats::dbeta(new_t, params@species_params$beta_a,
-                    params@species_params$beta_b) / 
+                    params@species_params$beta_b) /
       (1 - stats::pbeta(new_t, params@species_params$beta_a,
                       params@species_params$beta_b))
   return(H)
@@ -38,10 +49,19 @@ seasonalBetaHazardRelease <- function(t,params){
 
 #' Beta distributed gonad release rate
 #'
+#' Uses the formula
+#' \deqn{r(w, t) = r(t) = f(t-\lfloor t \rfloor)}{r(w,t) = r(t) = f(t-|_t_|)}
+#' where \eqn{f(t)} is the probability density function of the beta distribution
+#' (see see `?dbeta`) with parameters `shape1 = beta_a` and `shape2 = beta_b`.
+#' Because mizer measures time in years, \eqn{t-\lfloor t \rfloor}{t-|_t_|}
+#' gives the time within the year and so \eqn{r(t)} is a periodic function with
+#' the period of one year.
+#'
 #' @param t The time at which to calculate the reproduction rate
 #' @param params A MizerParams object
 #'
 #' @return A vector of species-specific release rates at time t
+#' @family release functions
 #' @export
 seasonalBetaRelease <- function(t,params){
   new_t <- t - floor(t)
@@ -63,6 +83,7 @@ seasonalBetaRelease <- function(t,params){
 #' @param params A MizerParams object
 #'
 #' @return A vector of species-specific release rates at time t
+#' @family release functions
 #' @export
 seasonalGaussianRelease <- function(t, params) {
     sp <- params@species_params

@@ -1,27 +1,35 @@
 url: https://gustavdelius.github.io/mizerSeasonal/
 template:
   bootstrap: 5
-  mathjax: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+  math-rendering: mathjax
 
 reference:
-- title: Seasonal reproduction
+- title: Setting up seasonal effects
   contents:
   - setSeasonalReproduction
-  - contains("seasonal")
-  - contains("gonad")
-  - starts_with("repro")
-  - -contains("Release")
+- title: Gonad release functions
+  desc: Functions for specifying the time-dependence of the gonad release rates
+  contents:
+  - contains("Release")
+- title: Reproduction rate functions
+  desc: Functions for specifying the rate of offspring production after taking
+    extra non-linear effects into account
+  contents:
+  - seasonalBevertonHoltRDD
+  - seasonalVonMisesRDD
+- title: Seasonal resource dynamics
+  contents:
+  - contains("resource")
 - title: Plotting functions
   contents:
   - contains("plot")
   - contains("animate")
-- title: Release functions
-  desc: Functions for specifying the time-dependence of the gonad release rates
-  contents:
-  - seasonalVonMisesRelease
-  - contains("Release")
 - title: Helper functions
+  desc: Functions that you will not need to call directly.
   contents:
+  - seasonalEncounter
+  - seasonalRDI
+  - gonadDynamics
   - getTimeseries
 - title: Example parameters
   contents:

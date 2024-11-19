@@ -15,5 +15,13 @@ plotGonadsVsTime(sim, time_range, sizes = sim@params@species_params$w_max)
 gonadic mass of an individual of that size.}
 }
 \description{
-Plot per-capita gonadic mass through time at a given size
+This function plots the gonadic mass of an individual of a given size through
+time for all species.
 }
+\seealso{
+Other plotting functions: 
+\code{\link{animateGonadSpectra}()},
+\code{\link{plotRDD}()},
+\code{\link{plotRDI}()}
+}
+\concept{plotting functions}

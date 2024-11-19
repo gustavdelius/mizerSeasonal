@@ -39,10 +39,13 @@ default \code{power = o} gives the gonadic mass density, whereas \code{power =
 A plotly object
 }
 \description{
-Animation of the gonadic mass spectra
+This function creates an animation of the gonadic mass spectra of the species
+in the simulation. The gonadic mass spectrum is the size distribution of the
+total gonadic mass of each species.
 }
 \seealso{
 Other plotting functions: 
+\code{\link{plotGonadsVsTime}()},
 \code{\link{plotRDD}()},
 \code{\link{plotRDI}()}
 }

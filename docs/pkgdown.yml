@@ -1,7 +1,10 @@
 pandoc: '3.2'
-pkgdown: 2.1.1.9000
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   gonadic_mass_dynamics: gonadic_mass_dynamics.html
   mizerSeasonal: mizerSeasonal.html
-last_built: 2024-11-18T09:05Z
+last_built: 2024-11-19T19:40Z
+urls:
+  reference: https://gustavdelius.github.io/mizerSeasonal/reference
+  article: https://gustavdelius.github.io/mizerSeasonal/articles
