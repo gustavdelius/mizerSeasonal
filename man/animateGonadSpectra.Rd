@@ -33,7 +33,7 @@ values below 1e-20 are always cut off.}
 \item{power}{The gonadic mass density is plotted as the number density times
 the per-capita gonadic mass times the weight raised to \code{power}. The
 default \code{power = o} gives the gonadic mass density, whereas \code{power =
-  1} gives the gonadic mass density with respect to logarithmic size bins.}
+1} gives the gonadic mass density with respect to logarithmic size bins.}
 }
 \value{
 A plotly object
@@ -44,9 +44,9 @@ in the simulation. The gonadic mass spectrum is the size distribution of the
 total gonadic mass of each species.
 }
 \seealso{
-Other plotting functions: 
-\code{\link{plotGonadsVsTime}()},
-\code{\link{plotRDD}()},
-\code{\link{plotRDI}()}
+Other plotting functions:
+\code{\link[=plotGonadsVsTime]{plotGonadsVsTime()}},
+\code{\link[=plotRDD]{plotRDD()}},
+\code{\link[=plotRDI]{plotRDI()}}
 }
 \concept{plotting functions}

@@ -43,18 +43,17 @@ setSeasonalReproduction <- function(params,
     # TODO: check that `release_func` is valid and that all necessary parameters
     #  are contained in the species parameters
     other_params(params)$release_func <- release_func
+    other_params(params)$include_gonads <- include_gonads
 
-    # add gonads component and register new RDI function
+    # add gonads component; RDI and Encounter are handled via S3 dispatch on
+    # the mizerSeasonal class, so no setRateFunction() calls are needed for them
     p <- setComponent(params, component = "gonads",
                       initial_value = initial,
                       dynamics_fun = "gonadDynamics") |>
-        setRateFunction("RDI", "seasonalRDI") |>
         setRateFunction("RDD", RDD)
-    # If requested, use Encounter function that includes the gonadic mass
-    if (include_gonads) {
-        p <- setRateFunction(p, "Encounter", "seasonalEncounter")
-    }
 
+    p@extensions <- mizer::getRegisteredExtensions()
+    p <- mizer::coerceToExtensionClass(p)
     return(p)
 }
 
@@ -95,130 +94,81 @@ gonadDynamics <- function(params, n_other, rates, t, dt, ...) {
                        w_min_idx = params@w_min_idx)
 }
 
-#' Get encounter rate that includes gonadic mass of prey
+#' Seasonal density-independent reproduction rate via S3 dispatch
 #'
-#' This is doing the same as the `mizerEncounter()` function in core mizer
-#' except that the prey mass is the sum of its somatic mass \eqn{w_p} and its
-#' gonadic mass \eqn{q(w_p)}. This function is automatically registered as the
-#' model's encounter rate function when `setSeasonalReproduction()` is called
-#' with `include_gonads = TRUE`.
+#' Method for `projectRDI()` that replaces the standard energy-based RDI with
+#' the gonadic-release calculation used by this extension. Eggs are produced by
+#' the timed release of accumulated gonadic mass rather than by direct energy
+#' investment, so the standard RDI formula does not apply.
 #'
-#' @param params A \linkS4class{MizerParams} object
+#' @param params A \linkS4class{MizerParams} object of class `mizerSeasonal`.
 #' @param n A matrix of species abundances (species x size).
-#' @param n_pp A vector of the resource abundance by size
-#' @param n_other A list of abundances for other dynamical components of the
-#'   ecosystem
-#' @param t The time for which to do the calculation
-#' @param ... Unused
-#'
-#' @return A named two dimensional array (predator species x predator size) with
-#'   the encounter rates.
-#' @export
-#' @family mizer rate functions
-seasonalEncounter <- function(params, n, n_pp, n_other, t, ...) {
-
-    # idx_sp are the index values of params@w_full such that
-    # params@w_full[idx_sp] = params@w
-    idx_sp <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
-
-    # If the the user has set a custom pred_kernel we can not use fft.
-    # In this case we use the code from mizer version 0.3
-    if (!is.null(comment(params@pred_kernel))) {
-        # n_eff_prey is the total prey abundance by size exposed to each
-        # predator (prey not broken into species - here we are just working out
-        # how much a predator eats - not which species are being eaten - that is
-        # in the mortality calculation
-        # \sum_j \theta_{ij} N_j(w_p) wt_p dw_p where
-        # wt_p = w_p + q_j(w_p) is the total mass, including gonads, of the prey
-        wt <- sweep(n_other$gonads, 2, params@w, "+")
-        n_eff_prey <- sweep(params@interaction %*% (n * wt), 2,
-                            params@dw, "*", check.margin = FALSE)
-        # pred_kernel is predator species x predator size x prey size
-        # So multiply 3rd dimension of pred_kernel by the prey biomass density
-        # Then sum over 3rd dimension to get consumption rate of each predator by
-        # predator size
-        # This line is a bottle neck
-        phi_prey_species <- rowSums(sweep(
-            params@pred_kernel[, , idx_sp, drop = FALSE],
-            c(1, 3), n_eff_prey, "*", check.margin = FALSE), dims = 2)
-        # Eating the background
-        # This line is a bottle neck
-        phi_prey_background <- params@species_params$interaction_resource *
-            rowSums(sweep(
-                params@pred_kernel, 3, params@dw_full * params@w_full * n_pp,
-                "*", check.margin = FALSE), dims = 2)
-        encounter <- params@search_vol * (phi_prey_species + phi_prey_background)
-    } else {
-        # resource biomass
-        prey <- outer(params@species_params$interaction_resource, n_pp)
-        prey <- sweep(prey, 2, params@w_full, "*")
-        # add fish biomass including gonads
-        wt <- sweep(n_other$gonads, 2, params@w, "+")
-        prey[, idx_sp] <- prey[, idx_sp] + params@interaction %*% (n * wt)
-        # multiply everything by dw_full
-        prey <- sweep(prey, 2,  params@dw_full, "*")
-        # The vector prey equals everything inside integral (3.4) except the feeding
-        # kernel phi_i(w_p/w).
-        # Eq (3.4) is then a convolution integral in terms of prey[w_p] and phi[w_p/w].
-        # We approximate the integral by the trapezoidal method. Using the
-        # convolution theorem we can evaluate the resulting sum via fast fourier
-        # transform.
-        # mvfft() does a Fourier transform of each column of its argument, but
-        # we need the Fourier transforms of each row, so we need to apply mvfft()
-        # to the transposed matrices and then transpose again at the end.
-        avail_energy <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e) *
-                                             mvfft(base::t(prey)),
-                                         inverse = TRUE))) / length(params@w_full)
-        # Only keep the bit for fish sizes
-        avail_energy <- avail_energy[, idx_sp, drop = FALSE]
-        # Due to numerical errors we might get negative or very small entries that
-        # should be 0
-        avail_energy[avail_energy < 1e-18] <- 0
-
-        encounter <- params@search_vol * avail_energy
-    }
-
-    # Add contributions from other components
-    for (i in seq_along(params@other_encounter)) {
-        encounter <- encounter +
-            do.call(params@other_encounter[[i]],
-                    list(params = params,
-                         n = n, n_pp = n_pp, n_other = n_other,
-                         component = names(params@other_encounter)[[i]], ...))
-    }
-
-    # Add external encounter
-    return(encounter + params@ext_encounter)
-}
-
-#' Get density-independent rate of seasonal reproduction
-#'
-#' This function calculates the density-independent rate of offspring production
-#' for each species. The rate of offspring production is given by
-#' \deqn{R_{di}(t) =\frac{\epsilon}{2w_0}\int N(w,t)q(w,t)r(w,t)dw}{R_di(t) =
-#' \epsilon/(2w_0) int N(w,t)gw(w,t)r(w,t)dw}
-#' where \eqn{q(w,t)} is the gonadic mass of an individual, \eqn{r(w,t)}{r(w,t)}
-#' is the mass-specific gonad release rate, \eqn{N(w,t)}{N(w,t)} is the
-#' abundance density, \eqn{\epsilon}{epsilon} is the reproductive efficiency and
-#' \eqn{w_0}{w_0} is the weight of an offspring.
-#'
-#' @param params MizerParams object
-#' @param n Species abundances at current time step
-#' @param n_other Other model components at current time step. This will include
-#'   in particular the gonadic biomass in `n_other$gonads`.
-#' @param t The current time
-#' @param dt The time step size
+#' @param n_pp A vector of the resource abundance by size. Unused.
+#' @param n_other A list of other model components, including `gonads`.
+#' @param t The current time.
+#' @param e_growth,mort,e_repro Unused; present for generic compatibility.
 #' @param ... Unused
 #'
 #' @return A numeric vector with the rate of egg production for each species.
+#' @method projectRDI mizerSeasonal
 #' @export
-seasonalRDI <- function(params, n, n_other, t, dt = 0.1, ...) {
+projectRDI.mizerSeasonal <- function(params, n, n_pp, n_other, t = 0,
+                                     e_growth, mort, e_repro, ...) {
     release_func <- get0(other_params(params)$release_func)
     r <- release_func(t, params)
     total <- drop((sweep(n_other$gonads, 1, r, "*") * n) %*% params@dw)
-    # Assume sex_ratio = 0.5.
     0.5 * (total * params@species_params$erepro) /
         params@w[params@w_min_idx]
+}
+
+#' Seasonal encounter rate including gonadic mass of prey via S3 dispatch
+#'
+#' Method for `projectEncounter()` that adds the extra encounter arising from
+#' the gonadic mass carried by prey fish. It first calls `NextMethod()` to
+#' obtain the standard encounter (using somatic mass only), then appends the
+#' contribution from the gonadic mass of prey fish. This is only done when
+#' `include_gonads = TRUE` was passed to [setSeasonalReproduction()].
+#'
+#' @param params A \linkS4class{MizerParams} object of class `mizerSeasonal`.
+#' @param n A matrix of species abundances (species x size).
+#' @param n_pp A vector of the resource abundance by size.
+#' @param n_other A list of other model components, including `gonads`.
+#' @param t The current time. Unused.
+#' @param ... Passed to `NextMethod()`.
+#'
+#' @return A named two-dimensional array (predator species x predator size)
+#'   with the encounter rates.
+#' @method projectEncounter mizerSeasonal
+#' @export
+projectEncounter.mizerSeasonal <- function(params, n, n_pp, n_other,
+                                           t = 0, ...) {
+    encounter <- NextMethod()
+    if (!isTRUE(other_params(params)$include_gonads)) return(encounter)
+
+    idx_sp <- (length(params@w_full) - length(params@w) + 1):length(params@w_full)
+    gonads <- n_other$gonads
+
+    if (!is.null(comment(params@pred_kernel))) {
+        # custom pred_kernel path: extra encounter = search_vol * phi * (q*N*dw)
+        n_eff_gonad <- sweep(params@interaction %*% (n * gonads), 2,
+                             params@dw, "*", check.margin = FALSE)
+        phi_gonad <- rowSums(sweep(
+            params@pred_kernel[, , idx_sp, drop = FALSE],
+            c(1, 3), n_eff_gonad, "*", check.margin = FALSE), dims = 2)
+        encounter <- encounter + params@search_vol * phi_gonad
+    } else {
+        # FFT path: extra prey array uses q*N (not w*N) so multiply by dw only
+        prey_gonad <- matrix(0, nrow = nrow(n), ncol = length(params@w_full))
+        prey_gonad[, idx_sp] <- params@interaction %*% (n * gonads)
+        prey_gonad <- sweep(prey_gonad, 2, params@dw_full, "*")
+        avail_gonad <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e) *
+                                            mvfft(base::t(prey_gonad)),
+                                        inverse = TRUE))) / length(params@w_full)
+        avail_gonad <- avail_gonad[, idx_sp, drop = FALSE]
+        avail_gonad[avail_gonad < 1e-18] <- 0
+        encounter <- encounter + params@search_vol * avail_gonad
+    }
+    encounter
 }
 
 #' Beverton Holt function to calculate density-dependent reproduction rate

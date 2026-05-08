@@ -34,7 +34,7 @@ replaced by another reproduction rate function before simulating the dynamics
 of the model.
 }
 \seealso{
-Other functions calculating density-dependent reproduction rates: 
-\code{\link{seasonalBevertonHoltRDD}()}
+Other functions calculating density-dependent reproduction rates:
+\code{\link[=seasonalBevertonHoltRDD]{seasonalBevertonHoltRDD()}}
 }
 \concept{functions calculating density-dependent reproduction rates}

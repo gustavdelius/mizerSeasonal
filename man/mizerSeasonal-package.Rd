@@ -22,6 +22,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Gustav Delius \email{gustav.delius@york.ac.uk} (\href{https://orcid.org/0000-0003-4092-8228}{ORCID}) [copyright holder]
   \item Michael A. Spence \email{michael.spence@cefas.gov.uk} (\href{https://orcid.org/0000-0002-3445-7979}{ORCID}) [copyright holder]
 }
 
