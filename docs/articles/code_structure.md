@@ -1,0 +1,470 @@
+# Code structure
+
+This vignette is aimed at developers who want to understand how the
+mizerSeasonal package is implemented, contribute to it, or write their
+own extensions. It describes the source layout, explains how the package
+hooks into mizer’s extension mechanism, and highlights the subtle or
+surprising aspects of the implementation.
+
+## Source layout
+
+The package has seven R source files, listed here in the order they are
+collated (as specified by the `Collate` field in `DESCRIPTION`):
+
+| File | Contents |
+|----|----|
+| `mizerSeasonal-class.R` | S4 marker class definitions: `mizerSeasonal` and `mizerSeasonalSim` |
+| `animate.R` | [`animateGonadSpectra()`](https://gustavdelius.github.io/mizerSeasonal/reference/animateGonadSpectra.md) and two private helpers |
+| `data.R` | Documentation for the `datta_params` dataset |
+| `mizerSeasonal-package.R` | Package-level documentation, `@import` directives, and `.onLoad` hook |
+| `plots.R` | [`getTimeseries()`](https://gustavdelius.github.io/mizerSeasonal/reference/getTimeseries.md), [`plotRDI()`](https://gustavdelius.github.io/mizerSeasonal/reference/plotRDI.md), [`plotRDD()`](https://gustavdelius.github.io/mizerSeasonal/reference/plotRDD.md), [`plotGonadsVsTime()`](https://gustavdelius.github.io/mizerSeasonal/reference/plotGonadsVsTime.md) |
+| `release_functions.R` | The four release-rate functions |
+| `seasonal.R` | Core machinery: [`setSeasonalReproduction()`](https://gustavdelius.github.io/mizerSeasonal/reference/setSeasonalReproduction.md), [`gonadDynamics()`](https://gustavdelius.github.io/mizerSeasonal/reference/gonadDynamics.md), [`projectRDI.mizerSeasonal()`](https://gustavdelius.github.io/mizerSeasonal/reference/projectRDI.mizerSeasonal.md), [`projectEncounter.mizerSeasonal()`](https://gustavdelius.github.io/mizerSeasonal/reference/projectEncounter.mizerSeasonal.md), [`seasonalBevertonHoltRDD()`](https://gustavdelius.github.io/mizerSeasonal/reference/seasonalBevertonHoltRDD.md), [`seasonalVonMisesRDD()`](https://gustavdelius.github.io/mizerSeasonal/reference/seasonalVonMisesRDD.md), [`seasonal_resource_semichemostat()`](https://gustavdelius.github.io/mizerSeasonal/reference/seasonal_resource_semichemostat.md), and two private helpers |
+
+`mizerSeasonal-class.R` is collated first so that the S4 class
+definitions are available before any code that references them.
+`animate.R` uses unexported mizer functions (`get_time_elements`) and
+dplyr verbs imported at the package level in `mizerSeasonal-package.R`.
+
+## How the package hooks into mizer
+
+Mizer ships a formal extension API. The key functions used by this
+package are:
+
+- **`registerExtension(pkgname, ...)`** — called once in `.onLoad` to
+  register the package as a mizer extension for the current R session.
+- **`setComponent(params, component, initial_value, dynamics_fun)`** —
+  registers a new dynamical state variable (here, the gonadic mass
+  matrix).
+- **`setRateFunction(params, rate, fun)`** — replaces one of mizer’s
+  standard rate calculators with a custom one. Used here only for the
+  RDD function; RDI and Encounter are handled via S3 dispatch instead
+  (see below).
+- **`coerceToExtensionClass(params)`** — promotes a `MizerParams` object
+  to the registered S4 extension class (here, `mizerSeasonal`), enabling
+  S3 method dispatch on `project*` generics.
+- **`other_params(params)`** / **`other_params(params) <-`** — a named
+  list for arbitrary configuration attached to a `MizerParams` object.
+
+### The `.onLoad` hook
+
+``` r
+.onLoad <- function(libname, pkgname) {
+    mizer::registerExtension(pkgname, requirement = "sizespectrum/mizerSeasonal")
+}
+```
+
+This runs when the package is loaded and tells mizer about the
+extension. It is what makes `coerceToExtensionClass()` know which S4
+class to promote to.
+
+### S4 marker classes
+
+Two S4 classes are defined in `mizerSeasonal-class.R`:
+
+``` r
+setClass("mizerSeasonal",    contains = "MizerParams")
+setClass("mizerSeasonalSim", contains = "MizerSim")
+```
+
+These are *marker* classes: they carry no additional slots. Their sole
+purpose is to enable S3 method dispatch on the `project*` generics. When
+mizer calls e.g. `projectRDI(params, ...)`, it dispatches to
+`projectRDI.mizerSeasonal` because `params` has class `mizerSeasonal`.
+Similarly, `project()` returns a `mizerSeasonalSim` because `MizerSim`
+objects are coerced to the registered extension sim class.
+
+### `setSeasonalReproduction()`
+
+[`setSeasonalReproduction()`](https://gustavdelius.github.io/mizerSeasonal/reference/setSeasonalReproduction.md)
+wires everything together:
+
+``` r
+setSeasonalReproduction <- function(params,
+                                    release_func = "seasonalVonMisesRelease",
+                                    RDD = "seasonalBevertonHoltRDD",
+                                    include_gonads = TRUE) {
+    initial <- initialN(params)
+    initial[] <- 0
+
+    other_params(params)$release_func  <- release_func   # <-- config
+    other_params(params)$include_gonads <- include_gonads
+
+    p <- setComponent(params,                            # <-- new state variable
+                      component = "gonads",
+                      initial_value = initial,
+                      dynamics_fun = "gonadDynamics") |>
+        setRateFunction("RDD", RDD)                      # <-- replace RDD only
+
+    p@extensions <- mizer::getRegisteredExtensions()
+    p <- mizer::coerceToExtensionClass(p)                # <-- promote to mizerSeasonal
+    return(p)
+}
+```
+
+Note that `setRateFunction("RDI", ...)` and
+`setRateFunction("Encounter", ...)` are **not** called. Instead, those
+rates are intercepted via the S3 methods `projectRDI.mizerSeasonal` and
+`projectEncounter.mizerSeasonal` described in the next two sections. The
+RDD function is still set via `setRateFunction` because
+`projectRDD.MizerParams` already dispatches internally through
+`params@rates_funcs$RDD`; no S3 override is needed there.
+
+### Where the release function name is stored
+
+The choice of release function is stored as a character string inside
+`other_params()`:
+
+``` r
+other_params(params)$release_func  # e.g. "seasonalVonMisesRelease"
+```
+
+Internally mizer stores this in
+`params@other_params$other$release_func`, but you should always use the
+`other_params()` accessor rather than the `@` slot directly, because the
+slot layout may change across mizer versions.
+
+At runtime,
+[`gonadDynamics()`](https://gustavdelius.github.io/mizerSeasonal/reference/gonadDynamics.md)
+and
+[`projectRDI.mizerSeasonal()`](https://gustavdelius.github.io/mizerSeasonal/reference/projectRDI.mizerSeasonal.md)
+retrieve the function with:
+
+``` r
+release_func <- get0(other_params(params)$release_func)
+```
+
+[`get0()`](https://rdrr.io/r/base/exists.html) is used instead of
+[`get()`](https://rdrr.io/r/base/get.html) because it returns `NULL`
+rather than throwing an error when the name is not found. If
+`release_func` is `NULL` the code will fail on the next line, which
+gives a slightly clearer error than the one that
+[`get()`](https://rdrr.io/r/base/get.html) would raise.
+
+### Where the initial gonadic mass lives
+
+The initial gonad matrix (all zeros) is stored in:
+
+``` r
+params@initial_n_other$gonads  # matrix (species x sizes)
+```
+
+This is mizer’s standard storage for the initial state of `other`
+components. It is set by `setComponent()` and is what `project()` uses
+to initialise the simulation.
+
+## The gonadic dynamics solver
+
+[`gonadDynamics()`](https://gustavdelius.github.io/mizerSeasonal/reference/gonadDynamics.md)
+solves the PDE for the per-capita gonadic mass \\q(w,t)\\ at each time
+step. The derivation of the PDE is given in the `gonadic_mass_dynamics`
+vignette; the result is a tridiagonal linear system of the form
+
+\\a\_{ij}\\ q\_{j-1} + b\_{ij}\\ q_j = s\_{ij}\\
+
+where the coefficients are:
+
+``` r
+# a_{ij} = -g_i(w_j) * dt / dw_j       (sub-diagonal: growth advection)
+a <- sweep(-rates$e_growth * dt, 2, params@dw, "/")
+
+# b_{ij} = 1 + g_i(w_j) * dt / dw_j + r_i * dt   (diagonal: advection + release)
+b <- 1 + sweep(rates$e_growth * dt, 2, params@dw, "/") + r * dt
+
+# s_{ij} = q_{ij} + e_repro_{ij} * dt   (right-hand side: old state + investment)
+s <- n_other$gonads + rates$e_repro * dt
+```
+
+The system is then solved by calling mizer’s internal C++ routine:
+
+``` r
+mizer:::inner_project_loop(no_sp = no_sp, no_w = no_w,
+                            n = n_other$gonads,
+                            A = a, B = b, S = s,
+                            w_min_idx = params@w_min_idx)
+```
+
+The `:::` call is intentional: `inner_project_loop` is the same
+forward-sweep solver that mizer uses for the fish number density, and
+there is no public wrapper for it. This creates a hard dependency on
+mizer’s internal layout, so any future mizer refactor that renames or
+moves this function will break `gonadDynamics`. The dependency is
+accepted because (a) the physics of the two PDEs is identical, so
+reusing the solver is correct, and (b) the alternative would be to
+duplicate several hundred lines of compiled C++.
+
+## Release functions
+
+All four release functions share the same signature:
+
+``` r
+release_func <- function(t, params, ...)
+```
+
+and return a numeric vector of length equal to the number of species,
+giving the mass-specific gonad release rate \\r_i(t)\\ for each species
+\\i\\ at time \\t\\.
+
+### Periodicity mechanisms
+
+All release functions produce a rate that is periodic with a period of
+exactly one year. They achieve this in slightly different ways:
+
+| Function | Periodicity mechanism |
+|----|----|
+| `seasonalVonMisesRelease` | \\\cos(2\pi(t-\mu))\\ is inherently \\1\\-periodic |
+| `seasonalBetaHazardRelease` | `t - floor(t)` maps any \\t\\ to \\\[0,1)\\ |
+| `seasonalBetaRelease` | `t - floor(t)` |
+| `seasonalGaussianRelease` | `t - trunc(t)` |
+
+[`trunc()`](https://rdrr.io/r/base/Round.html) and
+[`floor()`](https://rdrr.io/r/base/Round.html) agree for positive
+arguments (both truncate towards zero), so the last two are equivalent
+in practice. The inconsistency between them is a historical artefact
+rather than a deliberate design choice.
+
+### The von Mises rate at the seasonal peak and trough
+
+The von Mises release rate is
+
+\\r(t) = r_0 \frac{e^{\kappa \cos(2\pi(t-\mu))}}{2\pi I_0(\kappa)}\\
+
+The cosine reaches its maximum of \\+1\\ at \\t = \mu\\ and its minimum
+of \\-1\\ at \\t = \mu + 0.5\\, so:
+
+\\r(\mu) = \frac{r_0\\ e^{\kappa}}{2\pi I_0(\kappa)}, \qquad r(\mu +
+0.5) = \frac{r_0\\ e^{-\kappa}}{2\pi I_0(\kappa)}\\
+
+The ratio of peak to trough rate is \\e^{2\kappa}\\, so a concentration
+of \\\kappa = 2\\ gives a ratio of about \\54\\.
+
+## Density-dependent reproduction: `seasonalBevertonHoltRDD`
+
+This function is a time-varying version of mizer’s built-in
+`BevertonHoltRDD`. It applies the formula
+
+\\R\_{dd}(t) = \frac{R\_{di}(t)\\ R\_{\max}(t)}{R\_{di}(t) +
+R\_{\max}(t)}\\
+
+where \\R\_{\max}(t)\\ is looked up from a 2-D array stored in
+`other_params(params)$r_max`. That array must have a `time` dimension in
+its `dimnames`:
+
+``` r
+# Required structure of other_params(params)$r_max:
+times <- seq(0, 0.9, by = 0.1)
+r_max <- matrix(
+    values,
+    nrow = length(times), ncol = no_sp,
+    dimnames = list(time = as.character(round(times, 5)),
+                    species = sp_names)
+)
+other_params(params)$r_max <- r_max
+```
+
+The time lookup converts the fractional year to a character key:
+
+``` r
+t_name <- as.character(round(t - floor(t), 5))
+r_max  <- other_params(params)$r_max[t_name, ]
+```
+
+Two practical consequences follow from this design:
+
+1.  The `r_max` array must be pre-populated for every time step at which
+    the simulation will be evaluated (i.e., every multiple of `dt`
+    within `[0, 1)`). Missing entries cause an explicit
+    [`stop()`](https://rdrr.io/r/base/stop.html).
+2.  Floating-point rounding in `as.character(round(x, 5))` can produce
+    surprising keys. For example, `as.character(round(0.1, 5))` is
+    `"0.1"` on most platforms, but very small floating-point errors in
+    the simulation clock could push `t - floor(t)` to something like
+    `0.09999999999` which rounds to `"0.1"`. This is typically safe, but
+    worth being aware of if `dt` is very small (e.g., `dt = 0.001`).
+
+## `seasonalVonMisesRDD`: an unusual signature
+
+This function calculates a von Mises-distributed reproduction rate that
+is **independent of the actual egg production**. Its intended use is as
+a placeholder during model calibration (before a proper \\R\_{\max}\\
+has been estimated). Its signature is:
+
+``` r
+seasonalVonMisesRDD <- function(params, t, ...)
+```
+
+Mizer calls all RDD functions as:
+
+``` r
+do.call(params@rates_funcs$RDD,
+        list(rdi = rdi, params = params, t = t, ...))
+```
+
+Because `rdi` is not in `seasonalVonMisesRDD`’s formal argument list, it
+is silently absorbed by `...` and ignored. This works, but means that:
+
+- The function cannot be used for a calibrated simulation: it ignores
+  egg production entirely and can produce densities that are
+  inconsistent with the gonadic dynamics.
+- The documentation explicitly warns that it “should be replaced by
+  another reproduction rate function before simulating the dynamics.”
+
+## `projectRDI.mizerSeasonal`: gonadic-release egg production
+
+This S3 method replaces mizer’s standard energy-based RDI calculation
+entirely. It does **not** call
+[`NextMethod()`](https://rdrr.io/r/base/UseMethod.html). Instead it
+computes egg production directly from the gonadic release:
+
+``` r
+projectRDI.mizerSeasonal <- function(params, n, n_pp, n_other, t = 0,
+                                     e_growth, mort, e_repro, ...) {
+    release_func <- get0(other_params(params)$release_func)
+    r <- release_func(t, params)            # mass-specific release rate (species vector)
+    total <- drop((sweep(n_other$gonads, 1, r, "*") * n) %*% params@dw)
+    0.5 * (total * params@species_params$erepro) /
+        params@w[params@w_min_idx]
+}
+```
+
+`r * gonads * n * dw` integrates to give the total gonadic mass released
+per unit time per species. Dividing by the egg weight and multiplying by
+`erepro / 2` (the female fraction × reproductive efficiency) converts
+mass to egg numbers. The `e_growth`, `mort`, and `e_repro` arguments are
+present only for generic compatibility and are not used.
+
+## `projectEncounter.mizerSeasonal`: prey mass includes gonads
+
+This S3 method is **additive**: it calls
+[`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) to get the
+standard encounter rate and then appends the extra encounter arising
+from the gonadic mass carried by prey fish. The approach is
+mathematically exact because the encounter integral is linear in prey
+biomass:
+
+\\E(w\_\text{somatic} + q) = E(w\_\text{somatic}) + E(q)\\
+
+so the two contributions can be computed separately and summed.
+
+The gonad contribution is only added when `include_gonads = TRUE` (set
+in `setSeasonalReproduction`). When it is `FALSE`, the method returns
+[`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) unchanged.
+
+Note that the gonad contribution is zero if the predator–prey
+interaction matrix entry for that predator–prey species pair is zero. In
+a single-species model built with `newSingleSpeciesParams()` the
+interaction matrix has `interaction[1,1] = 0` by default (no
+self-predation), so the gonad contribution is exactly zero and
+`projectEncounter.mizerSeasonal` returns the same result as
+`mizerEncounter`. To observe a difference you need at least one nonzero
+fish-on-fish interaction.
+
+The method contains two code paths — one using the FFT convolution (the
+fast default) and one using direct matrix multiplication (used when the
+user has supplied a custom `pred_kernel`). In the FFT path, `prey_gonad`
+is swept by `dw_full` only (not `w_full * dw_full`) because `gonads`
+already represents absolute mass rather than the mass density \\w \cdot
+N(w)\\ used for somatic biomass.
+
+## `seasonal_resource_semichemostat`: configuration via `resource_params$rp`
+
+This function modulates the resource carrying capacity with a von Mises
+seasonal signal. It reads its parameters from a named sub-list `rp` of
+the `resource_params` slot:
+
+``` r
+params@resource_params$rp <- list(kappa = 2, mu = 0.25, maxR = 0.5)
+```
+
+| Key | Meaning |
+|----|----|
+| `kappa` | Concentration of the von Mises peak (higher = sharper season) |
+| `mu` | Time of peak resource abundance within the year |
+| `maxR` | Fractional amplitude: capacity is multiplied by \\(1 + \text{maxR} \cdot \text{vonMises})\\ |
+
+This differs from how the release functions receive their parameters
+(via `species_params` columns). The choice of `resource_params$rp` is
+because the resource has no species dimension, so `species_params` is
+not appropriate.
+
+## Data extraction: `getTimeseries`
+
+`getTimeseries(sim, func)` loops over the saved time steps of a
+`MizerSim` object and calls `func` at each step, reconstructing the
+per-time-step state vectors that mizer does not store directly. The
+reconstruction follows the same pattern that mizer uses internally:
+
+``` r
+for (i in time_indices) {
+    n <- sim@n[i, , ]
+    dim(n) <- dim(params@initial_n)          # restore matrix shape
+    n_other <- sim@n_other[i, ]              # named list of other components
+    names(n_other) <- dimnames(sim@n_other)[[2]]
+    value[i, ] <- func(params,
+                       n = n,
+                       n_pp = sim@n_pp[i, ],
+                       n_other = n_other,
+                       t = times[i])
+}
+```
+
+The `func` argument defaults to
+[`mizer::getRDI`](https://sizespectrum.org/mizer/reference/getRDI.html),
+so `getTimeseries(sim)` returns the RDI time series. Pass
+[`mizer::getRDD`](https://sizespectrum.org/mizer/reference/getRDD.html)
+to get the RDD time series, which is what `plotRDD` does.
+
+## Plotting functions
+
+`plotRDI` and `plotRDD` delegate the data extraction to `getTimeseries`
+and then rely on mizer’s internal `plotDataFrame` helper for the actual
+rendering. The data frame passed to `plotDataFrame` must have its
+columns in the specific order `(Year, Value, Species)`, which is why
+both functions do an explicit column reorder:
+
+``` r
+plot_dat <- plot_dat[, c(1, 3, 2)]  # reorder to (Year, Value, Species)
+```
+
+`plotGonadsVsTime` is a simpler base-graphics function that plots the
+per-capita gonadic mass at the species’ maximum body size through time.
+When `time_range` is supplied as a two-element vector it is interpreted
+as `(t_min, t_max)` and passed to mizer’s `get_time_elements()`, which
+returns a logical index vector over all saved times — not a count. The
+number of selected time steps is therefore `sum(time_elements)`, not
+`length(time_elements)`, and the code must use `length(qf)` (the number
+of selected gonad matrices) as the row dimension of the output matrix:
+
+``` r
+qf     <- sim@n_other[time_elements, "gonads"]   # list, length = sum(time_elements)
+qs_mat <- matrix(..., nrow = length(qf), ...)    # NOT length(time_elements)
+```
+
+## Test suite
+
+The tests live in `tests/testthat/` and are organised as follows:
+
+| File | What it tests |
+|----|----|
+| `helper-setup.R` | Shared fixtures: `base_params`, `seasonal_params`, `seasonal_sim` |
+| `test-extension.R` | Extension mechanism: class promotion, S3 dispatch, `project()` integration |
+| `test-release_functions.R` | Mathematical properties of all four release functions |
+| `test-seasonal.R` | `setSeasonalReproduction`, `gonadDynamics`, `projectRDI.mizerSeasonal`, `seasonalBevertonHoltRDD`, `seasonalVonMisesRDD`, `projectEncounter.mizerSeasonal`, `seasonal_resource_semichemostat` |
+| `test-plots.R` | `getTimeseries`, `plotRDI`, `plotRDD`, `plotGonadsVsTime`, `animateGonadSpectra` |
+
+`test-extension.R` uses its own `local_params()` helper (built on
+`NS_species_params`) rather than the shared `seasonal_params` fixture.
+This keeps the extension-mechanism tests self-contained and avoids
+depending on the single-species model that the shared fixture uses.
+
+The fixture `seasonal_params` uses `seasonalVonMisesRDD` as the RDD
+function (rather than the default `seasonalBevertonHoltRDD`) to avoid
+having to construct the `r_max` time-series array that
+`seasonalBevertonHoltRDD` requires. Tests of `seasonalBevertonHoltRDD`
+itself construct a minimal `r_max` inline.
+
+The fixture `seasonal_sim` is produced by
+`project(seasonal_params, t_max = 2, dt = 0.1, t_save = 0.5)`, giving
+five saved time points (0, 0.5, 1, 1.5, 2). Keeping `t_max` small and
+`t_save` coarse makes the helper fast to load without sacrificing
+coverage of the plot functions that need a `MizerSim` object.

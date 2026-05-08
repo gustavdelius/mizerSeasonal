@@ -27,8 +27,8 @@ reference:
 - title: Helper functions
   desc: Functions that you will not need to call directly.
   contents:
-  - seasonalEncounter
-  - seasonalRDI
+  - projectRDI.mizerSeasonal
+  - projectEncounter.mizerSeasonal
   - gonadDynamics
   - getTimeseries
 - title: Example parameters

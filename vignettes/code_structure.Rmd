@@ -322,7 +322,7 @@ projectRDI.mizerSeasonal <- function(params, n, n_pp, n_other, t = 0,
 }
 ```
 
-`r * gonads * n * dw` integrates to give the total gonadic mass released per
+` r * gonads * n * dw` integrates to give the total gonadic mass released per
 unit time per species. Dividing by the egg weight and multiplying by `erepro /
 2` (the female fraction × reproductive efficiency) converts mass to egg numbers.
 The `e_growth`, `mort`, and `e_repro` arguments are present only for generic

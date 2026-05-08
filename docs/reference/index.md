@@ -1,0 +1,65 @@
+# Package index
+
+## Setting up seasonal effects
+
+- [`setSeasonalReproduction()`](https://gustavdelius.github.io/mizerSeasonal/reference/setSeasonalReproduction.md)
+  : Set seasonal reproduction
+
+## Gonad release functions
+
+Functions for specifying the time-dependence of the gonad release rates
+
+- [`seasonalBetaHazardRelease()`](https://gustavdelius.github.io/mizerSeasonal/reference/seasonalBetaHazardRelease.md)
+  : Beta hazard mass-specific gonad release rate
+- [`seasonalBetaRelease()`](https://gustavdelius.github.io/mizerSeasonal/reference/seasonalBetaRelease.md)
+  : Beta distributed gonad release rate
+- [`seasonalGaussianRelease()`](https://gustavdelius.github.io/mizerSeasonal/reference/seasonalGaussianRelease.md)
+  : Gaussian mass-specific gonad release rate
+- [`seasonalVonMisesRelease()`](https://gustavdelius.github.io/mizerSeasonal/reference/seasonalVonMisesRelease.md)
+  : von-Mises distributed gonad release rate
+
+## Reproduction rate functions
+
+Functions for specifying the rate of offspring production after taking
+extra non-linear effects into account
+
+- [`seasonalBevertonHoltRDD()`](https://gustavdelius.github.io/mizerSeasonal/reference/seasonalBevertonHoltRDD.md)
+  : Beverton Holt function to calculate density-dependent reproduction
+  rate
+- [`seasonalVonMisesRDD()`](https://gustavdelius.github.io/mizerSeasonal/reference/seasonalVonMisesRDD.md)
+  : von-Mises distributed reproduction rate independent of abundance
+
+## Seasonal resource dynamics
+
+- [`seasonal_resource_semichemostat()`](https://gustavdelius.github.io/mizerSeasonal/reference/seasonal_resource_semichemostat.md)
+  : Seasonal semichemostat resource dynamics
+
+## Plotting functions
+
+- [`plotGonadsVsTime()`](https://gustavdelius.github.io/mizerSeasonal/reference/plotGonadsVsTime.md)
+  : Plot per-capita gonadic mass through time at a given size
+- [`plotRDD()`](https://gustavdelius.github.io/mizerSeasonal/reference/plotRDD.md)
+  : Plot density-dependent reproduction rate over time
+- [`plotRDI()`](https://gustavdelius.github.io/mizerSeasonal/reference/plotRDI.md)
+  : Plot density-independent reproduction rate over time
+- [`animateGonadSpectra()`](https://gustavdelius.github.io/mizerSeasonal/reference/animateGonadSpectra.md)
+  : Animation of the gonadic mass spectra
+
+## Helper functions
+
+Functions that you will not need to call directly.
+
+- [`projectRDI(`*`<mizerSeasonal>`*`)`](https://gustavdelius.github.io/mizerSeasonal/reference/projectRDI.mizerSeasonal.md)
+  : Seasonal density-independent reproduction rate via S3 dispatch
+- [`projectEncounter(`*`<mizerSeasonal>`*`)`](https://gustavdelius.github.io/mizerSeasonal/reference/projectEncounter.mizerSeasonal.md)
+  : Seasonal encounter rate including gonadic mass of prey via S3
+  dispatch
+- [`gonadDynamics()`](https://gustavdelius.github.io/mizerSeasonal/reference/gonadDynamics.md)
+  : Update the gonadic mass using a seasonal reproduction rate
+- [`getTimeseries()`](https://gustavdelius.github.io/mizerSeasonal/reference/getTimeseries.md)
+  : Get time series of summary functions from simulation
+
+## Example parameters
+
+- [`datta_params`](https://gustavdelius.github.io/mizerSeasonal/reference/datta_params.md)
+  : Parameters used by Datta & Blanchard (2016)

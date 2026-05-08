@@ -12,6 +12,7 @@ This is an extension package for the
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://gustavdelius.github.io/mizerSeasonal}
   \item \url{https://github.com/gustavdelius/mizerSeasonal}
   \item Report bugs at \url{https://github.com/gustavdelius/mizerSeasonal/issues}
 }

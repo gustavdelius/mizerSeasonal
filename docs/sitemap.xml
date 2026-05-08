@@ -1,6 +1,7 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/404.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/LICENSE-text.html</loc></url>
+<url><loc>https://gustavdelius.github.io/mizerSeasonal/articles/code_structure.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/articles/gonadic_mass_dynamics.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/articles/index.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/articles/mizerSeasonal.html</loc></url>
@@ -15,6 +16,8 @@
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/plotGonadsVsTime.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/plotRDD.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/plotRDI.html</loc></url>
+<url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/projectEncounter.mizerSeasonal.html</loc></url>
+<url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/projectRDI.mizerSeasonal.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/seasonalBetaHazardRelease.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/seasonalBetaRelease.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/seasonalBevertonHoltRDD.html</loc></url>

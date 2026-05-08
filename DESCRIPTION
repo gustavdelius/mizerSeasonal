@@ -35,7 +35,7 @@ Collate:
     release_functions.R
     seasonal.R
 Roxygen: list(markdown = TRUE)
-URL: https://github.com/gustavdelius/mizerSeasonal
+URL: https://gustavdelius.github.io/mizerSeasonal, https://github.com/gustavdelius/mizerSeasonal
 BugReports: https://github.com/gustavdelius/mizerSeasonal/issues
 Suggests:
     knitr,
