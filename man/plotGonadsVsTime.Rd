@@ -19,9 +19,9 @@ This function plots the gonadic mass of an individual of a given size through
 time for all species.
 }
 \seealso{
-Other plotting functions: 
-\code{\link{animateGonadSpectra}()},
-\code{\link{plotRDD}()},
-\code{\link{plotRDI}()}
+Other plotting functions:
+\code{\link[=animateGonadSpectra]{animateGonadSpectra()}},
+\code{\link[=plotRDD]{plotRDD()}},
+\code{\link[=plotRDI]{plotRDI()}}
 }
 \concept{plotting functions}

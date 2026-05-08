@@ -6,3 +6,5 @@ LICENSE
 ^pkgdown$
 ^data-raw$
 ^.lintr$
+^\.positai$
+^\.claude$

@@ -33,7 +33,7 @@ above equation are species-specific but we dropped the species index for
 simplicity.)
 }
 \seealso{
-Other functions calculating density-dependent reproduction rates: 
-\code{\link{seasonalVonMisesRDD}()}
+Other functions calculating density-dependent reproduction rates:
+\code{\link[=seasonalVonMisesRDD]{seasonalVonMisesRDD()}}
 }
 \concept{functions calculating density-dependent reproduction rates}

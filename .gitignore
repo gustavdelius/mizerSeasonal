@@ -47,3 +47,9 @@ po/*~
 rsconnect/
 .Rproj.user
 inst/doc
+
+# AI agent folders
+.positai
+.claude
+.codex
+

@@ -25,9 +25,9 @@ within the year and so \eqn{r(t)} is a periodic function with the period of
 one year.
 }
 \seealso{
-Other release functions: 
-\code{\link{seasonalBetaRelease}()},
-\code{\link{seasonalGaussianRelease}()},
-\code{\link{seasonalVonMisesRelease}()}
+Other release functions:
+\code{\link[=seasonalBetaRelease]{seasonalBetaRelease()}},
+\code{\link[=seasonalGaussianRelease]{seasonalGaussianRelease()}},
+\code{\link[=seasonalVonMisesRelease]{seasonalVonMisesRelease()}}
 }
 \concept{release functions}

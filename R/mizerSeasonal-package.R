@@ -14,3 +14,8 @@
 "_PACKAGE"
 
 globalVariables(c("Q"))
+
+.onLoad <- function(libname, pkgname) {
+    mizer::registerExtension(pkgname,
+                             requirement = "sizespectrum/mizerSeasonal")
+}

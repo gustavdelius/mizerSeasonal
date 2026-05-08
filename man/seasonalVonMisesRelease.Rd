@@ -23,9 +23,9 @@ where the parameters are taken from the \code{vonMises_r0}, \code{vonMises_kappa
 \code{vonMises_mu} columns in the \code{species_params} data frame in \code{params}.
 }
 \seealso{
-Other release functions: 
-\code{\link{seasonalBetaHazardRelease}()},
-\code{\link{seasonalBetaRelease}()},
-\code{\link{seasonalGaussianRelease}()}
+Other release functions:
+\code{\link[=seasonalBetaHazardRelease]{seasonalBetaHazardRelease()}},
+\code{\link[=seasonalBetaRelease]{seasonalBetaRelease()}},
+\code{\link[=seasonalGaussianRelease]{seasonalGaussianRelease()}}
 }
 \concept{release functions}
