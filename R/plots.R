@@ -227,18 +227,19 @@ plotGonadsVsTime <- function(sim,
 
     ###
 
-    q_max <- matrix(0,length(time_elements), dim(sim@n)[2])
     qf <- sim@n_other[time_elements, "gonads"]
+    selected_times <- as.numeric(dimnames(sim@n)$time)[time_elements]
 
-    qs_mat <- matrix(unlist(lapply(qf, function(x){return(diag(x[,max_size]))})),length(time_elements),dim(sim@n)[2],byrow=T)
+    qs_mat <- matrix(unlist(lapply(qf, function(x){x[cbind(seq_len(nrow(x)), max_size)]})),
+                     length(qf), dim(sim@n)[2], byrow = TRUE)
 
-    rownames(qs_mat) <- (as.numeric(dimnames(sim@n)$time))
+    rownames(qs_mat) <- selected_times
 
     graphics::par(mfrow = c(4,3))
     graphics::par(oma = c(1,1,1,3))
     graphics::par(mar = c(2,4,2,0))
     for (i in 1:dim(sim@n)[2]) {
-        plot((as.numeric(dimnames(sim@n)$time)), qs_mat[,i],
+        plot(selected_times, qs_mat[, i],
              main = i, type = "l")
     }
     graphics::par(def.par)
