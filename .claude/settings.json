@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep \"^Version:\" /home/gustav/Git/mizer/DESCRIPTION)",
+      "Read(//home/gustav/Git/mizer/**)",
+      "Bash(Rscript -e \"devtools::load_all\\('.'\\)\")",
+      "Bash(Rscript -e ' *)",
+      "Bash(Rscript -e \"rmarkdown::render\\('vignettes/code_structure.Rmd', quiet = TRUE\\)\")"
+    ]
+  }
+}
