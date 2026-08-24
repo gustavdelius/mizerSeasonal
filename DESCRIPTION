@@ -1,6 +1,6 @@
 Package: mizerSeasonal
 Title: Implementing Seasonality in Mizer
-Version: 0.0.0.9003
+Version: 0.0.0.9004
 Authors@R: 
     c(person("Gustav", "Delius",
              email = "gustav.delius@york.ac.uk",
@@ -15,8 +15,8 @@ Description: For now, the package implements the accumulation of gonadic mass th
 License: GPL-3
 Encoding: UTF-8
 Depends:
-    mizer (>= 2.5.4.9125),
-    R (>= 3.5)
+    mizer (>= 3.3.0),
+    R (>= 4.1)
 Imports:
     assertthat,
     dplyr,
@@ -35,7 +35,7 @@ Collate:
     release_functions.R
     seasonal.R
 Roxygen: list(markdown = TRUE)
-URL: https://gustavdelius.github.io/mizerSeasonal, https://github.com/gustavdelius/mizerSeasonal
+URL: https://gustavdelius.github.io/mizerSeasonal/, https://github.com/gustavdelius/mizerSeasonal
 BugReports: https://github.com/gustavdelius/mizerSeasonal/issues
 Suggests:
     knitr,
@@ -45,5 +45,5 @@ Suggests:
 Language: en-GB
 VignetteBuilder: knitr
 LazyData: true
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0
 Config/testthat/edition: 3

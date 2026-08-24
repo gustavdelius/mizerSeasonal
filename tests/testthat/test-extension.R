@@ -21,6 +21,14 @@ test_that("setSeasonalReproduction returns a mizerSeasonal object", {
 test_that("extensions slot is populated after setSeasonalReproduction", {
     p <- local_params()
     expect_true("mizerSeasonal" %in% names(p@extensions))
+    expect_equal(
+        unname(p@extensions$mizerSeasonal[["requirement"]]),
+        "sizespectrum/mizerSeasonal"
+    )
+    expect_equal(
+        unname(p@extensions$mizerSeasonal[["version"]]),
+        as.character(packageVersion("mizerSeasonal"))
+    )
 })
 
 test_that("RDI rate function stays at default (for S3 dispatch)", {

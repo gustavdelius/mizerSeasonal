@@ -28,17 +28,17 @@ The package has seven R source files, listed here in the order they are collated
 
 | File | Contents |
 |---|---|
-| `mizerSeasonal-class.R` | S4 marker class definitions: `mizerSeasonal` and `mizerSeasonalSim` |
+| `mizerSeasonal-class.R` | Documentation for the dynamic `mizerSeasonal` and `mizerSeasonalSim` marker classes |
+| `mizerSeasonal-package.R` | Package-level documentation, `@import` directives, and `.onLoad` hook |
 | `animate.R` | `animateGonadSpectra()` and two private helpers |
 | `data.R` | Documentation for the `datta_params` dataset |
-| `mizerSeasonal-package.R` | Package-level documentation, `@import` directives, and `.onLoad` hook |
 | `plots.R` | `getTimeseries()`, `plotRDI()`, `plotRDD()`, `plotGonadsVsTime()` |
 | `release_functions.R` | The four release-rate functions |
 | `seasonal.R` | Core machinery: `setSeasonalReproduction()`, `gonadDynamics()`, `projectRDI.mizerSeasonal()`, `projectEncounter.mizerSeasonal()`, `seasonalBevertonHoltRDD()`, `seasonalVonMisesRDD()`, `seasonal_resource_semichemostat()`, and two private helpers |
 
-`mizerSeasonal-class.R` is collated first so that the S4 class definitions are
-available before any code that references them. `animate.R` uses unexported mizer
-functions (`get_time_elements`) and dplyr verbs imported at the package level in
+`mizerSeasonal-class.R` documents marker classes that mizer creates dynamically
+when the extension is registered. `animate.R` uses unexported mizer functions
+(`get_time_elements`) and dplyr verbs imported at the package level in
 `mizerSeasonal-package.R`.
 
 ## How the package hooks into mizer
@@ -47,6 +47,8 @@ Mizer ships a formal extension API. The key functions used by this package are:
 
 - **`registerExtension(pkgname, ...)`** — called once in `.onLoad` to register
   the package as a mizer extension for the current R session.
+- **`recordExtension(params, name, version)`** — records that this extension
+  was applied to a specific model and stamps the package version.
 - **`setComponent(params, component, initial_value, dynamics_fun)`** — registers
   a new dynamical state variable (here, the gonadic mass matrix).
 - **`setRateFunction(params, rate, fun)`** — replaces one of mizer's standard
@@ -66,24 +68,25 @@ Mizer ships a formal extension API. The key functions used by this package are:
 }
 ```
 
-This runs when the package is loaded and tells mizer about the extension. It is
-what makes `coerceToExtensionClass()` know which S4 class to promote to.
+This runs when the package is loaded and tells mizer about the extension. Mizer
+detects the registered S3 methods, creates the marker classes dynamically, and
+can then promote recorded objects with `coerceToExtensionClass()`.
 
 ### S4 marker classes
 
-Two S4 classes are defined in `mizerSeasonal-class.R`:
+The package documents two marker classes in `mizerSeasonal-class.R` but does
+not define them itself:
 
 ```{r}
-setClass("mizerSeasonal",    contains = "MizerParams")
-setClass("mizerSeasonalSim", contains = "MizerSim")
+NULL
 ```
 
-These are *marker* classes: they carry no additional slots. Their sole purpose
-is to enable S3 method dispatch on the `project*` generics. When mizer calls
-e.g. `projectRDI(params, ...)`, it dispatches to `projectRDI.mizerSeasonal`
-because `params` has class `mizerSeasonal`. Similarly, `project()` returns a
-`mizerSeasonalSim` because `MizerSim` objects are coerced to the registered
-extension sim class.
+Mizer creates `mizerSeasonal` and `mizerSeasonalSim` dynamically during
+`registerExtension()`. They carry no additional slots; their purpose is to
+enable S3 dispatch on the `project*` generics while allowing multiple extension
+packages to form one dispatch chain. When mizer calls `projectRDI(params, ...)`,
+it dispatches to `projectRDI.mizerSeasonal`. Similarly, `project()` returns a
+`mizerSeasonalSim`.
 
 ### `setSeasonalReproduction()`
 
@@ -94,6 +97,11 @@ setSeasonalReproduction <- function(params,
                                     release_func = "seasonalVonMisesRelease",
                                     RDD = "seasonalBevertonHoltRDD",
                                     include_gonads = TRUE) {
+    version <- if ("mizerSeasonal" %in% names(params@extensions)) {
+        NULL
+    } else {
+        as.character(utils::packageVersion("mizerSeasonal"))
+    }
     initial <- initialN(params)
     initial[] <- 0
 
@@ -106,7 +114,7 @@ setSeasonalReproduction <- function(params,
                       dynamics_fun = "gonadDynamics") |>
         setRateFunction("RDD", RDD)                      # <-- replace RDD only
 
-    p@extensions <- mizer::getRegisteredExtensions()
+    p <- mizer::recordExtension(p, "mizerSeasonal", version = version)
     p <- mizer::coerceToExtensionClass(p)                # <-- promote to mizerSeasonal
     return(p)
 }

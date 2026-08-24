@@ -80,9 +80,10 @@ test_that("seasonalBetaRelease equals beta_r * dbeta(t - floor(t), beta_a, beta_
 
 test_that("seasonalBetaRelease is zero at integer times (for beta_a > 1)", {
     # dbeta(0, 2, 5) = 0 since beta_a = 2 > 1
-    expect_equal(seasonalBetaRelease(0, base_params), 0)
-    expect_equal(seasonalBetaRelease(1, base_params), 0)
-    expect_equal(seasonalBetaRelease(2, base_params), 0)
+    expected <- setNames(0, rownames(base_params@species_params))
+    expect_equal(seasonalBetaRelease(0, base_params), expected)
+    expect_equal(seasonalBetaRelease(1, base_params), expected)
+    expect_equal(seasonalBetaRelease(2, base_params), expected)
 })
 
 test_that("seasonalBetaRelease is periodic with period 1", {

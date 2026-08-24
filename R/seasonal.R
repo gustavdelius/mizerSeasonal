@@ -36,6 +36,12 @@ setSeasonalReproduction <- function(params,
                                     release_func = "seasonalVonMisesRelease",
                                     RDD = "seasonalBevertonHoltRDD",
                                     include_gonads = TRUE) {
+    version <- if ("mizerSeasonal" %in% names(params@extensions)) {
+        NULL
+    } else {
+        as.character(utils::packageVersion("mizerSeasonal"))
+    }
+
     # start with zero gonadic mass
     initial <- initialN(params) # to get the right dimensions
     initial[] <- 0
@@ -52,7 +58,7 @@ setSeasonalReproduction <- function(params,
                       dynamics_fun = "gonadDynamics") |>
         setRateFunction("RDD", RDD)
 
-    p@extensions <- mizer::getRegisteredExtensions()
+    p <- mizer::recordExtension(p, "mizerSeasonal", version = version)
     p <- mizer::coerceToExtensionClass(p)
     return(p)
 }
@@ -101,7 +107,8 @@ gonadDynamics <- function(params, n_other, rates, t, dt, ...) {
 #' the timed release of accumulated gonadic mass rather than by direct energy
 #' investment, so the standard RDI formula does not apply.
 #'
-#' @param params A \linkS4class{MizerParams} object of class `mizerSeasonal`.
+#' @param params A \linkS4class[mizer]{MizerParams} object of class
+#'   `mizerSeasonal`.
 #' @param n A matrix of species abundances (species x size).
 #' @param n_pp A vector of the resource abundance by size. Unused.
 #' @param n_other A list of other model components, including `gonads`.
@@ -129,7 +136,8 @@ projectRDI.mizerSeasonal <- function(params, n, n_pp, n_other, t = 0,
 #' contribution from the gonadic mass of prey fish. This is only done when
 #' `include_gonads = TRUE` was passed to [setSeasonalReproduction()].
 #'
-#' @param params A \linkS4class{MizerParams} object of class `mizerSeasonal`.
+#' @param params A \linkS4class[mizer]{MizerParams} object of class
+#'   `mizerSeasonal`.
 #' @param n A matrix of species abundances (species x size).
 #' @param n_pp A vector of the resource abundance by size.
 #' @param n_other A list of other model components, including `gonads`.
