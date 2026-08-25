@@ -79,6 +79,8 @@ Functions that you will not need to call directly.
 
 - [`datta_params`](https://gustavdelius.github.io/mizerSeasonal/reference/datta_params.md)
   : Parameters used by Datta & Blanchard (2016)
+- [`datta_params_second_order`](https://gustavdelius.github.io/mizerSeasonal/reference/datta_params_second_order.md)
+  : Second-order parameters used by Datta & Blanchard (2016)
 
 # Articles
 

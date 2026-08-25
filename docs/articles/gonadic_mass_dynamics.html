@@ -12,9 +12,9 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+</script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="gonadic_mass_dynamics_files/libs/quarto-html/popper.min.js"></script><script src="gonadic_mass_dynamics_files/libs/quarto-html/tippy.umd.min.js"></script><link href="gonadic_mass_dynamics_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="gonadic_mass_dynamics_files/libs/quarto-html/light-border.css" rel="stylesheet">
@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizerSeasonal</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,6 +46,7 @@
     <li><a class="dropdown-item" href="../articles/gonadic_mass_dynamics.html">Gonadic mass dynamics</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -77,83 +78,157 @@
 
     <section class="level2"><h2 id="deriving-the-pde-for-gonadic-mass">Deriving the PDE for gonadic mass<a class="anchor" aria-label="anchor" href="#deriving-the-pde-for-gonadic-mass"></a>
 </h2>
-<p>Standard mizer describes the number density <span class="math inline">\(N(w,t)\)</span> by the PDE <span id="eq-PDEN"><span class="math display">\[
-\frac{\partial N}{\partial t} = -\frac{\partial}{\partial w}(g\,N)-\mu\,N,
-\tag{1}\]</span></span> where <span class="math inline">\(g(w,t)\)</span> is the growth rate of an individual of size <span class="math inline">\(w\)</span> and <span class="math inline">\(\mu(w,t)\)</span> is its death rate. This equation simply states that the rate of change of the number of individuals in an infinitesimal size range around <span class="math inline">\(w\)</span> is given by the difference between the rate at which individuals grow into the size range and the rate at which they grow out (the transport term), minus the rate at which they die (the loss term).</p>
-<p>Instead of the number density <span class="math inline">\(N\)</span> we could have used the biomass density <span class="math inline">\(B = w\,N\)</span> to describe the population. Its evolution equation can easily be derived from <a href="#eq-PDEN" class="quarto-xref">Equation 1</a> <span class="math display">\[\begin{split}
+<p>Standard mizer describes the consumer number density <span class="math inline">\(N(w,t)\)</span> by the McKendrick-von Foerster equation with an added diffusion term: <span id="eq-PDEN"><span class="math display">\[
+\frac{\partial N}{\partial t} + \frac{\partial}{\partial w}\left( g\,N - \frac{1}{2}\frac{\partial(d\,N)}{\partial w} \right) = -\mu\,N,
+\tag{1}\]</span></span> where <span class="math inline">\(g(w,t)\)</span> is the somatic growth rate of an individual of size <span class="math inline">\(w\)</span>, <span class="math inline">\(d(w,t)\)</span> is its diffusion coefficient, and <span class="math inline">\(\mu(w,t)\)</span> is its total mortality rate. The bracketed term inside the spatial derivative is the total consumer flux <span class="math inline">\(J_N(w,t) = J_N^{\text{adv}} + J_N^{\text{diff}}\)</span>, consisting of the advective growth flux <span class="math inline">\(g\,N\)</span> and the diffusive flux <span class="math inline">\(-\frac{1}{2}\frac{\partial(d\,N)}{\partial w}\)</span>.</p>
+<p>Instead of the number density <span class="math inline">\(N\)</span>, we could describe the population by the somatic biomass density <span class="math inline">\(B = w\,N\)</span>. In the advection-only case (<span class="math inline">\(d=0\)</span>), differentiating <span class="math inline">\(B = w\,N\)</span> gives: <span class="math display">\[\begin{split}
 \frac{\partial B}{\partial t} &amp;= w\frac{\partial N}{\partial t}
 = -w\frac{\partial}{\partial w}\left(g\,\frac{B}{w}\right)-\mu\,B,\\
 &amp;=-\frac{\partial}{\partial w}\left(g\,B\right)+g\,\frac{B}{w}-\mu\,B.
-\end{split}\]</span> This is again intuitive: in addition to the transport term and the loss term we now also have a source term <span class="math inline">\(g B/w = gN\)</span> representing coming from the growth taking place within the infinitesimal size class.</p>
-<p>If we now denote by <span class="math inline">\(Q(w,t)\)</span> the total gonadic biomass density and by <span class="math inline">\(G(w,t)\)</span> the gonadic growth rate of an individual of size <span class="math inline">\(w\)</span> (when it is not reproducing), then they satisfy the analogous equation <span class="math display">\[
-\frac{\partial Q}{\partial t}
-=-\frac{\partial}{\partial w}\left(g\,Q\right)+G\,N-\mu\,Q-r\,Q,
-\]</span> where we have an additional loss term representing the release of gonadic mass during reproduction. The release rate <span class="math inline">\(r(w,t)\)</span> will encode the seasonality of this reproduction.</p>
-<p>In mizer, the total energy <span class="math inline">\(E_r\)</span> available for growth an reproduction is split as <span class="math inline">\(g=E_r(1-\psi)\)</span> and <span class="math inline">\(G=E_r\psi\)</span>. Thus <span class="math inline">\(G=g\,\psi/(1-\psi)\)</span>.</p>
-<p>Instead of considering the total gonadic biomass density <span class="math inline">\(Q(w,t)\)</span>, we could consider the gonadic mass <span class="math inline">\(q(w,t)\)</span> of an individual fish of size <span class="math inline">\(w\)</span>, given by <span class="math display">\[
-q= \frac{Q}{N}.
-\]</span> Let’s derive its evolution PDE: <span id="eq-PDEwG"><span class="math display">\[\begin{split}
-\frac{\partial q}{\partial t} &amp;= \frac{1}{N}\frac{\partial Q}{\partial t}-
-\frac{Q}{N^2}\frac{\partial N}{\partial t}\\
-&amp;=\frac{1}{N}\left(-\frac{\partial}{\partial w}\left(g\,Q\right)+G\,N-\mu\,Q-r\,Q\right)
--\frac{Q}{N^2}\left(-\frac{\partial}{\partial w}(g\,N)-\mu\,N\right).
-\end{split} \tag{2}\]</span></span> To simplify this we observe that the two mortality terms cancel and that <span class="math display">\[\begin{split}
-\frac{Q}{N^2}\frac{\partial}{\partial w}(g\,N)
-&amp;=\frac{q}{N}\frac{\partial}{\partial w}\left(g\,\frac{Q}{q}\right)\\
-&amp;=\frac{1}{N}\frac{\partial}{\partial w}\left(g\,Q\right)
--g\,\frac{\partial q}{\partial w}.
-\end{split}\]</span> Substituting this into <a href="#eq-PDEwG" class="quarto-xref">Equation 2</a> and cancelling terms gives <span id="eq-wg"><span class="math display">\[
-\frac{\partial q}{\partial t}=G-g\,\frac{\partial q}{\partial w}-r\, q.
-\tag{3}\]</span></span> At this point we feel a bit stupid when we realise that <span class="math display">\[
-\frac{dq(w,t)}{dt}=\frac{\partial q(w,t)}{\partial t}+
-\frac{\partial q(w,t)}{\partial w}\frac{dw}{dt}
-\]</span> and that <span class="math inline">\(dw/dt = g\)</span>, so that <a href="#eq-wg" class="quarto-xref">Equation 3</a> reduces to <span id="eq-dqdt"><span class="math display">\[
-\frac{dq}{dt}=G-r\,q,
-\tag{4}\]</span></span> which is what we could have written down immediately, given our definition of <span class="math inline">\(G\)</span>. So this equation would have been a good starting point for deriving the PDE <a href="#eq-wg" class="quarto-xref">Equation 3</a>.</p>
-<p>All the above equations are species specific. So in particular there is one gonadic mass function <span class="math inline">\(q_i(w,t)\)</span> for each species <span class="math inline">\(i\)</span> and we will need to specify one rate function <span class="math inline">\(r_i(w,t)\)</span> for each species <span class="math inline">\(i\)</span>.</p>
-<p>We need to specify the mass-specific release rate <span class="math inline">\(r(w,t)\)</span>. This then determines the total reproduction rate <span class="math display">\[\begin{equation}
-R_p(t)=\frac{\epsilon}{2w_0}\int N(w,t)q(w,t)r(w,t)dw.
-\end{equation}\]</span> It will be difficult to know how to choose the mass-specific rate <span class="math inline">\(r(w,t)\)</span> to produce the observed egg production rate <span class="math inline">\(R_p(t)\)</span>. We’ll probably have to do this by trial and error initially. The rate <span class="math inline">\(r(w,t)\)</span> should become large at least once a year so that the gonadic mass goes back to close to zero. One possibility would be to make <span class="math inline">\(r(w,t)\)</span> independent of <span class="math inline">\(w\)</span>.</p>
+\end{split}\]</span> This is intuitive: in addition to the advective transport term <span class="math inline">\(-\frac{\partial}{\partial w}(g B)\)</span> and the mortality loss <span class="math inline">\(-\mu B\)</span>, there is a distributed source term <span class="math inline">\(g B/w = g N\)</span> representing somatic growth occurring within the size class.</p>
+<section class="level3"><h3 id="total-gonadic-biomass-density-qwt">Total gonadic biomass density <span class="math inline">\(Q(w,t)\)</span>
+<a class="anchor" aria-label="anchor" href="#total-gonadic-biomass-density-qwt"></a>
+</h3>
+<p>Now consider the gonadic mass carried by the population. Let <span class="math inline">\(Q(w,t)\)</span> denote the total gonadic biomass density across size <span class="math inline">\(w\)</span> at time <span class="math inline">\(t\)</span>, and let <span class="math inline">\(G(w,t)\)</span> be the gonadic investment rate of an individual of size <span class="math inline">\(w\)</span> (i.e. the energy allocated to reproduction).</p>
+<p>In mizer, the energy available for growth and reproduction <span class="math inline">\(E_r\)</span> is split into somatic growth <span class="math inline">\(g = E_r(1-\psi)\)</span> and reproduction investment <span class="math inline">\(G= E_r\psi = g\,\psi / (1 - \psi)\)</span>, where <span class="math inline">\(\psi(w)\)</span> is the proportion of energy allocated to reproduction. In mizer code, <span class="math inline">\(G(w,t)\)</span> corresponds to <code>e_repro(w,t)</code>.</p>
+<p>Because gonadic mass is an extensive quantity carried by the individuals <span class="math inline">\(N\)</span>, <span class="math inline">\(Q(w,t)\)</span> undergoes the exact same advective transport and stochastic size diffusion as <span class="math inline">\(N(w,t)\)</span>. In addition, <span class="math inline">\(Q(w,t)\)</span> receives a distributed source from reproductive investment <span class="math inline">\(G\,N\)</span>, loses mass to natural/fishing mortality at rate <span class="math inline">\(\mu\,Q\)</span>, and releases mass during spawning at a mass-specific release rate <span class="math inline">\(r(w,t)\)</span>: <span id="eq-PDEQ"><span class="math display">\[
+\frac{\partial Q}{\partial t} + \frac{\partial}{\partial w}\left( g\,Q- \frac{1}{2}\frac{\partial(d\,Q)}{\partial w} \right) = G\,N - \mu\,Q- r\,Q.
+\tag{2}\]</span></span></p>
+<p>The release rate <span class="math inline">\(r(w,t)\)</span> encodes the seasonality of reproduction. All terms in <a href="#eq-PDEQ" class="quarto-xref">Equation 2</a> are species-specific, so there is one equation for each species <span class="math inline">\(i\)</span>.</p>
+</section><section class="level3"><h3 id="per-capita-gonadic-mass-qwt-q-n">Per-capita gonadic mass <span class="math inline">\(q(w,t) = Q/ N\)</span>
+<a class="anchor" aria-label="anchor" href="#per-capita-gonadic-mass-qwt-q-n"></a>
+</h3>
+<p>Instead of the total gonadic biomass density <span class="math inline">\(Q(w,t)\)</span>, one might consider the average gonadic mass <span class="math inline">\(q(w,t)\)</span> of an individual fish of size <span class="math inline">\(w\)</span>: <span class="math display">\[
+q(w,t) = \frac{Q(w,t)}{N(w,t)}.
+\]</span> Let us derive the evolution equation for <span class="math inline">\(q(w,t)\)</span> by applying the quotient rule <span class="math inline">\(\frac{\partial q}{\partial t} = \frac{1}{N}\frac{\partial Q}{\partial t} - \frac{Q}{N^2}\frac{\partial N}{\partial t}\)</span>.</p>
+<p>Substituting <a href="#eq-PDEQ" class="quarto-xref">Equation 2</a> and <a href="#eq-PDEN" class="quarto-xref">Equation 1</a> into the quotient rule: <span id="eq-PDEwG"><span class="math display">\[\begin{split}
+\frac{\partial q}{\partial t} &amp;= \frac{1}{N}\left( -\frac{\partial J_Q}{\partial w} + G\,N - \mu\,Q- r\,Q\right) - \frac{q}{N}\left( -\frac{\partial J_N}{\partial w} - \mu\,N \right)\\
+&amp;= G- r\,q- \frac{1}{N}\left( \frac{\partial J_Q}{\partial w} - q\frac{\partial J_N}{\partial w} \right),
+\end{split} \tag{3}\]</span></span> where the mortality terms <span class="math inline">\(-\mu q\)</span> and <span class="math inline">\(+\mu q\)</span> cancel out exactly.</p>
+<p>Let us evaluate the spatial flux divergence term <span class="math inline">\(\frac{1}{N}\left( \frac{\partial J_Q}{\partial w} - q\frac{\partial J_N}{\partial w} \right)\)</span>:</p>
+<ol type="1">
+<li><p><strong>Advective contribution:</strong> <span class="math display">\[\frac{\partial(g\,qN)}{\partial w} - q\frac{\partial(g\,N)}{\partial w} = g\,N\frac{\partial q}{\partial w}.\]</span> Dividing by <span class="math inline">\(N\)</span> gives <span class="math inline">\(g\,\frac{\partial q}{\partial w}\)</span>.</p></li>
+<li><p><strong>Diffusive contribution:</strong> Using the product rule on <span class="math inline">\(\frac{\partial^2(d\,qN)}{\partial w^2} - q\frac{\partial^2(d\,N)}{\partial w^2}\)</span>: <span class="math display">\[\frac{\partial^2(d\,qN)}{\partial w^2} - q\frac{\partial^2(d\,N)}{\partial w^2} = d\,N\frac{\partial^2 q}{\partial w^2} + 2\frac{\partial(d\,N)}{\partial w}\frac{\partial q}{\partial w}.\]</span> Dividing by <span class="math inline">\(N\)</span> and multiplying by <span class="math inline">\(-1/2\)</span> gives <span class="math inline">\(-\frac{1}{2}d\frac{\partial^2 q}{\partial w^2} - \frac{1}{N}\frac{\partial(d\,N)}{\partial w}\frac{\partial q}{\partial w}\)</span>.</p></li>
+</ol>
+<p>Combining these terms gives the full PDE for individual gonadic mass <span class="math inline">\(q(w,t)\)</span>: <span id="eq-wg-diff"><span class="math display">\[
+\frac{\partial q}{\partial t} + g\,\frac{\partial q}{\partial w} - \frac{1}{2}d\,\frac{\partial^2 q}{\partial w^2} - \frac{1}{N}\frac{\partial(d\,N)}{\partial w}\frac{\partial q}{\partial w} = G- r\,q.
+\tag{4}\]</span></span></p>
+</section><section class="level3"><h3 id="the-deterministic-limit-d-0-vs--diffusion-d-0">The deterministic limit (<span class="math inline">\(d = 0\)</span>) vs. diffusion (<span class="math inline">\(d &gt; 0\)</span>)<a class="anchor" aria-label="anchor" href="#the-deterministic-limit-d-0-vs--diffusion-d-0"></a>
+</h3>
+<p>In the absence of diffusion (<span class="math inline">\(d = 0\)</span>), <a href="#eq-wg-diff" class="quarto-xref">Equation 4</a> simplifies to: <span id="eq-wg"><span class="math display">\[
+\frac{\partial q}{\partial t} + g\,\frac{\partial q}{\partial w} = G- r\,q.
+\tag{5}\]</span></span> Because <span class="math inline">\(\frac{dq(w(t),t)}{dt} = \frac{\partial q}{\partial t} + \frac{\partial q}{\partial w}\frac{dw}{dt}\)</span> and <span class="math inline">\(\frac{dw}{dt} = g\)</span>, <a href="#eq-wg" class="quarto-xref">Equation 5</a> reduces along the deterministic growth trajectory of an individual to the ordinary differential equation: <span id="eq-dqdt"><span class="math display">\[
+\frac{dq}{dt} = G- r\,q.
+\tag{6}\]</span></span> Without diffusion, the evolution of per-capita gonadic mass <span class="math inline">\(q\)</span> is completely decoupled from the abundance <span class="math inline">\(N(w,t)\)</span> and mortality <span class="math inline">\(\mu(w,t)\)</span>.</p>
+<p>However, when diffusion is present (<span class="math inline">\(d &gt; 0\)</span>), <a href="#eq-wg-diff" class="quarto-xref">Equation 4</a> reveals several key difficulties:</p>
+<ol type="1">
+<li>
+<strong>Coupling to population gradients:</strong> The effective drift velocity of <span class="math inline">\(q\)</span> acquires an additional term <span class="math inline">\(-\frac{1}{N}\frac{\partial(d\,N)}{\partial w}\)</span>. This arises because individual fish undergo random walks in size; the average gonadic mass at size <span class="math inline">\(w\)</span> depends on the relative abundance of fish diffusing upwards from smaller sizes versus downwards from larger sizes.</li>
+<li>
+<strong>Singularities in unpopulated size classes:</strong> Wherever <span class="math inline">\(N(w,t) \to 0\)</span> (such as sizes below maturity, sizes above <span class="math inline">\(w_{\max}\)</span>, or gaps between discrete cohorts), the term <span class="math inline">\(\frac{1}{N}\frac{\partial(d\,N)}{\partial w}\)</span> becomes indeterminate or singular (<span class="math inline">\(0/0\)</span>).</li>
+<li>
+<strong>Non-conservative form:</strong> Equation <a href="#eq-wg-diff" class="quarto-xref">Equation 4</a> is not in divergence (flux) form <span class="math inline">\(\frac{\partial q}{\partial t} + \frac{\partial J}{\partial w} = \dots\)</span>, making it impossible to apply standard finite-volume conservation schemes and flux limiters (such as van Leer TVD) without violating global conservation of total gonadic biomass.</li>
+</ol>
+<p><strong>Conclusion:</strong> For size-spectrum models with diffusion and higher-order spatial schemes, the total gonadic biomass density <span class="math inline">\(Q(w,t)\)</span> is the proper fundamental state variable. Once <span class="math inline">\(Q(w,t)\)</span> and <span class="math inline">\(N(w,t)\)</span> are known, the per-capita gonadic mass is simply recovered as <span class="math inline">\(q(w,t) = Q(w,t) / N(w,t)\)</span> for all sizes where <span class="math inline">\(N(w,t) &gt; 0\)</span>.</p>
+</section></section><section class="level2"><h2 id="reproduction-rate">Reproduction rate<a class="anchor" aria-label="anchor" href="#reproduction-rate"></a>
+</h2>
+<p>The mass-specific release rate <span class="math inline">\(r(w,t)\)</span> determines the total rate of egg production <span class="math inline">\(R_p(t)\)</span> (density-independent reproduction rate <span class="math inline">\(R_{di}\)</span>): <span id="eq-Rp"><span class="math display">\[
+R_p(t) = \frac{\epsilon}{2\,w_0} \int Q(w,t)\,r(w,t)\,dw = \frac{\epsilon}{2\,w_0} \int N(w,t)\,q(w,t)\,r(w,t)\,dw,
+\tag{7}\]</span></span> where <span class="math inline">\(w_0 = w_{\min}\)</span> is the egg size, <span class="math inline">\(\epsilon\)</span> is the reproductive efficiency (<code>erepro</code>), and the factor <span class="math inline">\(1/2\)</span> accounts for the female proportion of the population.</p>
+<p>The release rate <span class="math inline">\(r(w,t)\)</span> is typically periodic with a period of one year. It reaches a large peak once a year during the spawning season so that the accumulated gonadic biomass is released to produce the seasonal cohort.</p>
 </section><section class="level2"><h2 id="numerical-implementation">Numerical implementation<a class="anchor" aria-label="anchor" href="#numerical-implementation"></a>
 </h2>
-<p>To solve the PDE <a href="#eq-wg" class="quarto-xref">Equation 3</a> we use the same upwind-difference scheme used by mizer to solve the PDE <a href="#eq-PDEN" class="quarto-xref">Equation 1</a>. Let us therefore recall the details of that scheme.</p>
-<p>We discretise <a href="#eq-PDEN" class="quarto-xref">Equation 1</a> as follows: <span id="eq-nd"><span class="math display">\[
-    \frac{N_w^{t+1}-N_w^t}{\Delta t}=-\frac{g_w^tN_w^{t+1}-g_{w-1}^tN_{w-1}^{t+1}}{\Delta w}-\mu_w^t\,N_w^{t+1}.
-\tag{5}\]</span></span> Here we use <span class="math inline">\(w\)</span> and <span class="math inline">\(t\)</span> to denote the integer indices of the discretised weight and discretised time respectively. Multiplying by <span class="math inline">\(\Delta t\)</span> and collecting terms gives <span id="eq-ndc"><span class="math display">\[
-    N_w^{t+1}\left(1+g_w^t\frac{\Delta t}{\Delta w}+\mu_w^t\,\Delta t\right)=
-    N_{w-1}^{t+1}\left(g_{w-1}^t\frac{\Delta t}{\Delta w}\right)
-    +N_w^t.
-\tag{6}\]</span></span> Solving for <span class="math inline">\(N_w^{t+1}\)</span> gives <span id="eq-nds"><span class="math display">\[
-    N_w^{t+1}=\frac{S_w^t-A_w^tN_{w-1}^{t+1}}{B_w^t},
-\tag{7}\]</span></span> where <span id="eq-ABS"><span class="math display">\[
-\begin{split}
-   A_w^t&amp;=-g_{w-1}^t\frac{\Delta t}{\Delta w},\\
-   B_w^t&amp;=1+g_w^t\frac{\Delta t}{\Delta w}+\mu^t_w\,\Delta t,\\
-   S_w^t&amp;=N_w^t.
-\end{split}
-\tag{8}\]</span></span> Given an initial value and a boundary condition encoding the influx of new-born individuals to the smallest size class, The recurrence relation <a href="#eq-nds" class="quarto-xref">Equation 7</a> allows mizer to calculate <span class="math inline">\(N_w^{t+1}\)</span> for all size classes at all later times.</p>
-<p>Now we use the same scheme for the gonadic dynamics. So we discretise <a href="#eq-wg" class="quarto-xref">Equation 3</a> as follows: <span class="math display">\[
-    \frac{q_w^{t+1}-q_w^t}{\Delta t}=-g_w^t\frac{q_w^{t+1}-q_{w-1}^{t+1}}{\Delta w}-r_w^t\,q_w^{t+1}+G_w^t.
-\]</span> Note how close this equation for <span class="math inline">\(q\)</span> is to equation <a href="#eq-nd" class="quarto-xref">Equation 5</a> for <span class="math inline">\(N\)</span>. Multiplying by <span class="math inline">\(\Delta t\)</span> and collecting terms gives <span class="math display">\[
-    q_w^{t+1}\left(1+g_w^t\frac{\Delta t}{\Delta w}+r_w^t\,\Delta t\right)=
-    q_{w-1}^{t+1}\left(g_w^t\frac{\Delta t}{\Delta w}\right)
-    +q_w^t+G_w^t\,\Delta t.
-\]</span> Solving for <span class="math inline">\(q_w^{t+1}\)</span> gives <span id="eq-qds"><span class="math display">\[
-    q_w^{t+1}=\frac{s_w^t-a_w^tq_{w-1}^{t+1}}{b_w^t},
-\tag{9}\]</span></span> where <span id="eq-abs"><span class="math display">\[
-\begin{split}
-   a_w^t&amp;=-g_w^t\frac{\Delta t}{\Delta w},\\
-   b_w^t&amp;=1+g_w^t\frac{\Delta t}{\Delta w}+r_w^t\,\Delta t,\\
-   s_w^t&amp;=q_w^t+G_w^t\,\Delta t.
-\end{split}
-\tag{10}\]</span></span> Together with an initial value and the boundary condition that <span class="math inline">\(q_1^t=0\)</span> at all times because the smallest individuals do not yet have any gonadic mass, this recurrence relation allows us to calculate <span class="math inline">\(q_w^{t+1}\)</span> for all size classes at all later times.</p>
-<p>Note how small the difference is between the discretised equation <a href="#eq-qds" class="quarto-xref">Equation 9</a> for <span class="math inline">\(q\)</span> and the equation <a href="#eq-nds" class="quarto-xref">Equation 7</a> for <span class="math inline">\(N\)</span>. The only difference lies in replacing <span class="math inline">\(A_w^t, B_w^t\)</span> and <span class="math inline">\(S_w^t\)</span> given in <a href="#eq-ABS" class="quarto-xref">Equation 8</a> by <span class="math inline">\(a_w^t, b_w^t\)</span> and <span class="math inline">\(s_w^t\)</span> given in <a href="#eq-abs" class="quarto-xref">Equation 10</a>.</p>
-</section><section class="level2"><h2 id="open-problems">Open problems<a class="anchor" aria-label="anchor" href="#open-problems"></a>
-</h2>
+<p>To discretise the PDE <a href="#eq-PDEQ" class="quarto-xref">Equation 2</a> for total gonadic biomass density <span class="math inline">\(Q(w,t)\)</span>, we use the finite-volume framework and higher-order schemes described in mizer’s numerical details vignette.</p>
+<section class="level3"><h3 id="the-weight-grid-and-finite-volume-averages">The weight grid and finite-volume averages<a class="anchor" aria-label="anchor" href="#the-weight-grid-and-finite-volume-averages"></a>
+</h3>
+<p>We discretise the logarithmic weight grid <span class="math inline">\(w_1, w_2, \ldots, w_K\)</span> with grid ratio <span class="math inline">\(\beta = w_{j+1}/w_j = 10^{\Delta x}\)</span>. The <span class="math inline">\(j\)</span>-th bin is <span class="math inline">\([w_j, w_{j+1})\)</span> with width <span class="math inline">\(\Delta w_j = w_{j+1} - w_j\)</span> and geometric centre <span class="math inline">\(w_j^c = \sqrt{w_j w_{j+1}}\)</span>.</p>
+<p>In the finite-volume method, discrete state values represent <strong>bin averages</strong>: <span class="math display">\[
+Q_j = \frac{1}{\Delta w_j}\int_{w_j}^{w_{j+1}} Q(w)\,dw, \qquad
+N_j = \frac{1}{\Delta w_j}\int_{w_j}^{w_{j+1}} N(w)\,dw.
+\]</span> Integrating <a href="#eq-PDEQ" class="quarto-xref">Equation 2</a> over bin <span class="math inline">\(j\)</span> and dividing by <span class="math inline">\(\Delta w_j\)</span> gives: <span id="eq-fv-Q"><span class="math display">\[
+\frac{\partial Q_j}{\partial t} + \frac{J_{Q, j+1} - J_{Q, j}}{\Delta w_j} = S_{Q, j} - (\mu_j + r_j)\,Q_j,
+\tag{8}\]</span></span> where <span class="math inline">\(J_{Q, j}\)</span> is the total flux of gonadic biomass across the lower bin boundary <span class="math inline">\(w_j\)</span>, and <span class="math inline">\(S_{Q, j}\)</span> is the bin-averaged source from reproductive investment.</p>
+</section><section class="level3"><h3 id="discretisation-of-spatial-fluxes">Discretisation of spatial fluxes<a class="anchor" aria-label="anchor" href="#discretisation-of-spatial-fluxes"></a>
+</h3>
+<p>The flux <span class="math inline">\(J_{Q, j} = J_{Q, j}^{\text{adv}} + J_{Q, j}^{\text{diff}}\)</span> at boundary <span class="math inline">\(w_j\)</span> consists of:</p>
 <ol type="1">
-<li><p>Once we are modelling cohorts in mizer, the diffusion terms in the size-spectrum dynamics will become important, because they will lead to the broadening of the cohorts.</p></li>
-<li><p>We do not yet know what the required step sizes are in size and in time to faithfully reproduce the dynamics. Too large size steps will lead to too much numerical diffusion. Too large time steps may lead to numerical instability.</p></li>
-</ol></section><script id="quarto-html-after-body" type="application/javascript">
+<li><p><strong>Advective flux:</strong> <span class="math display">\[
+J_{Q, j}^{\text{adv}} = g_j\,Q(w_j),
+\]</span> where <span class="math inline">\(g_j = g(w_j)\)</span> is the point growth velocity at the boundary <span class="math inline">\(w_j\)</span>. Under the <strong>first-order upwind scheme</strong>, the boundary density is taken from the bin below: <span class="math display">\[
+J_{Q, j}^{\text{adv}} = g_j\,Q_{j-1}.
+\]</span> Under the <strong>second-order scheme</strong> (<code>second_order_w$flux</code>), the boundary density is reconstructed using the slope-limited formula: <span class="math display">\[
+J_{Q, j}^{\text{adv}} = g_j\left[ Q_{j-1} + \frac{1}{2}\chi_j(Q_j - Q_{j-1}) \right],
+\]</span> where <span class="math inline">\(\chi_j = 1\)</span> gives the centred second-order reconstruction and <span class="math inline">\(\chi_j = \chi(r_j)\)</span> with the <strong>van Leer</strong> limiter <span class="math display">\[
+\chi(r) = \frac{r + |r|}{1 + |r|}, \qquad r_j = \frac{Q_{j-1} - Q_{j-2}}{Q_j - Q_{j-1}}
+\]</span> gives the total-variation diminishing (TVD) scheme that avoids spurious oscillations while preserving non-negativity (<span class="math inline">\(Q\ge 0\)</span>).</p></li>
+<li><p><strong>Diffusive flux:</strong> The diffusive flux is evaluated by central differencing the bin-averaged products <span class="math inline">\(d_j Q_j\)</span> between adjacent bin centres: <span class="math display">\[
+J_{Q, j}^{\text{diff}} = -\frac{1}{2}\,\frac{d_j\,Q_j - d_{j-1}\,Q_{j-1}}{w_j^c - w_{j-1}^c}.
+\]</span></p></li>
+</ol></section><section class="level3"><h3 id="bin-averaging-of-source-and-sink-terms-second_order_wbin_average">Bin averaging of source and sink terms (<code>second_order_w$bin_average</code>)<a class="anchor" aria-label="anchor" href="#bin-averaging-of-source-and-sink-terms-second_order_wbin_average"></a>
+</h3>
+<ul>
+<li>
+<strong>Reproduction source term:</strong> The total investment in bin <span class="math inline">\(j\)</span> is <span class="math inline">\(\int_{w_j}^{w_{j+1}} G(w)\,N(w)\,dw\)</span>. When <code>bin_average = TRUE</code>, <span class="math inline">\(G(w) = e_{\text{repro}}(w)\)</span> is trapezoidal bin-averaged, giving the discrete source: <span class="math display">\[
+S_{Q, j} = \overline{G}_j\,N_j = \overline{e_{\text{repro}}}_j\,N_j.
+\]</span>
+</li>
+<li>
+<strong>Loss terms:</strong> The total sink rate is <span class="math inline">\((\mu_j + r_j)\)</span>, where <span class="math inline">\(\mu_j\)</span> is the bin-averaged total mortality and <span class="math inline">\(r_j\)</span> is the bin-averaged release rate (equal to <span class="math inline">\(r(t)\)</span> when the release rate is size-independent).</li>
+</ul></section><section class="level3"><h3 id="boundary-conditions">Boundary conditions<a class="anchor" aria-label="anchor" href="#boundary-conditions"></a>
+</h3>
+<ul>
+<li>
+<strong>Lower boundary (<span class="math inline">\(j = j_{\min}\)</span>):</strong> Newborn larvae enter the smallest size class with zero gonadic mass. Thus, there is no influx of gonadic mass across the egg boundary: <span class="math display">\[
+J_{Q, j_{\min}} = 0.
+\]</span> The sub-diagonal coefficient <span class="math inline">\(A_{j_{\min}}\)</span> is set to 0, and the lower-face advection/diffusion terms drop out of the diagonal coefficient <span class="math inline">\(B_{j_{\min}}\)</span>.</li>
+<li>
+<strong>Upper boundary (<span class="math inline">\(j = j_{\max}\)</span>):</strong> The grid is truncated at <span class="math inline">\(w_{\max}\)</span>. The super-diagonal coefficient <span class="math inline">\(C_{j_{\max}}\)</span> is set to 0, decoupling the retained spectrum from sizes above <span class="math inline">\(w_{\max}\)</span>, and <span class="math inline">\(Q_j\)</span> is held at zero for <span class="math inline">\(j &gt; j_{\max}\)</span>.</li>
+</ul></section><section class="level3"><h3 id="semi-implicit-linear-system">Semi-implicit linear system<a class="anchor" aria-label="anchor" href="#semi-implicit-linear-system"></a>
+</h3>
+<p>Using semi-implicit time discretisation with time step <span class="math inline">\(\Delta t\)</span>, evaluating <span class="math inline">\(Q\)</span> at time <span class="math inline">\(t+1\)</span> and rates at time <span class="math inline">\(t\)</span> yields the tridiagonal linear system: <span id="eq-tridiagonal-Q"><span class="math display">\[
+A_j\,Q_{j-1}^{t+1} + B_j\,Q_j^{t+1} + C_j\,Q_{j+1}^{t+1} = S_j,
+\tag{9}\]</span></span> where the right-hand side source vector is: <span class="math display">\[
+S_j = Q_j^t + \Delta t\,S_{Q, j}^t = Q_j^t + \Delta t\,\overline{e_{\text{repro}}}_{j}^t\,N_j^t.
+\]</span> The tridiagonal coefficients <span class="math inline">\(A_j, B_j, C_j\)</span> are identical to those built by mizer’s transport operator <code>get_transport_coefs()</code>, with total mortality replaced by <span class="math inline">\(\mu_j + r_j^t\)</span> and the recruitment influx set to 0.</p>
+</section><section class="level3"><h3 id="higher-order-time-stepping-schemes">Higher-order time-stepping schemes<a class="anchor" aria-label="anchor" href="#higher-order-time-stepping-schemes"></a>
+</h3>
+<ol type="1">
+<li>
+<strong>Predictor-Corrector method:</strong>
+<ul>
+<li>
+<strong>Predict:</strong> Solve <a href="#eq-tridiagonal-Q" class="quarto-xref">Equation 9</a> using start-of-step rates <span class="math inline">\(r^t\)</span> to obtain predicted end-of-step densities <span class="math inline">\(\hat{N}^{t+1}\)</span> and <span class="math inline">\(\hat{Q}^{t+1}\)</span>.</li>
+<li>
+<strong>Midpoint rates:</strong> Evaluate provisional rates <span class="math inline">\(\hat{r}^{t+1}\)</span> and form second-order midpoint rates <span class="math inline">\(r^{t+1/2} = \frac{1}{2}(r^t + \hat{r}^{t+1})\)</span>.</li>
+<li>
+<strong>Correct:</strong> Advance <span class="math inline">\(Q\)</span> using a Crank-Nicolson corrector with midpoint rates: <span class="math display">\[
+\frac{Q_j^{t+1} - Q_j^t}{\Delta t} + \frac{1}{2\Delta w_j}\left[ (J_{Q, j+1}^{t+1} - J_{Q, j}^{t+1}) + (J_{Q, j+1}^t - J_{Q, j}^t) \right] = S_{Q, j}^{t+1/2} - \frac{1}{2}(\mu_j^{t+1/2} + r_j^{t+1/2})(Q_j^{t+1} + Q_j^t).
+\]</span>
+</li>
+</ul>
+</li>
+<li>
+<strong>TR-BDF2 method:</strong> An L-stable, two-stage second-order method with stage fraction <span class="math inline">\(\gamma = 2 - \sqrt{2}\)</span>:
+<ul>
+<li>
+<strong>Trapezoidal (TR) stage</strong> over <span class="math inline">\([t, t+\gamma\Delta t]\)</span>: <span class="math display">\[
+\frac{Q^{t+\gamma} - Q^t}{\gamma\Delta t} = \frac{1}{2}\left( LQ^t + LQ^{t+\gamma} \right) + S_Q^{t+1/2}.
+\]</span>
+</li>
+<li>
+<strong>BDF2 stage</strong> over the whole step: <span class="math display">\[
+Q^{t+1} = \frac{1}{\gamma(2-\gamma)}Q^{t+\gamma} - \frac{(1-\gamma)^2}{\gamma(2-\gamma)}Q^t + \frac{1-\gamma}{2-\gamma}\Delta t\left( LQ^{t+1} + S_Q^{t+1/2} \right).
+\]</span> Both stages share the exact same tridiagonal matrix <span class="math inline">\((I - \alpha\Delta t\,L)\)</span> with <span class="math inline">\(\alpha = 1 - 1/\sqrt{2}\)</span>, providing second-order accuracy while damping stiff high-frequency modes without the numerical ringing of Crank-Nicolson.</li>
+</ul>
+</li>
+</ol></section><section class="level3"><h3 id="relationship-with-the-legacy-per-capita-scheme">Relationship with the legacy per-capita scheme<a class="anchor" aria-label="anchor" href="#relationship-with-the-legacy-per-capita-scheme"></a>
+</h3>
+<p>In the first-order upwind limit without diffusion (<span class="math inline">\(d = 0\)</span>, <span class="math inline">\(\chi = 0\)</span>), <a href="#eq-tridiagonal-Q" class="quarto-xref">Equation 9</a> for <span class="math inline">\(Q\)</span> reduces to: <span class="math display">\[
+Q_j^{t+1}\left(1 + g_j^t\frac{\Delta t}{\Delta w_j} + (\mu_j^t + r_j^t)\Delta t\right) = Q_{j-1}^{t+1}\left(g_{j-1}^t\frac{\Delta t}{\Delta w_j}\right) + Q_j^t + e_{\text{repro}, j}^t\,N_j^t\,\Delta t.
+\]</span> Dividing by <span class="math inline">\(N_j^{t+1}\)</span> and using the stationary approximation <span class="math inline">\(N_j^{t+1} \approx N_j^t\)</span> and <span class="math inline">\(g_{j-1} N_{j-1} \approx g_j N_j - \mu_j N_j \Delta w_j\)</span> reproduces the legacy per-capita recurrence relation: <span class="math display">\[
+q_j^{t+1}\left(1 + g_j^t\frac{\Delta t}{\Delta w_j} + r_j^t\Delta t\right) = q_{j-1}^{t+1}\left(g_j^t\frac{\Delta t}{\Delta w_j}\right) + q_j^t + G_j^t\,\Delta t.
+\]</span> Solving for <span class="math inline">\(Q(w,t)\)</span> directly removes all stationary approximations, handles size diffusion <span class="math inline">\(d(w) &gt; 0\)</span> rigorously, and integrates seamlessly with mizer’s higher-order spatial limiters and time-stepping solvers.</p>
+</section></section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
@@ -246,7 +321,7 @@ R_p(t)=\frac{\epsilon}{2w_0}\int N(w,t)q(w,t)r(w,t)dw.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

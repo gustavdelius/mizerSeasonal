@@ -14,13 +14,13 @@ Source:
 [`DESCRIPTION`](https://github.com/gustavdelius/mizerSeasonal/blob/HEAD/DESCRIPTION)
 
 Delius G, Spence M (2026). *mizerSeasonal: Implementing Seasonality in
-Mizer*. R package version 0.0.0.9003,
-<https://gustavdelius.github.io/mizerSeasonal>.
+Mizer*. R package version 0.0.0.9004,
+<https://gustavdelius.github.io/mizerSeasonal/>.
 
     @Manual{,
       title = {mizerSeasonal: Implementing Seasonality in Mizer},
       author = {Gustav Delius and Michael A. Spence},
       year = {2026},
-      note = {R package version 0.0.0.9003},
-      url = {https://gustavdelius.github.io/mizerSeasonal},
+      note = {R package version 0.0.0.9004},
+      url = {https://gustavdelius.github.io/mizerSeasonal/},
     }

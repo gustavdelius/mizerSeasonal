@@ -7,7 +7,7 @@ package](https://sizespectrum.org/mizer/)
 
 Useful links:
 
-- <https://gustavdelius.github.io/mizerSeasonal>
+- <https://gustavdelius.github.io/mizerSeasonal/>
 
 - <https://github.com/gustavdelius/mizerSeasonal>
 

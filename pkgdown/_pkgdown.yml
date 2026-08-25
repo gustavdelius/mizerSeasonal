@@ -34,3 +34,4 @@ reference:
 - title: Example parameters
   contents:
   - datta_params
+  - datta_params_second_order

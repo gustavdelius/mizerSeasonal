@@ -13,18 +13,18 @@ collated (as specified by the `Collate` field in `DESCRIPTION`):
 
 | File | Contents |
 |----|----|
-| `mizerSeasonal-class.R` | S4 marker class definitions: `mizerSeasonal` and `mizerSeasonalSim` |
+| `mizerSeasonal-class.R` | Documentation for the dynamic `mizerSeasonal` and `mizerSeasonalSim` marker classes |
+| `mizerSeasonal-package.R` | Package-level documentation, `@import` directives, and `.onLoad` hook |
 | `animate.R` | [`animateGonadSpectra()`](https://gustavdelius.github.io/mizerSeasonal/reference/animateGonadSpectra.md) and two private helpers |
 | `data.R` | Documentation for the `datta_params` dataset |
-| `mizerSeasonal-package.R` | Package-level documentation, `@import` directives, and `.onLoad` hook |
 | `plots.R` | [`getTimeseries()`](https://gustavdelius.github.io/mizerSeasonal/reference/getTimeseries.md), [`plotRDI()`](https://gustavdelius.github.io/mizerSeasonal/reference/plotRDI.md), [`plotRDD()`](https://gustavdelius.github.io/mizerSeasonal/reference/plotRDD.md), [`plotGonadsVsTime()`](https://gustavdelius.github.io/mizerSeasonal/reference/plotGonadsVsTime.md) |
 | `release_functions.R` | The four release-rate functions |
 | `seasonal.R` | Core machinery: [`setSeasonalReproduction()`](https://gustavdelius.github.io/mizerSeasonal/reference/setSeasonalReproduction.md), [`gonadDynamics()`](https://gustavdelius.github.io/mizerSeasonal/reference/gonadDynamics.md), [`projectRDI.mizerSeasonal()`](https://gustavdelius.github.io/mizerSeasonal/reference/projectRDI.mizerSeasonal.md), [`projectEncounter.mizerSeasonal()`](https://gustavdelius.github.io/mizerSeasonal/reference/projectEncounter.mizerSeasonal.md), [`seasonalBevertonHoltRDD()`](https://gustavdelius.github.io/mizerSeasonal/reference/seasonalBevertonHoltRDD.md), [`seasonalVonMisesRDD()`](https://gustavdelius.github.io/mizerSeasonal/reference/seasonalVonMisesRDD.md), [`seasonal_resource_semichemostat()`](https://gustavdelius.github.io/mizerSeasonal/reference/seasonal_resource_semichemostat.md), and two private helpers |
 
-`mizerSeasonal-class.R` is collated first so that the S4 class
-definitions are available before any code that references them.
-`animate.R` uses unexported mizer functions (`get_time_elements`) and
-dplyr verbs imported at the package level in `mizerSeasonal-package.R`.
+`mizerSeasonal-class.R` documents marker classes that mizer creates
+dynamically when the extension is registered. `animate.R` uses
+unexported mizer functions (`get_time_elements`) and dplyr verbs
+imported at the package level in `mizerSeasonal-package.R`.
 
 ## How the package hooks into mizer
 
@@ -33,6 +33,9 @@ package are:
 
 - **`registerExtension(pkgname, ...)`** — called once in `.onLoad` to
   register the package as a mizer extension for the current R session.
+- **`recordExtension(params, name, version)`** — records that this
+  extension was applied to a specific model and stamps the package
+  version.
 - **`setComponent(params, component, initial_value, dynamics_fun)`** —
   registers a new dynamical state variable (here, the gonadic mass
   matrix).
@@ -49,30 +52,33 @@ package are:
 ### The `.onLoad` hook
 
 ``` r
+
 .onLoad <- function(libname, pkgname) {
     mizer::registerExtension(pkgname, requirement = "sizespectrum/mizerSeasonal")
 }
 ```
 
 This runs when the package is loaded and tells mizer about the
-extension. It is what makes `coerceToExtensionClass()` know which S4
-class to promote to.
+extension. Mizer detects the registered S3 methods, creates the marker
+classes dynamically, and can then promote recorded objects with
+`coerceToExtensionClass()`.
 
 ### S4 marker classes
 
-Two S4 classes are defined in `mizerSeasonal-class.R`:
+The package documents two marker classes in `mizerSeasonal-class.R` but
+does not define them itself:
 
 ``` r
-setClass("mizerSeasonal",    contains = "MizerParams")
-setClass("mizerSeasonalSim", contains = "MizerSim")
+
+NULL
 ```
 
-These are *marker* classes: they carry no additional slots. Their sole
-purpose is to enable S3 method dispatch on the `project*` generics. When
-mizer calls e.g. `projectRDI(params, ...)`, it dispatches to
-`projectRDI.mizerSeasonal` because `params` has class `mizerSeasonal`.
-Similarly, `project()` returns a `mizerSeasonalSim` because `MizerSim`
-objects are coerced to the registered extension sim class.
+Mizer creates `mizerSeasonal` and `mizerSeasonalSim` dynamically during
+`registerExtension()`. They carry no additional slots; their purpose is
+to enable S3 dispatch on the `project*` generics while allowing multiple
+extension packages to form one dispatch chain. When mizer calls
+`projectRDI(params, ...)`, it dispatches to `projectRDI.mizerSeasonal`.
+Similarly, `project()` returns a `mizerSeasonalSim`.
 
 ### `setSeasonalReproduction()`
 
@@ -80,10 +86,16 @@ objects are coerced to the registered extension sim class.
 wires everything together:
 
 ``` r
+
 setSeasonalReproduction <- function(params,
                                     release_func = "seasonalVonMisesRelease",
                                     RDD = "seasonalBevertonHoltRDD",
                                     include_gonads = TRUE) {
+    version <- if ("mizerSeasonal" %in% names(params@extensions)) {
+        NULL
+    } else {
+        as.character(utils::packageVersion("mizerSeasonal"))
+    }
     initial <- initialN(params)
     initial[] <- 0
 
@@ -96,7 +108,7 @@ setSeasonalReproduction <- function(params,
                       dynamics_fun = "gonadDynamics") |>
         setRateFunction("RDD", RDD)                      # <-- replace RDD only
 
-    p@extensions <- mizer::getRegisteredExtensions()
+    p <- mizer::recordExtension(p, "mizerSeasonal", version = version)
     p <- mizer::coerceToExtensionClass(p)                # <-- promote to mizerSeasonal
     return(p)
 }
@@ -116,6 +128,7 @@ The choice of release function is stored as a character string inside
 `other_params()`:
 
 ``` r
+
 other_params(params)$release_func  # e.g. "seasonalVonMisesRelease"
 ```
 
@@ -131,6 +144,7 @@ and
 retrieve the function with:
 
 ``` r
+
 release_func <- get0(other_params(params)$release_func)
 ```
 
@@ -146,6 +160,7 @@ gives a slightly clearer error than the one that
 The initial gonad matrix (all zeros) is stored in:
 
 ``` r
+
 params@initial_n_other$gonads  # matrix (species x sizes)
 ```
 
@@ -165,6 +180,7 @@ vignette; the result is a tridiagonal linear system of the form
 where the coefficients are:
 
 ``` r
+
 # a_{ij} = -g_i(w_j) * dt / dw_j       (sub-diagonal: growth advection)
 a <- sweep(-rates$e_growth * dt, 2, params@dw, "/")
 
@@ -178,6 +194,7 @@ s <- n_other$gonads + rates$e_repro * dt
 The system is then solved by calling mizer’s internal C++ routine:
 
 ``` r
+
 mizer:::inner_project_loop(no_sp = no_sp, no_w = no_w,
                             n = n_other$gonads,
                             A = a, B = b, S = s,
@@ -251,6 +268,7 @@ where \\R\_{\max}(t)\\ is looked up from a 2-D array stored in
 its `dimnames`:
 
 ``` r
+
 # Required structure of other_params(params)$r_max:
 times <- seq(0, 0.9, by = 0.1)
 r_max <- matrix(
@@ -265,6 +283,7 @@ other_params(params)$r_max <- r_max
 The time lookup converts the fractional year to a character key:
 
 ``` r
+
 t_name <- as.character(round(t - floor(t), 5))
 r_max  <- other_params(params)$r_max[t_name, ]
 ```
@@ -296,6 +315,7 @@ seasonalVonMisesRDD <- function(params, t, ...)
 Mizer calls all RDD functions as:
 
 ``` r
+
 do.call(params@rates_funcs$RDD,
         list(rdi = rdi, params = params, t = t, ...))
 ```
@@ -317,6 +337,7 @@ entirely. It does **not** call
 computes egg production directly from the gonadic release:
 
 ``` r
+
 projectRDI.mizerSeasonal <- function(params, n, n_pp, n_other, t = 0,
                                      e_growth, mort, e_repro, ...) {
     release_func <- get0(other_params(params)$release_func)
@@ -373,6 +394,7 @@ seasonal signal. It reads its parameters from a named sub-list `rp` of
 the `resource_params` slot:
 
 ``` r
+
 params@resource_params$rp <- list(kappa = 2, mu = 0.25, maxR = 0.5)
 ```
 
@@ -395,6 +417,7 @@ per-time-step state vectors that mizer does not store directly. The
 reconstruction follows the same pattern that mizer uses internally:
 
 ``` r
+
 for (i in time_indices) {
     n <- sim@n[i, , ]
     dim(n) <- dim(params@initial_n)          # restore matrix shape
@@ -423,6 +446,7 @@ columns in the specific order `(Year, Value, Species)`, which is why
 both functions do an explicit column reorder:
 
 ``` r
+
 plot_dat <- plot_dat[, c(1, 3, 2)]  # reorder to (Year, Value, Species)
 ```
 
@@ -436,6 +460,7 @@ number of selected time steps is therefore `sum(time_elements)`, not
 of selected gonad matrices) as the row dimension of the output matrix:
 
 ``` r
+
 qf     <- sim@n_other[time_elements, "gonads"]   # list, length = sum(time_elements)
 qs_mat <- matrix(..., nrow = length(qf), ...)    # NOT length(time_elements)
 ```
