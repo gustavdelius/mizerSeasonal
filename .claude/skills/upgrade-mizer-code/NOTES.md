@@ -9,3 +9,7 @@
 - The package is a dispatching extension. Marker classes are created
   dynamically by mizer, and `setSeasonalReproduction()` records only
   `mizerSeasonal` with `recordExtension()` before coercing the object.
+- The bundled `datta_params` object was created with mizer 2.5.3. It was
+  upgraded with `validParams()` to mizer 3.3.0; the 12-species model, its
+  100 fish-size bins, 180 full-spectrum bins, and initial fish and resource
+  abundances were preserved.
