@@ -10,6 +10,10 @@
 * Added `data_raw/baseModel.Rda`, a trimmed-down version of the parameter
   object created with the code shared on figshare used by the 
   Datta & Blanchard (2016) paper.
+* Added a reproducible 500-year rerun of the legacy non-seasonal model and
+  retained compact, self-consistent initial and final calibration targets in
+  `data-raw/legacy_targets.RData`. The required original source and input files
+  are included under `data-raw/legacy/`.
 
 # mizerSeasonal 0.0.0.9003
 

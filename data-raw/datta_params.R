@@ -8,13 +8,25 @@ library(mizerSeasonal)
 library(mizerExperimental)
 
 load("data-raw/baseModel.RData")
+load("data-raw/legacy_targets.RData")
 param <- baseModel$param
 
 # Extract species parameters ----
 sp <- param$species
 sp <- dplyr::rename(sp, w_inf = Winf, w_mat = Wmat, w_min = Wmin,
-             erepro = eRepro, R_max = R0)
+             erepro = eRepro, R_max = R0, l_inf = Linf, l_mat = Lmat)
 sp$w_max <- sp$w_inf
+# The length paramters do not match their weight parameters
+all.equal(l2w(sp$l_inf, sp), sp$w_inf)
+all.equal(l2w(sp$l_mat, sp), sp$w_mat)
+# So we will remove them
+sp$l_inf <- NULL
+sp$l_mat <- NULL
+
+# Fix dimnames on interaction matrix ----
+interaction <- param$theta
+rownames(interaction) <- sp$species
+colnames(interaction) <- sp$species
 
 # Extract gear parameters ----
 # Some checks on the selectivity parameters
@@ -39,7 +51,7 @@ create_params <- function(second_order_w = FALSE) {
     newMultispeciesParams(
         species_params = sp,
         gear_params = gp,
-        interaction = param$theta,
+        interaction = interaction,
         no_w = param$ngrid,
         min_w = param$w0,
         max_w = param$wMax,
@@ -74,16 +86,12 @@ initialN(p_second_order) <- baseModel$initialN
 # The code by Datta & Blanchard (2016) uses wider size-bins for the resource
 # spectrum than for the fish spectrum. Modern mizer no longer supports this.
 # The new MizerParams objects therefore use 180 size bins for the full spectra
-# instead of 130.
+# instead of 130. newMultispeciesParams() has already initialised the resource
+# power law on the new grid, using point values for the first-order object and
+# bin averages for the second-order object. Do not interpolate the abundance
+# density from the old grid.
 length(w_full(p))
 length(baseModel$wFull)
-# The initial resource abundance has to be interpolated to the new bin
-# boundaries.
-initialNResource(p) <- approx(
-    baseModel$wFull, baseModel$initialNResource, w_full(p), rule = 2)$y
-initialNResource(p_second_order) <- approx(
-    baseModel$wFull, baseModel$initialNResource, w_full(p_second_order),
-    rule = 2)$y
 
 # Compare ----
 # First we check that we understand the different size grids
@@ -101,31 +109,62 @@ waldo::compare(baseModel$StdMetab, metab(p), tolerance = 1e-14, ignore_attr = TR
 waldo::compare(baseModel$selectivity, aperm(p@selectivity, c(2,3,1)),
                tolerance = 1e-14, ignore_attr = TRUE)
 all(baseModel$Activity == 0)
-# all.equal(getFMort(p), baseModel$F[1, , ],
-#           check.attributes = FALSE)
 # Because of the different size grids for the resource, for the pred kernel
 # we can make the comparison only where the prey are fish
 all.equal(baseModel$predkernel[1, , idx_fish_old],
           pred_kernel(p)[1, , idx_fish_new],
           check.attributes = FALSE)
 
-# The checks below require output arrays from the full legacy simulation.
-# all.equal(getFeedingLevel(p), baseModel$f[1, , ],
-#           check.attributes = FALSE, tolerance = 0.006)
-# i <- 1
-# plot(w(p), baseModel$f[1, i, ], type = "l", log = "xy")
-# lines(w(p), getFeedingLevel(p)[i, ], col = "red")
-# all.equal(getM2(p), baseModel$M2[1, , ],
-#           check.attributes = FALSE, tolerance = 1e-4)
-# all.equal(getResourceMort(p)[idx_fish_new],
-#           baseModel$M2background[1, idx_fish_old],
-#           check.attributes = FALSE, tolerance = 1e-4)
-# all.equal(getERepro(p), baseModel$eSpawning[1, , ],
-#           check.attributes = FALSE, tolerance = 0.007)
-# all.equal(getRDI(p), baseModel$RDI[1, ],
-#           check.attributes = FALSE, tolerance = 0.014)
-# all.equal(getRDD(p), baseModel$RDD[1, ],
-#           check.attributes = FALSE, tolerance = 0.014)
+# Compare rates and summaries without reconstructing the legacy resource on the
+# modern grid. The legacy targets contain the values calculated on the original
+# grid at the initial and final states.
+compare_values <- function(current, target, ...) {
+    all.equal(unclass(current), unclass(target),
+              check.attributes = FALSE, ...)
+}
+
+compare_legacy_snapshot <- function(params, target) {
+    list(
+        fish_density = compare_values(initialN(params), target$N),
+        resource_density = compare_values(
+            initialNResource(params)[idx_fish_new],
+            target$nPP[idx_fish_old]),
+        fishing_mortality = compare_values(
+            getFMort(params), target$fishing_mortality),
+        feeding_level = compare_values(
+            getFeedingLevel(params), target$f, tolerance = 0.006),
+        encounter = compare_values(
+            getEncounter(params), target$encounter, tolerance = 0.006),
+        somatic_growth = compare_values(
+            getEGrowth(params), target$somatic_growth, tolerance = 0.007),
+        predation_mortality = compare_values(
+            getPredMort(params), target$predation_mortality,
+            tolerance = 1e-4),
+        resource_mortality = compare_values(
+            getResourceMort(params)[idx_fish_new],
+            target$resource_mortality[idx_fish_old],
+            tolerance = 1e-4),
+        reproductive_investment = compare_values(
+            getERepro(params), target$reproductive_investment,
+            tolerance = 0.007),
+        recruitment_density_independent = compare_values(
+            getRDI(params), target$recruitment_density_independent,
+            tolerance = 0.014),
+        recruitment_density_dependent = compare_values(
+            getRDD(params), target$recruitment_density_dependent,
+            tolerance = 0.014),
+        biomass = compare_values(getBiomass(params), target$biomass),
+        yield = compare_values(getYield(params), target$yield)
+    )
+}
+
+legacy_initial_checks <- compare_legacy_snapshot(p, legacy_targets$initial)
+legacy_initial_checks
+# We see that there are discrepancies, resulting from the different
+# resource bin sizes.
+i <- 1
+plot(w(p), legacy_targets$initial$f[i, ], type = "l", log = "xy")
+lines(w(p), getFeedingLevel(p)[i, ], col = "red")
 
 # check resource graphically
 plot(baseModel$wFull, baseModel$rrPP, type = "l", log = "xy")
@@ -135,31 +174,39 @@ plot(baseModel$wFull, baseModel$NinfPP, type = "l", log = "xy")
 lines(w_full(p), resource_capacity(p), col = "red")
 
 # Simulation ----
-sim <- project(p, t_max = 500, progress_bar = FALSE)
-sim_second_order <- project(p_second_order, t_max = 500, progress_bar = FALSE)
+sim <- projectUntilSettled(p, t_max = 500)
+plotHover(getSteadyResidual(finalParams(sim)))
+sim_second_order <- projectUntilSettled(p_second_order, t_max = 200, dt = 0.001,
+                                        method = "tr_bdf2")
+plotHover(getSteadyResidual(finalParams(sim_second_order)))
+
 plotBiomass(sim)
 # We see that the initial state of the Datta and Blanchard model is far from
 # steady state. In the first few years the biomass of the fish species changes
 # by up to 10^6%! It is therefore not surprising that if we compare the dynamics
 # between the two models we find differences.
-# sim2 <- sim
-# sim2@n[2:501, , ] <- baseModel$N[(1:500) * 52, , ]
-# plotlyBiomassRelative(sim, sim2)
+# The compact legacy targets deliberately retain only endpoint snapshots, so
+# the historical year-by-year biomass comparison is not reproduced here.
 
 # Both models however reach a steady state quite quickly and the
 # steady states are quite similar.
 # Create params object with mizer steady state
 ps <- finalParams(sim)
 ps_second_order <- finalParams(sim_second_order)
-# The following comparison requires the final state from the full legacy
-# simulation.
-# final_time_idx <- dim(baseModel$N)[1]
-# ps_datta <- p
-# initialN(ps_datta) <- baseModel$N[final_time_idx, , ]
-# initialNResource(ps_datta) <- approx(
-#     baseModel$wFull, baseModel$nPP[final_time_idx, ], w_full(p), rule = 2)$y
-# plotSpectra2(ps, ps_datta)
-# plotSpectraRelative(ps, ps_datta)
+ps_datta <- p
+initialN(ps_datta) <- legacy_targets$final$N
+
+# Compare the fish spectra on their shared grid. The resource spectra are
+# plotted separately below because their grids differ.
+plotSpectra2(ps, ps_datta, "Modern", "Legacy", resource = FALSE)
+plotSpectraRelative(ps, ps_datta, resource = FALSE)
+
+plot(legacy_targets$grid$w_full, legacy_targets$final$nPP,
+     type = "l", log = "xy", xlab = "Resource size", ylab = "Density")
+lines(w_full(ps), initialNResource(ps), col = "red")
+
+legacy_final_checks <- compare_legacy_snapshot(ps, legacy_targets$final)
+legacy_final_checks
 
 # We'll now make this MizerParams object available in the package.
 datta_params <-
