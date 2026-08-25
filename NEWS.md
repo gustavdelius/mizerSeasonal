@@ -7,6 +7,9 @@
 * Added `datta_params_second_order`, a separately constructed version of the
   Datta & Blanchard (2016) model using `second_order_w = TRUE` and initialised
   at the steady state of the second-order model.
+* Added `data_raw/baseModel.Rda`, a trimmed-down version of the parameter
+  object created with the code shared on figshare used by the 
+  Datta & Blanchard (2016) paper.
 
 # mizerSeasonal 0.0.0.9003
 

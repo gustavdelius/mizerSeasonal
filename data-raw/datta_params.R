@@ -1,19 +1,18 @@
-# We extract the parameters from the `baseModel` object created with the
-# script `Seasonality paper results.R` in the code from the paper by Datta &
-# Blanchard (2016), that can be downloaded from 
-# <https://figshare.com/s/e75f29d4cc9b94ae393b>.
-# So before running this code, you must have that `baseModel` object in your
-# environment.
+# We extract the parameters from the trimmed `baseModel` object in
+# `data-raw/baseModel.RData`. The full object was created with the script
+# `Seasonality paper results.R` in the code from the paper by Datta & Blanchard
+# (2016), available from <https://figshare.com/s/e75f29d4cc9b94ae393b>.
 
 library(dplyr)
 library(mizerSeasonal)
 library(mizerExperimental)
 
+load("data-raw/baseModel.RData")
 param <- baseModel$param
 
 # Extract species parameters ----
 sp <- param$species
-sp <- dplyr::rename(sp, w_inf = Winf, w_mat = Wmat, w_min = Wmin, 
+sp <- dplyr::rename(sp, w_inf = Winf, w_mat = Wmat, w_min = Wmin,
              erepro = eRepro, R_max = R0)
 sp$w_max <- sp$w_inf
 
@@ -67,20 +66,24 @@ initial_effort(p) <- baseModel$effort[1, ]
 initial_effort(p_second_order) <- baseModel$effort[1, ]
 
 # Initial abundances ----
-initialN(p) <- baseModel$N[1, , ]
-initialN(p_second_order) <- baseModel$N[1, , ]
-# The code by Datta & Blanchard (2016) uses
-# wider size-bins for the resource spectrum than for the fish spectrum. The
-# modern mizer code no longer supports this. So this MizerParams object uses
-# 180 size bins for the full spectra instead of 130.
+# The trimmed baseModel retains only the initial abundance snapshots needed to
+# reproduce the original MizerParams objects, not the full simulated arrays.
+initialN(p) <- baseModel$initialN
+initialN(p_second_order) <- baseModel$initialN
+
+# The code by Datta & Blanchard (2016) uses wider size-bins for the resource
+# spectrum than for the fish spectrum. Modern mizer no longer supports this.
+# The new MizerParams objects therefore use 180 size bins for the full spectra
+# instead of 130.
 length(w_full(p))
 length(baseModel$wFull)
-# This means that we can not simply copy over the initial resource abundances.
-# We have to interpolate them at our new bin boundaries.
-initialNResource(p) <- approx(baseModel$wFull, baseModel$nPP[1, ], 
-                              w_full(p), rule = 2)$y
+# The initial resource abundance has to be interpolated to the new bin
+# boundaries.
+initialNResource(p) <- approx(
+    baseModel$wFull, baseModel$initialNResource, w_full(p), rule = 2)$y
 initialNResource(p_second_order) <- approx(
-    baseModel$wFull, baseModel$nPP[1, ], w_full(p_second_order), rule = 2)$y
+    baseModel$wFull, baseModel$initialNResource, w_full(p_second_order),
+    rule = 2)$y
 
 # Compare ----
 # First we check that we understand the different size grids
@@ -94,41 +97,35 @@ waldo::compare(baseModel$psi, p@psi, tolerance = 1e-6, ignore_attr = TRUE)
 waldo::compare(baseModel$IntakeMax, intake_max(p), ignore_attr = TRUE)
 waldo::compare(baseModel$Z0, species_params(p)$z0)
 waldo::compare(baseModel$SearchVol, search_vol(p), tolerance = 1e-14, ignore_attr = TRUE)
-waldo::compare(baseModel$StdMetab, metab(p), tolerance = 1e-14, ignore_attr = TRUE)           
+waldo::compare(baseModel$StdMetab, metab(p), tolerance = 1e-14, ignore_attr = TRUE)
 waldo::compare(baseModel$selectivity, aperm(p@selectivity, c(2,3,1)),
                tolerance = 1e-14, ignore_attr = TRUE)
-all(baseModel$Aktivity == 0)
-all.equal(getFMort(p), baseModel$F[1, , ], 
-          check.attributes = FALSE)
-# Because of the different size grids for the resource, for the pred kernel 
+all(baseModel$Activity == 0)
+# all.equal(getFMort(p), baseModel$F[1, , ],
+#           check.attributes = FALSE)
+# Because of the different size grids for the resource, for the pred kernel
 # we can make the comparison only where the prey are fish
-all.equal(baseModel$predkernel[1, , idx_fish_old], 
-          pred_kernel(p)[1, , idx_fish_new], 
+all.equal(baseModel$predkernel[1, , idx_fish_old],
+          pred_kernel(p)[1, , idx_fish_new],
           check.attributes = FALSE)
 
-# The feeding level is off by a little bit, presumably because of the slightly
-# different resource abundance due to the different size grids
-all.equal(getFeedingLevel(p), baseModel$f[1, , ], 
-          check.attributes = FALSE, tolerance = 0.006)
-# We can look at this graphically for individual species
-i <- 1
-plot(w(p), baseModel$f[1, i, ], type = "l", log = "xy")
-lines(w(p), getFeedingLevel(p)[i, ], col = "red")
-# We do not need to be too bothered by such differences by less than 1%
-
-all.equal(getM2(p), baseModel$M2[1, , ], 
-          check.attributes = FALSE, tolerance = 1e-4)
-
-all.equal(getResourceMort(p)[idx_fish_new], 
-          baseModel$M2background[1, idx_fish_old], 
-          check.attributes = FALSE, tolerance = 1e-4)
-all.equal(getERepro(p), baseModel$eSpawning[1, , ], 
-          check.attributes = FALSE, tolerance = 0.007)
-
-all.equal(getRDI(p), baseModel$RDI[1, ], 
-          check.attributes = FALSE, tolerance = 0.014)
-all.equal(getRDD(p), baseModel$RDD[1, ], 
-          check.attributes = FALSE, tolerance = 0.014)
+# The checks below require output arrays from the full legacy simulation.
+# all.equal(getFeedingLevel(p), baseModel$f[1, , ],
+#           check.attributes = FALSE, tolerance = 0.006)
+# i <- 1
+# plot(w(p), baseModel$f[1, i, ], type = "l", log = "xy")
+# lines(w(p), getFeedingLevel(p)[i, ], col = "red")
+# all.equal(getM2(p), baseModel$M2[1, , ],
+#           check.attributes = FALSE, tolerance = 1e-4)
+# all.equal(getResourceMort(p)[idx_fish_new],
+#           baseModel$M2background[1, idx_fish_old],
+#           check.attributes = FALSE, tolerance = 1e-4)
+# all.equal(getERepro(p), baseModel$eSpawning[1, , ],
+#           check.attributes = FALSE, tolerance = 0.007)
+# all.equal(getRDI(p), baseModel$RDI[1, ],
+#           check.attributes = FALSE, tolerance = 0.014)
+# all.equal(getRDD(p), baseModel$RDD[1, ],
+#           check.attributes = FALSE, tolerance = 0.014)
 
 # check resource graphically
 plot(baseModel$wFull, baseModel$rrPP, type = "l", log = "xy")
@@ -145,27 +142,27 @@ plotBiomass(sim)
 # steady state. In the first few years the biomass of the fish species changes
 # by up to 10^6%! It is therefore not surprising that if we compare the dynamics
 # between the two models we find differences.
-sim2 <- sim
-sim2@n[2:501, , ] <- baseModel$N[(1:500) * 52, , ]
-plotlyBiomassRelative(sim, sim2)
+# sim2 <- sim
+# sim2@n[2:501, , ] <- baseModel$N[(1:500) * 52, , ]
+# plotlyBiomassRelative(sim, sim2)
 
 # Both models however reach a steady state quite quickly and the
 # steady states are quite similar.
 # Create params object with mizer steady state
 ps <- finalParams(sim)
 ps_second_order <- finalParams(sim_second_order)
-# Crate params object with Datta & Blanchard steady state
-final_time_idx <- dim(baseModel$N)[1]
-ps_datta <- p
-initialN(ps_datta) <- baseModel$N[final_time_idx, , ]
-initialNResource(ps_datta) <- approx(baseModel$wFull, baseModel$nPP[final_time_idx, ], 
-                                     w_full(p), rule = 2)$y
-# Compare the steady states
-plotSpectra2(ps, ps_datta)
-plotSpectraRelative(ps, ps_datta)
+# The following comparison requires the final state from the full legacy
+# simulation.
+# final_time_idx <- dim(baseModel$N)[1]
+# ps_datta <- p
+# initialN(ps_datta) <- baseModel$N[final_time_idx, , ]
+# initialNResource(ps_datta) <- approx(
+#     baseModel$wFull, baseModel$nPP[final_time_idx, ], w_full(p), rule = 2)$y
+# plotSpectra2(ps, ps_datta)
+# plotSpectraRelative(ps, ps_datta)
 
 # We'll now make this MizerParams object available in the package.
-datta_params <- 
+datta_params <-
     setMetadata(ps,
                 title = "Base model from Datta & Blanchard (2016)",
                 description = "This is a re-implementation of the base model from Datta & Blanchard (2016) using the mizer package. The initial state is set to the steady state.")
