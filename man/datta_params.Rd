@@ -36,8 +36,13 @@ modern mizer code no longer supports this. So this MizerParams object uses
 the same size bins for the resource and fish spectra. Like the model by
 Datta and Blanchard, we use 100 size bins for the fish spectra but we use
 180 size bins for the full spectra instead of 130.
-The initial state of the MizerParams object is set to the steady state of the
-model.
+
+\code{datta_params} uses mizer's default first-order size scheme.
+\code{datta_params_second_order} was created with \code{second_order_w = TRUE}, which
+uses the second-order van Leer flux scheme and bin-averaged quantities.
+
+The initial state of each MizerParams object is set to the steady state of
+its model.
 
 The script that created this MizerParams object is available at
 \url{https://github.com/gustavdelius/mizerSeasonal/blob/main/data-raw/datta_params.R}.

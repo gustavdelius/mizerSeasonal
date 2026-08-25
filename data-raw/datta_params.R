@@ -36,31 +36,39 @@ gp <- data.frame(
 )
 
 # MizerParams ----
-p <- newMultispeciesParams(
-    species_params = sp,
-    gear_params = gp,
-    interaction = param$theta,
-    no_w = param$ngrid,
-    min_w = param$w0,
-    max_w = param$wMax,
-    min_w_pp = baseModel$wFull[1],
-    n = param$n,
-    p = param$p,
-    lambda = param$lambda,
-    w_pp_cutoff = param$wPPcut,
-    resource_rate = param$rPP,
-    resource_capacity = param$kap,
-    kappa = param$kap,
-    z0pre = param$Z0pre,
-    z0exp = param$Z0exp)
+create_params <- function(second_order_w = FALSE) {
+    newMultispeciesParams(
+        species_params = sp,
+        gear_params = gp,
+        interaction = param$theta,
+        no_w = param$ngrid,
+        min_w = param$w0,
+        max_w = param$wMax,
+        min_w_pp = baseModel$wFull[1],
+        n = param$n,
+        p = param$p,
+        lambda = param$lambda,
+        w_pp_cutoff = param$wPPcut,
+        resource_rate = param$rPP,
+        resource_capacity = param$kap,
+        kappa = param$kap,
+        z0pre = param$Z0pre,
+        z0exp = param$Z0exp,
+        second_order_w = second_order_w)
+}
+
+p <- create_params()
+p_second_order <- create_params(second_order_w = TRUE)
 
 # The base model uses a constant effort of 1 for all species
 all(baseModel$effort == 1)
 # Therefore we set that as the initial effort in the MizerParams object
 initial_effort(p) <- baseModel$effort[1, ]
+initial_effort(p_second_order) <- baseModel$effort[1, ]
 
 # Initial abundances ----
 initialN(p) <- baseModel$N[1, , ]
+initialN(p_second_order) <- baseModel$N[1, , ]
 # The code by Datta & Blanchard (2016) uses
 # wider size-bins for the resource spectrum than for the fish spectrum. The
 # modern mizer code no longer supports this. So this MizerParams object uses
@@ -71,6 +79,8 @@ length(baseModel$wFull)
 # We have to interpolate them at our new bin boundaries.
 initialNResource(p) <- approx(baseModel$wFull, baseModel$nPP[1, ], 
                               w_full(p), rule = 2)$y
+initialNResource(p_second_order) <- approx(
+    baseModel$wFull, baseModel$nPP[1, ], w_full(p_second_order), rule = 2)$y
 
 # Compare ----
 # First we check that we understand the different size grids
@@ -128,7 +138,8 @@ plot(baseModel$wFull, baseModel$NinfPP, type = "l", log = "xy")
 lines(w_full(p), resource_capacity(p), col = "red")
 
 # Simulation ----
-sim <- project(p, t_max = 500)
+sim <- project(p, t_max = 500, progress_bar = FALSE)
+sim_second_order <- project(p_second_order, t_max = 500, progress_bar = FALSE)
 plotBiomass(sim)
 # We see that the initial state of the Datta and Blanchard model is far from
 # steady state. In the first few years the biomass of the fish species changes
@@ -141,7 +152,8 @@ plotlyBiomassRelative(sim, sim2)
 # Both models however reach a steady state quite quickly and the
 # steady states are quite similar.
 # Create params object with mizer steady state
-ps <- setInitialValues(p, sim)
+ps <- finalParams(sim)
+ps_second_order <- finalParams(sim_second_order)
 # Crate params object with Datta & Blanchard steady state
 final_time_idx <- dim(baseModel$N)[1]
 ps_datta <- p
@@ -158,3 +170,14 @@ datta_params <-
                 title = "Base model from Datta & Blanchard (2016)",
                 description = "This is a re-implementation of the base model from Datta & Blanchard (2016) using the mizer package. The initial state is set to the steady state.")
 usethis::use_data(datta_params, overwrite = TRUE)
+
+datta_params_second_order <-
+    setMetadata(
+        ps_second_order,
+        title = "Base model from Datta & Blanchard (2016), second-order scheme",
+        description = paste(
+            "This is a re-implementation of the base model from Datta &",
+            "Blanchard (2016) using the second-order size scheme in the mizer",
+            "package. The initial state is set to the steady state."
+        ))
+usethis::use_data(datta_params_second_order, overwrite = TRUE)
