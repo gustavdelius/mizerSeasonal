@@ -5,7 +5,8 @@
 \alias{datta_params_second_order}
 \title{Second-order parameters used by Datta & Blanchard (2016)}
 \format{
-A MizerParams object
+A \link[mizer:MizerParams]{mizer::MizerParams} object, stored as an S3 object like
+\link{datta_params}.
 }
 \source{
 Datta, S. & Blanchard, J. L. "The effects of seasonal processes on

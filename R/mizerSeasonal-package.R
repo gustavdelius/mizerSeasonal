@@ -6,7 +6,6 @@
 #'
 #' @import mizer
 #' @import ggplot2 assertthat dplyr
-#' @importFrom methods is
 #' @importFrom stats mvfft
 #' 
 #' @md
@@ -14,8 +13,3 @@
 "_PACKAGE"
 
 globalVariables(c("Q"))
-
-.onLoad <- function(libname, pkgname) {
-    mizer::registerExtension(pkgname,
-                             requirement = "sizespectrum/mizerSeasonal")
-}

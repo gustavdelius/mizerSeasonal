@@ -14,8 +14,8 @@ local_params <- function(...) {
 
 test_that("setSeasonalReproduction returns a mizerSeasonal object", {
     p <- local_params()
-    expect_s4_class(p, "mizerSeasonal")
-    expect_s4_class(p, "MizerParams")
+    expect_s3_class(p, "mizerSeasonal")
+    expect_s3_class(p, "MizerParams")
 })
 
 test_that("extensions slot is populated after setSeasonalReproduction", {
@@ -23,7 +23,7 @@ test_that("extensions slot is populated after setSeasonalReproduction", {
     expect_true("mizerSeasonal" %in% names(p@extensions))
     expect_equal(
         unname(p@extensions$mizerSeasonal[["requirement"]]),
-        "sizespectrum/mizerSeasonal"
+        "gustavdelius/mizerSeasonal"
     )
     expect_equal(
         unname(p@extensions$mizerSeasonal[["version"]]),
@@ -103,5 +103,5 @@ test_that("project() output is a mizerSeasonalSim object", {
     p <- local_params()
     sim <- project(p, t_max = 0.1, dt = 0.01, t_save = 0.1,
                    progress_bar = FALSE)
-    expect_s4_class(sim, "mizerSeasonalSim")
+    expect_s3_class(sim, "mizerSeasonalSim")
 })

@@ -1,3 +1,16 @@
+# mizerSeasonal 0.0.0.9005
+
+* Replaced obsolete session extension registration and dynamic S4 marker
+  classes with mizer's simpler S3 extension mechanism. Stored parameter objects
+  are now S3 objects with extension class vector
+  `c("mizerSeasonal", "MizerParams")`, removing the need for a load hook or an
+  active binding. This requires mizer (>= 3.3.0.9000).
+* `setSeasonalReproduction()` now always stamps the installed package version
+  and the package's install requirement on the model with `recordExtension()`.
+  The recorded requirement is `gustavdelius/mizerSeasonal`, the repository the
+  package actually lives in.
+* Re-saved `datta_params` and `datta_params_second_order` as S3 objects.
+
 # mizerSeasonal 0.0.0.9004
 
 * Raised the minimum supported mizer version to 3.3.0 and updated the package

@@ -28,7 +28,7 @@ The package has seven R source files, listed here in the order they are collated
 
 | File | Contents |
 |---|---|
-| `mizerSeasonal-class.R` | Documentation for the dynamic `mizerSeasonal` and `mizerSeasonalSim` marker classes |
+| `mizerSeasonal-class.R` | Documentation for the `mizerSeasonal` and `mizerSeasonalSim` S3 extension classes |
 | `mizerSeasonal-package.R` | Package-level documentation, `@import` directives, and `.onLoad` hook |
 | `animate.R` | `animateGonadSpectra()` and two private helpers |
 | `data.R` | Documentation for the `datta_params` dataset |
@@ -36,8 +36,9 @@ The package has seven R source files, listed here in the order they are collated
 | `release_functions.R` | The four release-rate functions |
 | `seasonal.R` | Core machinery: `setSeasonalReproduction()`, `gonadDynamics()`, `projectRDI.mizerSeasonal()`, `projectEncounter.mizerSeasonal()`, `seasonalBevertonHoltRDD()`, `seasonalVonMisesRDD()`, `seasonal_resource_semichemostat()`, and two private helpers |
 
-`mizerSeasonal-class.R` documents marker classes that mizer creates dynamically
-when the extension is registered. `animate.R` uses unexported mizer functions
+`mizerSeasonal-class.R` documents the S3 extension classes; it contains no
+code, because an S3 extension class needs no declaration. `animate.R` uses
+unexported mizer functions
 (`get_time_elements`) and dplyr verbs imported at the package level in
 `mizerSeasonal-package.R`.
 
@@ -45,48 +46,41 @@ when the extension is registered. `animate.R` uses unexported mizer functions
 
 Mizer ships a formal extension API. The key functions used by this package are:
 
-- **`registerExtension(pkgname, ...)`** — called once in `.onLoad` to register
-  the package as a mizer extension for the current R session.
-- **`recordExtension(params, name, version)`** — records that this extension
-  was applied to a specific model and stamps the package version.
+- **`recordExtension(params, name, version, requirement)`** — records that this
+  extension was applied to a specific model and stamps the package version and
+  the source it can be installed from.
 - **`setComponent(params, component, initial_value, dynamics_fun)`** — registers
   a new dynamical state variable (here, the gonadic mass matrix).
 - **`setRateFunction(params, rate, fun)`** — replaces one of mizer's standard
   rate calculators with a custom one. Used here only for the RDD function;
   RDI and Encounter are handled via S3 dispatch instead (see below).
-- **`coerceToExtensionClass(params)`** — promotes a `MizerParams` object to the
-  registered S4 extension class (here, `mizerSeasonal`), enabling S3 method
-  dispatch on `project*` generics.
+- **`coerceToExtensionClass(params)`** — reads `params$extensions` and prepends
+  the extension class (here, `mizerSeasonal`) to the object's S3 class vector,
+  enabling S3 method dispatch on the `project*` generics.
 - **`other_params(params)`** / **`other_params(params) <-`** — a named list for
   arbitrary configuration attached to a `MizerParams` object.
 
-### The `.onLoad` hook
+### No load hook
 
-```{r}
-.onLoad <- function(libname, pkgname) {
-    mizer::registerExtension(pkgname, requirement = "sizespectrum/mizerSeasonal")
-}
-```
+The package needs no `.onLoad()` hook. `MizerParams` and `MizerSim` are S3
+classes, so an extension class is just an entry in the object's class vector and
+nothing has to be declared or registered when the package is loaded. The
+bundled datasets in `data/` are ordinary S3 objects, so R's standard
+lazy-loading delivers them with their class vector and extension metadata
+intact.
 
-This runs when the package is loaded and tells mizer about the extension. Mizer
-detects the registered S3 methods, creates the marker classes dynamically, and
-can then promote recorded objects with `coerceToExtensionClass()`.
+### S3 extension classes
 
-### S4 marker classes
-
-The package documents two marker classes in `mizerSeasonal-class.R` but does
-not define them itself:
-
-```{r}
-NULL
-```
-
-Mizer creates `mizerSeasonal` and `mizerSeasonalSim` dynamically during
-`registerExtension()`. They carry no additional slots; their purpose is to
-enable S3 dispatch on the `project*` generics while allowing multiple extension
-packages to form one dispatch chain. When mizer calls `projectRDI(params, ...)`,
-it dispatches to `projectRDI.mizerSeasonal`. Similarly, `project()` returns a
-`mizerSeasonalSim`.
+`mizerSeasonal-class.R` holds documentation and no code. The classes
+`mizerSeasonal` and `mizerSeasonalSim` exist only as entries in the S3 class
+vectors `c("mizerSeasonal", "MizerParams")` and
+`c("mizerSeasonalSim", "MizerSim")`. They carry no additional data — everything
+this extension stores lives in `other_params()` and in the `gonads` component —
+and their purpose is to enable S3 dispatch on the `project*` generics while
+allowing several extension packages to form one dispatch chain. When mizer calls
+`projectRDI(params, ...)`, it dispatches to `projectRDI.mizerSeasonal`.
+Similarly, `project()` returns a `mizerSeasonalSim`, because `MizerSim()` calls
+`coerceToExtensionClass()` on the new object.
 
 ### `setSeasonalReproduction()`
 
@@ -97,11 +91,6 @@ setSeasonalReproduction <- function(params,
                                     release_func = "seasonalVonMisesRelease",
                                     RDD = "seasonalBevertonHoltRDD",
                                     include_gonads = TRUE) {
-    version <- if ("mizerSeasonal" %in% names(params@extensions)) {
-        NULL
-    } else {
-        as.character(utils::packageVersion("mizerSeasonal"))
-    }
     initial <- initialN(params)
     initial[] <- 0
 
@@ -114,7 +103,11 @@ setSeasonalReproduction <- function(params,
                       dynamics_fun = "gonadDynamics") |>
         setRateFunction("RDD", RDD)                      # <-- replace RDD only
 
-    p <- mizer::recordExtension(p, "mizerSeasonal", version = version)
+    p <- mizer::recordExtension(                         # <-- stamp the model
+        p, "mizerSeasonal",
+        version = as.character(utils::packageVersion("mizerSeasonal")),
+        requirement = "gustavdelius/mizerSeasonal"
+    )
     p <- mizer::coerceToExtensionClass(p)                # <-- promote to mizerSeasonal
     return(p)
 }

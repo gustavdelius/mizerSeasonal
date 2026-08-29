@@ -29,7 +29,7 @@ plotRDI <- function(sim, sim2,
                     total = FALSE, log = FALSE,
                     highlight = NULL, return_data = FALSE,
                     ...) {
-    assert_that(is(sim, "MizerSim"),
+    assert_that(inherits(sim, "MizerSim"),
                 is.flag(total),
                 is.flag(log),
                 is.flag(return_data))
@@ -51,7 +51,9 @@ plotRDI <- function(sim, sim2,
         plot_dat <- plot_dat[, c(1, 3, 2)]
 
         if (nrow(plot_dat) == 0) {
-            warning("There is no RDI to include.")
+            signal_info("RDI", "There is no RDI to include.",
+                        level = 1, severity = "warning",
+                        unhandled = "show")
         }
         if (return_data) return(plot_dat)
 
@@ -115,7 +117,7 @@ plotRDD <- function(sim, sim2,
                     total = FALSE, log = FALSE,
                     highlight = NULL, return_data = FALSE,
                     ...) {
-    assert_that(is(sim, "MizerSim"),
+    assert_that(inherits(sim, "MizerSim"),
                 is.flag(total),
                 is.flag(log),
                 is.flag(return_data))
@@ -137,7 +139,9 @@ plotRDD <- function(sim, sim2,
         plot_dat <- plot_dat[, c(1, 3, 2)]
 
         if (nrow(plot_dat) == 0) {
-            warning("There is no RDD to include.")
+            signal_info("RDD", "There is no RDD to include.",
+                        level = 1, severity = "warning",
+                        unhandled = "show")
         }
         if (return_data) return(plot_dat)
 

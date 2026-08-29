@@ -2,10 +2,21 @@
 % Please edit documentation in R/mizerSeasonal-class.R
 \name{mizerSeasonal-class}
 \alias{mizerSeasonal-class}
-\title{mizerSeasonal marker classes}
+\title{mizerSeasonal extension classes}
 \description{
-S4 marker subclasses of \code{MizerParams} and \code{MizerSim} that enable S3 dispatch
-for this package's methods. They add no slots and are created dynamically by
-mizer when the package is loaded.
+S3 extension classes for \link[mizer:MizerParams]{mizer::MizerParams} and \link[mizer:MizerSim]{mizer::MizerSim} that
+enable S3 dispatch for this package's methods.
+}
+\details{
+The class names are ordinary entries in the object's S3 class vector, so no
+class declaration is needed. All extension-specific data lives in
+\code{other_params(params)} or in the \code{gonads} component (see
+\code{\link[mizer:setComponent]{mizer::setComponent()}}).
+
+Objects of class \code{mizerSeasonal} are created by \code{\link[=setSeasonalReproduction]{setSeasonalReproduction()}},
+which records the extension on the object with \code{\link[mizer:recordExtension]{mizer::recordExtension()}} and
+then calls \code{\link[mizer:coerceToExtensionClass]{mizer::coerceToExtensionClass()}}. Objects of class
+\code{mizerSeasonalSim} are returned automatically by \code{\link[mizer:project]{mizer::project()}} when it
+is called on a \code{mizerSeasonal} params object.
 }
 \keyword{internal}

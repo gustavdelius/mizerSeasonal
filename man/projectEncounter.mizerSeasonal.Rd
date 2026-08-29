@@ -7,7 +7,7 @@
 \method{projectEncounter}{mizerSeasonal}(params, n, n_pp, n_other, t = 0, ...)
 }
 \arguments{
-\item{params}{A \linkS4class[mizer]{MizerParams} object of class
+\item{params}{A \link[mizer:MizerParams]{mizer::MizerParams} object of class
 \code{mizerSeasonal}.}
 
 \item{n}{A matrix of species abundances (species x size).}

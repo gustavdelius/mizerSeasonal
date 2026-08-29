@@ -5,7 +5,10 @@
 \alias{datta_params}
 \title{Parameters used by Datta & Blanchard (2016)}
 \format{
-A MizerParams object
+A \link[mizer:MizerParams]{mizer::MizerParams} object. It is stored as an S3 object, so R's
+standard lazy-loading preserves its class vector and metadata; no load hook
+or active binding is needed. It is a plain mizer model: call
+\code{\link[=setSeasonalReproduction]{setSeasonalReproduction()}} on it to obtain a \code{mizerSeasonal} object.
 }
 \source{
 Datta, S. & Blanchard, J. L. "The effects of seasonal processes on

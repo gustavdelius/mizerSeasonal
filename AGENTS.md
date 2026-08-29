@@ -27,7 +27,7 @@ For extension registration, dispatch, versioning, or persistence changes,
 follow `.claude/skills/create-extension-package/SKILL.md` and verify installed
 mizer documentation. Treat the vignette as a current-code map and the skill as
 the maintenance workflow. Check its rules for `recordExtension()`, coercion,
-marker classes, `NextMethod()`, and composable `project*` methods rather than
+S3 extension classes, `NextMethod()`, and composable `project*` methods rather than
 copying existing patterns.
 
 ## Build, Test, and Development Commands

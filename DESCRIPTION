@@ -1,6 +1,6 @@
 Package: mizerSeasonal
 Title: Implementing Seasonality in Mizer
-Version: 0.0.0.9004
+Version: 0.0.0.9005
 Authors@R: 
     c(person("Gustav", "Delius",
              email = "gustav.delius@york.ac.uk",
@@ -15,13 +15,12 @@ Description: For now, the package implements the accumulation of gonadic mass th
 License: GPL-3
 Encoding: UTF-8
 Depends:
-    mizer (>= 3.3.0),
+    mizer (>= 3.3.0.9000),
     R (>= 4.1)
 Imports:
     assertthat,
     dplyr,
     ggplot2,
-    methods,
     plotly,
     reshape2,
     stats,

@@ -6,7 +6,7 @@ test_that("setSeasonalReproduction returns a MizerParams object", {
                                 release_func = "seasonalVonMisesRelease",
                                 RDD = "seasonalVonMisesRDD")
     )
-    expect_s4_class(result, "MizerParams")
+    expect_s3_class(result, "MizerParams")
 })
 
 test_that("setSeasonalReproduction adds a gonads component", {
