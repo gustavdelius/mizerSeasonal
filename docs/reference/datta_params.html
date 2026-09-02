@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Parameters used by Datta &amp; Blanchard (2016) — datta_params"><meta name="description" content="This MizerParams object is an approximation of the model used by Datta &amp;amp;
+</script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Parameters used by Datta &amp; Blanchard (2016) — datta_params"><meta name="description" content="This MizerParams object is an approximation of the model used by Datta &amp;amp;
 Blanchard (2016), which allows to reproduce their results and to extend it
 to the full gonadic mass dynamics implemented in mizerSeasonal."><meta property="og:description" content="This MizerParams object is an approximation of the model used by Datta &amp;amp;
 Blanchard (2016), which allows to reproduce their results and to extend it
@@ -17,7 +17,7 @@ to the full gonadic mass dynamics implemented in mizerSeasonal."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">mizerSeasonal</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,7 @@ to the full gonadic mass dynamics implemented in mizerSeasonal."></head><body>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/code_structure.html">Code structure</a></li>
     <li><a class="dropdown-item" href="../articles/gonadic_mass_dynamics.html">Gonadic mass dynamics</a></li>
   </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/gustavdelius/mizerSeasonal/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -84,9 +85,12 @@ wider size-bins for the resource spectrum than for the fish spectrum. The
 modern mizer code no longer supports this. So this MizerParams object uses
 the same size bins for the resource and fish spectra. Like the model by
 Datta and Blanchard, we use 100 size bins for the fish spectra but we use
-180 size bins for the full spectra instead of 130.
-The initial state of the MizerParams object is set to the steady state of the
-model.</p>
+180 size bins for the full spectra instead of 130.</p>
+<p><code>datta_params</code> uses mizer's default first-order size scheme.
+<code>datta_params_second_order</code> was created with <code>second_order_w = TRUE</code>, which
+uses the second-order van Leer flux scheme and bin-averaged quantities.</p>
+<p>The initial state of each MizerParams object is set to the steady state of
+its model.</p>
 <p>The script that created this MizerParams object is available at
 <a href="https://github.com/gustavdelius/mizerSeasonal/blob/main/data-raw/datta_params.R" class="external-link">https://github.com/gustavdelius/mizerSeasonal/blob/main/data-raw/datta_params.R</a>.</p>
     </div>
@@ -100,7 +104,7 @@ model.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

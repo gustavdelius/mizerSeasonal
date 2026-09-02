@@ -19,15 +19,35 @@
 #' the same size bins for the resource and fish spectra. Like the model by
 #' Datta and Blanchard, we use 100 size bins for the fish spectra but we use
 #' 180 size bins for the full spectra instead of 130.
-
-#' The initial state of the MizerParams object is set to the steady state of the
-#' model.
+#'
+#' `datta_params` uses mizer's default first-order size scheme.
+#' `datta_params_second_order` was created with `second_order_w = TRUE`, which
+#' uses the second-order van Leer flux scheme and bin-averaged quantities.
+#'
+#' The initial state of each MizerParams object is set to the steady state of
+#' its model.
 #' 
 #' The script that created this MizerParams object is available at
 #' <https://github.com/gustavdelius/mizerSeasonal/blob/main/data-raw/datta_params.R>.
 #' 
-#' @format A MizerParams object
+#' @format A [mizer::MizerParams] object. It is stored as an S3 object, so R's
+#'   standard lazy-loading preserves its class vector and metadata; no load hook
+#'   or active binding is needed. It is a plain mizer model: call
+#'   [setSeasonalReproduction()] on it to obtain a `mizerSeasonal` object.
 #' @source Datta, S. & Blanchard, J. L. "The effects of seasonal processes on
 #'  size spectrum dynamics". Canadian Journal of Fisheries and Aquatic Sciences
 #'  (2016). <https://cdnsciencepub.com/doi/full/10.1139/cjfas-2015-0468>
 "datta_params"
+
+#' Second-order parameters used by Datta & Blanchard (2016)
+#'
+#' A variant of [datta_params] created with `second_order_w = TRUE`. It uses
+#' the second-order van Leer flux scheme and bin-averaged quantities, and its
+#' initial state is set to the steady state of the second-order model.
+#'
+#' @format A [mizer::MizerParams] object, stored as an S3 object like
+#'   [datta_params].
+#' @source Datta, S. & Blanchard, J. L. "The effects of seasonal processes on
+#'  size spectrum dynamics". Canadian Journal of Fisheries and Aquatic Sciences
+#'  (2016). <https://cdnsciencepub.com/doi/full/10.1139/cjfas-2015-0468>
+"datta_params_second_order"

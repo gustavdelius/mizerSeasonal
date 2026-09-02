@@ -1,17 +1,24 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/404.html</loc></url>
+<url><loc>https://gustavdelius.github.io/mizerSeasonal/AGENTS.html</loc></url>
+<url><loc>https://gustavdelius.github.io/mizerSeasonal/CLAUDE.html</loc></url>
+<url><loc>https://gustavdelius.github.io/mizerSeasonal/GEMINI.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/LICENSE-text.html</loc></url>
+<url><loc>https://gustavdelius.github.io/mizerSeasonal/MIZER-AGENTS.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/articles/code_structure.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/articles/gonadic_mass_dynamics.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/articles/index.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/articles/mizerSeasonal.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/authors.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/index.html</loc></url>
+<url><loc>https://gustavdelius.github.io/mizerSeasonal/news/index.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/animateGonadSpectra.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/datta_params.html</loc></url>
+<url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/datta_params_second_order.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/getTimeseries.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/gonadDynamics.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/index.html</loc></url>
+<url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/mizerSeasonal-class.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/mizerSeasonal-package.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/plotGonadsVsTime.html</loc></url>
 <url><loc>https://gustavdelius.github.io/mizerSeasonal/reference/plotRDD.html</loc></url>

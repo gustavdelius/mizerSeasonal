@@ -3,21 +3,25 @@ suppressPackageStartupMessages(library(mizer))
 # Single-species params with all seasonal columns needed for tests
 base_params <- suppressMessages(newSingleSpeciesParams())
 
-base_params@species_params$vonMises_r0 <- 10
-base_params@species_params$vonMises_kappa <- 2
-base_params@species_params$vonMises_mu <- 0.25
+sp <- species_params(base_params)
 
-base_params@species_params$beta_a <- 2
-base_params@species_params$beta_b <- 5
-base_params@species_params$beta_r <- 1
+sp$vonMises_r0 <- 10
+sp$vonMises_kappa <- 2
+sp$vonMises_mu <- 0.25
 
-base_params@species_params$sr_r0 <- 10
-base_params@species_params$sr_sigma <- 0.1
-base_params@species_params$sr_t0 <- 0.25
+sp$beta_a <- 2
+sp$beta_b <- 5
+sp$beta_r <- 1
 
-base_params@species_params$rdd_vonMises_r0 <- 100
-base_params@species_params$rdd_vonMises_kappa <- 2
-base_params@species_params$rdd_vonMises_mu <- 0.25
+sp$sr_r0 <- 10
+sp$sr_sigma <- 0.1
+sp$sr_t0 <- 0.25
+
+sp$rdd_vonMises_r0 <- 100
+sp$rdd_vonMises_kappa <- 2
+sp$rdd_vonMises_mu <- 0.25
+
+species_params(base_params) <- sp
 
 # Seasonal params using seasonalVonMisesRDD (avoids r_max dependency)
 seasonal_params <- suppressMessages(

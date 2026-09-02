@@ -3,12 +3,14 @@
 After you have installed the mizerSeasonal package with
 
 ``` r
+
 remotes::install_github("gustavdelius/mizerSeasonal")
 ```
 
 you can load it with
 
 ``` r
+
 library(mizerSeasonal)
 #> Loading required package: mizer
 ```
@@ -19,8 +21,10 @@ the model, match its growth rates to observations and run it to steady
 state:
 
 ``` r
+
 p <- NS_params |> matchGrowth() |> steady(preserve = "erepro")
-#> Convergence was achieved in 13.5 years.
+#> `matchGrowth()` has rescaled the model and so moved it off its steady state. Run `tuneSteadyState()` to settle it again. You can check with `getSteadyResidual()`.
+#> Reached the convergence tolerance after 13.5 years. The biomasses change at up to 0.0021 per year.
 plotlySpectra(p, power = 2)
 ```
 
@@ -33,7 +37,7 @@ reproduction and run the dynamics until it settles down. Then one adapts
 the reproduction parameters in the model so that the steady-state
 investment into reproduction leads to the desired steady state
 reproduction (this is what the
-[`steady()`](https://sizespectrum.org/mizer/reference/steady.html)
+[`steady()`](https://sizespectrum.org/mizer/reference/superseded_steady.html)
 function did above). We will follow the same method for the model with
 seasonal reproduction.
 
@@ -57,6 +61,7 @@ the reproduction rate \\R\_{dd}\\ of the non-seasonal model and we take
 \\\mu\\ and \\\kappa\\ from the paper by Datta et.al.
 
 ``` r
+
 species_params(p)$rdd_vonMises_r0 <- getRDD(p)
 species_params(p)$rdd_vonMises_kappa <- 
     c(3.6047, 2.9994, 1.944, 0.40493, 1.141, 1.4257,
@@ -76,6 +81,7 @@ will then later set the parameters of the Beverton-Holt function to
 produce the desired reproduction rate.
 
 ``` r
+
 species_params(p)$vonMises_r0 <- 100
 species_params(p)$vonMises_kappa <- species_params(p)$rdd_vonMises_kappa
 species_params(p)$vonMises_mu <- species_params(p)$rdd_vonMises_mu
@@ -84,6 +90,7 @@ species_params(p)$vonMises_mu <- species_params(p)$rdd_vonMises_mu
 Seasonal reproduction is then turned on with
 
 ``` r
+
 p <- setSeasonalReproduction(p, release_func = "seasonalVonMisesRelease",
                              RDD = "seasonalVonMisesRDD")
 ```
@@ -94,6 +101,7 @@ usual with
 produce a MizerSim object.
 
 ``` r
+
 sim <- project(p, t_max = 50, dt = 0.01)
 plotlyBiomass(sim)
 ```
@@ -104,7 +112,15 @@ To see the variation within the year we project for a further year but
 with higher time resolution
 
 ``` r
+
 ps <- setInitialValues(p, sim)
+#> Warning: `setInitialValues()` was deprecated in mizer 3.0.0.
+#> ℹ Use `getParams(sim, time_range, geometric_mean)` to extract a MizerParams
+#>   object with updated initial values. Convenience wrappers `initialParams()`
+#>   and `finalParams()` extract the first and last time steps.
+#> This warning is displayed once per session.
+#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#> generated.
 sim1 <- project(ps, t_max = 1, dt = 0.01, t_save = 0.01)
 plotlyBiomass(sim1)
 ```
@@ -114,6 +130,7 @@ re-run the simulation while storing fewer intermediate times to make the
 animation render more quickly.
 
 ``` r
+
 sim1l <- project(ps, t_max = 1, dt = 0.01, t_save = 0.1)
 animateSpectra(sim1l, power = 2)
 ```
@@ -135,6 +152,7 @@ the year due to the seasonal release rate and the constant creation of
 gonadic mass.
 
 ``` r
+
 animateGonadSpectra(sim1l)
 ```
 
@@ -143,6 +161,7 @@ density dependence and the desired rate \\R\_{dd}\\ that should remain
 after imposing an \\R\_{max}\\. Both vary throughout the year:
 
 ``` r
+
 rdi <- getTimeseries(sim1, func = getRDI)
 rdd <- getTimeseries(sim1, func = getRDD)
 # build data frame for ggplot
@@ -167,6 +186,7 @@ function \\ R\_{dd} = R\_{di}\frac{R\_{max}}{R\_{di}+R\_{max}} \\ agrees
 with the observed reproduction rate.
 
 ``` r
+
 other_params(ps)$r_max <- rdi * rdd / (rdi - rdd)
 ps <- setRateFunction(ps, "RDD", "seasonalBevertonHoltRDD")
 ```

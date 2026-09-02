@@ -12,9 +12,9 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+</script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Code structure">
 </head>
@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizerSeasonal</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,7 @@
     <li><a class="dropdown-item" href="../articles/gonadic_mass_dynamics.html">Gonadic mass dynamics</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -95,23 +96,22 @@ are collated (as specified by the <code>Collate</code> field in
 <tbody>
 <tr class="odd">
 <td><code>mizerSeasonal-class.R</code></td>
-<td>S4 marker class definitions: <code>mizerSeasonal</code> and
-<code>mizerSeasonalSim</code>
-</td>
-</tr>
-<tr class="even">
-<td><code>animate.R</code></td>
-<td>
-<code><a href="../reference/animateGonadSpectra.html">animateGonadSpectra()</a></code> and two private helpers</td>
-</tr>
-<tr class="odd">
-<td><code>data.R</code></td>
-<td>Documentation for the <code>datta_params</code> dataset</td>
+<td>Documentation for the dynamic <code>mizerSeasonal</code> and
+<code>mizerSeasonalSim</code> marker classes</td>
 </tr>
 <tr class="even">
 <td><code>mizerSeasonal-package.R</code></td>
 <td>Package-level documentation, <code>@import</code> directives, and
 <code>.onLoad</code> hook</td>
+</tr>
+<tr class="odd">
+<td><code>animate.R</code></td>
+<td>
+<code><a href="../reference/animateGonadSpectra.html">animateGonadSpectra()</a></code> and two private helpers</td>
+</tr>
+<tr class="even">
+<td><code>data.R</code></td>
+<td>Documentation for the <code>datta_params</code> dataset</td>
 </tr>
 <tr class="odd">
 <td><code>plots.R</code></td>
@@ -136,8 +136,8 @@ helpers</td>
 </tr>
 </tbody>
 </table>
-<p><code>mizerSeasonal-class.R</code> is collated first so that the S4
-class definitions are available before any code that references them.
+<p><code>mizerSeasonal-class.R</code> documents marker classes that
+mizer creates dynamically when the extension is registered.
 <code>animate.R</code> uses unexported mizer functions
 (<code>get_time_elements</code>) and dplyr verbs imported at the package
 level in <code>mizerSeasonal-package.R</code>.</p>
@@ -152,6 +152,10 @@ package are:</p>
 <strong><code>registerExtension(pkgname, ...)</code></strong> —
 called once in <code>.onLoad</code> to register the package as a mizer
 extension for the current R session.</li>
+<li>
+<strong><code>recordExtension(params, name, version)</code></strong>
+— records that this extension was applied to a specific model and stamps
+the package version.</li>
 <li>
 <strong><code>setComponent(params, component, initial_value, dynamics_fun)</code></strong>
 — registers a new dynamical state variable (here, the gonadic mass
@@ -180,24 +184,25 @@ object.</li>
 <span>    <span class="fu">mizer</span><span class="fu">::</span><span class="fu"><a href="https://sizespectrum.org/mizer/reference/registerExtension.html" class="external-link">registerExtension</a></span><span class="op">(</span><span class="va">pkgname</span>, requirement <span class="op">=</span> <span class="st">"sizespectrum/mizerSeasonal"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>This runs when the package is loaded and tells mizer about the
-extension. It is what makes <code>coerceToExtensionClass()</code> know
-which S4 class to promote to.</p>
+extension. Mizer detects the registered S3 methods, creates the marker
+classes dynamically, and can then promote recorded objects with
+<code>coerceToExtensionClass()</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="s4-marker-classes">S4 marker classes<a class="anchor" aria-label="anchor" href="#s4-marker-classes"></a>
 </h3>
-<p>Two S4 classes are defined in <code>mizerSeasonal-class.R</code>:</p>
+<p>The package documents two marker classes in
+<code>mizerSeasonal-class.R</code> but does not define them itself:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">setClass</span><span class="op">(</span><span class="st">"mizerSeasonal"</span>,    contains <span class="op">=</span> <span class="st">"MizerParams"</span><span class="op">)</span></span>
-<span><span class="kw">setClass</span><span class="op">(</span><span class="st">"mizerSeasonalSim"</span>, contains <span class="op">=</span> <span class="st">"MizerSim"</span><span class="op">)</span></span></code></pre></div>
-<p>These are <em>marker</em> classes: they carry no additional slots.
-Their sole purpose is to enable S3 method dispatch on the
-<code>project*</code> generics. When mizer calls
-e.g. <code>projectRDI(params, ...)</code>, it dispatches to
-<code>projectRDI.mizerSeasonal</code> because <code>params</code> has
-class <code>mizerSeasonal</code>. Similarly, <code>project()</code>
-returns a <code>mizerSeasonalSim</code> because <code>MizerSim</code>
-objects are coerced to the registered extension sim class.</p>
+<code class="sourceCode R"><span><span class="cn">NULL</span></span></code></pre></div>
+<p>Mizer creates <code>mizerSeasonal</code> and
+<code>mizerSeasonalSim</code> dynamically during
+<code>registerExtension()</code>. They carry no additional slots; their
+purpose is to enable S3 dispatch on the <code>project*</code> generics
+while allowing multiple extension packages to form one dispatch chain.
+When mizer calls <code>projectRDI(params, ...)</code>, it dispatches to
+<code>projectRDI.mizerSeasonal</code>. Similarly, <code>project()</code>
+returns a <code>mizerSeasonalSim</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="setseasonalreproduction">
@@ -209,6 +214,11 @@ objects are coerced to the registered extension sim class.</p>
 <span>                                    <span class="va">release_func</span> <span class="op">=</span> <span class="st">"seasonalVonMisesRelease"</span>,</span>
 <span>                                    <span class="va">RDD</span> <span class="op">=</span> <span class="st">"seasonalBevertonHoltRDD"</span>,</span>
 <span>                                    <span class="va">include_gonads</span> <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">version</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="st">"mizerSeasonal"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">params</span><span class="op">@</span><span class="va">extensions</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>        <span class="cn">NULL</span></span>
+<span>    <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/packageDescription.html" class="external-link">packageVersion</a></span><span class="op">(</span><span class="st">"mizerSeasonal"</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">}</span></span>
 <span>    <span class="va">initial</span> <span class="op">&lt;-</span> <span class="fu">initialN</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span>    <span class="va">initial</span><span class="op">[</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
 <span></span>
@@ -221,7 +231,7 @@ objects are coerced to the registered extension sim class.</p>
 <span>                      dynamics_fun <span class="op">=</span> <span class="st">"gonadDynamics"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>        <span class="fu">setRateFunction</span><span class="op">(</span><span class="st">"RDD"</span>, <span class="va">RDD</span><span class="op">)</span>                      <span class="co"># &lt;-- replace RDD only</span></span>
 <span></span>
-<span>    <span class="va">p</span><span class="op">@</span><span class="va">extensions</span> <span class="op">&lt;-</span> <span class="fu">mizer</span><span class="fu">::</span><span class="fu"><a href="https://sizespectrum.org/mizer/reference/getRegisteredExtensions.html" class="external-link">getRegisteredExtensions</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>    <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">mizer</span><span class="fu">::</span><span class="fu"><a href="https://sizespectrum.org/mizer/reference/recordExtension.html" class="external-link">recordExtension</a></span><span class="op">(</span><span class="va">p</span>, <span class="st">"mizerSeasonal"</span>, version <span class="op">=</span> <span class="va">version</span><span class="op">)</span></span>
 <span>    <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">mizer</span><span class="fu">::</span><span class="fu"><a href="https://sizespectrum.org/mizer/reference/coerceToExtensionClass.html" class="external-link">coerceToExtensionClass</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span>                <span class="co"># &lt;-- promote to mizerSeasonal</span></span>
 <span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
@@ -668,7 +678,7 @@ need a <code>MizerSim</code> object.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>
